@@ -1,0 +1,119 @@
+# the six modes, on sequencer 1 (the others muted)
+wait 200
+key b10 down
+key w1 down
+key w1 up
+key w2 down
+key w2 up
+key w3 down
+key w3 up
+key b10 up
+# GLO + SEQ: the sequencer's settings; K4 its mode
+press GLO
+tap SEQ
+release GLO
+expect menu 9
+spin K4 1
+expect mode 1
+tap HOME
+expect menu 0
+# Poly: a hand played on the keyboard goes onto a step at once
+tap SEQ
+key 0 down
+key 4 down
+key 7 down
+wait 50
+key 0 up
+key 4 up
+key 7 up
+tap SEQ
+tapkey w2
+expect poly2 3
+tapkey w5
+expect poly5 3
+expect polyn 6
+tap PLAY
+wait 1200
+expect chnotes1 >5
+tap PLAY
+wait 100
+shot poly.png
+# Chord: the chord keyboard's chord onto a step
+press GLO
+tap SEQ
+release GLO
+spin K4 1
+tap HOME
+expect mode 2
+tap SEQ
+tapkey w4
+tap SEQ
+tapkey w0
+expect vel0 >0
+expect deg0 4
+tapkey w8
+expect deg8 4
+tap PLAY
+wait 1200
+expect chnotes1 >12
+tap PLAY
+wait 100
+shot chord.png
+# Multitrack: the black keys are its tracks
+press GLO
+tap SEQ
+release GLO
+spin K4 1
+tap HOME
+expect mode 3
+tapkey b2
+expect trk 2
+tapkey w0
+tapkey w4
+tapkey w8
+expect vel4 100
+tapkey b0
+tapkey w0
+tap PLAY
+wait 1200
+expect chnotes10 >3
+tap PLAY
+wait 100
+shot multi.png
+# Stochastic: plays on its own
+press GLO
+tap SEQ
+release GLO
+spin K4 1
+tap HOME
+expect mode 4
+key b6 down
+tapkey w0
+key b6 up
+mark
+tap PLAY
+wait 1500
+tap PLAY
+wait 100
+expect grid_n >2
+shot stoch.png
+# Matriceal: the triggers lane
+press GLO
+tap SEQ
+release GLO
+spin K4 1
+tap HOME
+expect mode 5
+expect mx0.0 1
+tapkey w2
+tapkey w6
+tapkey w10
+tapkey w14
+expect mx0.2 1
+mark
+tap PLAY
+wait 1500
+tap PLAY
+wait 100
+expect grid_n >6
+shot matrix.png

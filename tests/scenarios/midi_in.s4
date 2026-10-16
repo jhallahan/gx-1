@@ -1,0 +1,30 @@
+# MIDI coming in: a clock to follow, the TRS jack's notes passed on
+wait 200
+midi FA 00 00
+clockin 100 3000
+expect ext 1
+expect playing 1
+expect tempo_now >990
+expect tempo_now <1010
+midi FC 00 00
+wait 100
+expect playing 0
+# the TRS jack (cable 14): its notes go on to port A
+midi 90 3C 64 14
+wait 10
+expect last_note 60
+expect last_port 0
+midi 80 3C 00 14
+wait 10
+# the transport as CCs (the setup's Transport CC, channel 16): 105 plays, 106 stops
+hold GLO 900
+expect menu 14
+turn SELECT 2
+spin K2 16
+tap HOME
+midi BF 69 7F
+wait 20
+expect playing 1
+midi BF 6A 7F
+wait 20
+expect playing 0

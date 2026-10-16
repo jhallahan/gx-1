@@ -1,0 +1,39 @@
+# the manual's and the site's screenshots (tools/manual_shots.sh), from the demo
+wait 300
+tap PLAY
+wait 1600
+shot screen-mono.png
+turn ALGO 1
+wait 900
+shot screen-chord.png
+turn ALGO 1
+wait 900
+shot screen-drums.png
+turn ALGO 1
+wait 900
+shot screen-harmony.png
+turn ALGO -3
+key w4 down
+wait 300
+shot screen-step.png
+key w4 up
+tap HOME
+wait 300
+shot screen-patterns.png
+tap HOME
+press GLO
+tap HOME
+release GLO
+wait 300
+shot screen-song.png
+tap HOME
+tap LFO
+wait 1500
+shot screen-menu.png
+tap HOME
+tap ENV
+wait 300
+shot screen-lanes.png
+tap ENV
+tap PLAY
+wait 200

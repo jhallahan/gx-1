@@ -1,0 +1,35 @@
+# boot (the demo), the grid of each sequencer, play
+wait 300
+shot grid1.png
+expect sel 0
+expect mode 0
+tap PLAY
+wait 2000
+expect playing 1
+expect notes_on >10
+shot playing.png
+turn ALGO 1
+wait 100
+shot grid2.png
+turn ALGO 1
+wait 100
+shot grid3.png
+turn ALGO 1
+wait 100
+shot grid4.png
+tap SEQ
+wait 100
+shot keys.png
+tap SEQ
+press HOME
+wait 400
+shot pats.png
+release HOME
+wait 50
+tap FX
+wait 50
+shot menu_randp.png
+tap HOME
+tap PLAY
+wait 200
+expect playing 0

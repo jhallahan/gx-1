@@ -1,0 +1,40 @@
+# patterns changing on every sequencer, and a snapshot given back: sequencers 2 and 4 sit at odd places in
+# memory and are copied by words (the 0.1 crash on the FM-1); run under the sanitizers by tests/run_tests.sh
+wait 300
+turn ALGO 1
+wait 200
+expect sel 1
+turn PRESET 1
+wait 1000
+expect pat 1
+expect patnow 1
+turn ALGO 2
+wait 200
+expect sel 3
+turn PRESET 1
+wait 1000
+expect patnow 1
+# while playing: in at the bar
+tap PLAY
+wait 500
+turn PRESET -1
+wait 700
+expect next 0
+until patnow 0 4000
+turn ALGO -2
+turn PRESET -1
+wait 700
+until patnow 0 4000
+# a snapshot: all four copied back at the bar
+press HOME
+tap SAVE
+release HOME
+expect snap 1
+wait 500
+press HOME
+tap SAVE
+release HOME
+until snap 0 4000
+tap PLAY
+wait 100
+expect playing 0

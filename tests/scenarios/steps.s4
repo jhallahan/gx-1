@@ -1,0 +1,151 @@
+# Mono: the steps on the grid (sequencer 1, cleared first)
+wait 200
+press EDIT
+tap REC
+release EDIT
+expect vel0 0
+expect vel2 0
+# a tap: a step on (the row picked last), again: off
+tapkey w0
+expect vel0 100
+expect deg0 0
+tapkey w0
+expect vel0 0
+# a row held, steps pressed: drawn on that row
+key b2 down
+tapkey w1
+tapkey w2
+key b2 up
+expect vel1 100
+expect deg1 2
+expect deg2 2
+# a step held, a row: its note
+key w1 down
+tapkey b4
+key w1 up
+expect deg1 4
+expect vel1 100
+# a step held, another pressed: a tie (left to right)
+key w4 down
+key w7 down
+key w7 up
+key w4 up
+expect gate4 101
+expect gate6 101
+expect gate7 75
+# ... right to left: the same note, not tied
+key w12 down
+key w10 down
+key w10 up
+key w12 up
+expect vel10 100
+expect gate10 75
+expect gate11 75
+# a held step's knobs: velocity, octave, gate; with GLO: chance, repeats
+key w1 down
+spin K1 -20
+spin K2 1
+spin K3 -25
+key w1 up
+expect vel1 80
+expect oct1 1
+expect gate1 50
+key w2 down
+press GLO
+spin K2 -40
+spin K3 2
+release GLO
+key w2 up
+expect cond2 60
+expect rtg2 2
+shot steps.png
+# undo, redo
+tap EDIT
+expect rtg2 0
+tap EDIT
+expect cond2 100
+press GLO
+tap EDIT
+release GLO
+expect cond2 60
+# EDIT held: copy a step, paste it
+press EDIT
+key w1 down
+key w1 up
+key w14 down
+key w14 up
+release EDIT
+expect vel14 80
+expect deg14 4
+expect oct14 1
+# MUTE + a held step: the step muted
+key w14 down
+tapkey b10
+key w14 up
+expect rtg14 128
+expect vel14 80
+# MUTE alone: the sequencer muted
+tapkey b10
+expect mute 1
+tapkey b10
+expect mute 0
+# pages
+tapkey b9
+expect page 1
+tapkey w0
+expect vel16 100
+tapkey b8
+expect page 0
+# SEL + a step: the length; SEL + two: the range
+press SEL
+tapkey w7
+release SEL
+expect end 7
+expect len 8
+press SEL
+key w2 down
+key w5 down
+key w5 up
+key w2 up
+release SEL
+expect init 2
+expect end 5
+press SEL
+tapkey w15
+release SEL
+press SEL
+tapkey w0
+tapkey w15
+release SEL
+expect init 0
+expect end 15
+# GLO + > : rotated a step
+press GLO
+tapkey b9
+release GLO
+expect vel15 80
+expect vel1 0
+expect vel2 80
+expect vel3 100
+press GLO
+tapkey b8
+release GLO
+expect vel14 80
+# OCT+ scrolls the rows (a tap: the row picked last)
+tap OCT+
+tapkey w9
+expect deg9 4
+tap OCT-
+# the grid's knobs with nothing held: every step
+spin K1 -10
+expect vel10 90
+expect vel1 70
+shot steps2.png
+# play: the steps go out (channel 1, port A)
+tap PLAY
+wait 2000
+expect playing 1
+expect notes_on >10
+tap PLAY
+wait 100
+expect playing 0

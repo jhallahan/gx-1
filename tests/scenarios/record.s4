@@ -1,0 +1,83 @@
+# the keyboard, step recording, live recording, capture (sequencer 1, the others muted)
+wait 200
+key b10 down
+key w1 down
+key w1 up
+key w2 down
+key w2 up
+key w3 down
+key w3 up
+key b10 up
+press EDIT
+tap REC
+release EDIT
+# the keyboard: key 0 is F3 (53), OCT+ an octave up
+tap SEQ
+expect view 1
+tapkey 0
+expect last_note 53
+expect last_ch 0
+tap OCT+
+tapkey 0
+expect last_note 65
+tap OCT-
+# step by step: REC stopped, a key a step, SEL a tie, EDIT a rest
+tap REC
+expect srec 1
+tapkey 4
+wait 200
+tapkey 7
+wait 200
+tap SEL
+tap EDIT
+tapkey 12
+wait 200
+tap REC
+expect srec 0
+tap SEQ
+expect vel0 100
+expect vel1 100
+expect gate1 101
+expect vel2 100
+expect vel3 0
+expect vel4 100
+shot steprec.png
+# live: REC while playing, the keys written where they fall
+tap PLAY
+wait 300
+tap REC
+expect rec 1
+tap SEQ
+tapkey 9
+wait 400
+tapkey 11
+wait 400
+tap SEQ
+tap REC
+expect rec 0
+tap PLAY
+wait 100
+# capture: played without recording, then REC twice: into the sequence
+press EDIT
+tap REC
+release EDIT
+tap PLAY
+wait 200
+tap SEQ
+tapkey 0
+wait 250
+tapkey 2
+wait 250
+tapkey 4
+wait 250
+tap SEQ
+expect cap >2
+tap REC
+wait 60
+tap REC
+wait 50
+expect rec 0
+expect cap 0
+tap PLAY
+wait 100
+shot capture.png

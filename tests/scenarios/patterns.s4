@@ -1,0 +1,58 @@
+# patterns: saving, loading (now, and at the bar while playing), the patterns view, persistence
+wait 200
+expect pat 0
+tap SAVE
+expect dirty 0
+# SAVE held: the patterns; a key saves into it
+press SAVE
+wait 400
+expect view 3
+tapkey w1
+release SAVE
+wait 50
+expect view 0
+expect pat 1
+# a change, then pattern 1 again (PRESETS, in when the knob rests)
+press EDIT
+tap REC
+release EDIT
+expect vel0 0
+turn PRESET -1
+wait 700
+expect pat 0
+expect vel0 >0
+# the patterns view: a key loads one; while playing, at the bar
+tap HOME
+expect view 3
+shot pats.png
+tapkey w1
+expect pat 1
+tap PLAY
+wait 300
+tapkey w0
+expect next 0
+until patnow 0 3000
+expect next -1
+tap PLAY
+wait 50
+# GLO + a pattern: emptied; EDIT: copy, paste
+press EDIT
+tapkey w0
+tapkey w5
+release EDIT
+press HOME
+wait 400
+release HOME
+expect view 0
+# persistence: everything back after a restart
+spin K1 -30
+tap SAVE
+reboot
+wait 200
+expect pat 0
+expect vel0 >0
+expect view 0
+wipe
+reboot
+wait 300
+expect tempo 1180

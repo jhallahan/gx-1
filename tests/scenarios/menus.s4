@@ -1,0 +1,78 @@
+# every menu on screen, and its knobs
+wait 200
+tap SEL
+shot m_div.png
+turn SELECT 1
+shot m_div2.png
+tap SEL
+tap SEL
+wait 50
+tap SEL
+tap HOME
+tap FX
+shot m_randp.png
+tap HOME
+press GLO
+tap FX
+release GLO
+shot m_randg.png
+tap FX
+expect vel0 >-1
+tap HOME
+tap LFO
+shot m_lfo.png
+spin K1 2
+spin K4 3
+tap LFO
+shot m_lfo2.png
+tap HOME
+tap ARP
+shot m_arp.png
+spin K1 1
+tap HOME
+press GLO
+tap SEQ
+release GLO
+shot m_seq.png
+turn SELECT 2
+shot m_seq3.png
+tap HOME
+press GLO
+tap LFO
+release GLO
+shot m_map.png
+tap HOME
+press GLO
+tap ENV
+release GLO
+shot m_modset.png
+tap HOME
+tap ENV
+expect view 2
+shot v_mod.png
+tap ENV
+press GLO
+tap REC
+release GLO
+shot m_rec.png
+tap HOME
+hold GLO 900
+expect menu 14
+shot m_setup.png
+turn SELECT 3
+shot m_setup4.png
+tap HOME
+press GLO
+tapkey b10
+release GLO
+expect menu 15
+tap HOME
+# a help card: a button held alone
+hold ARP 1100
+press SEL
+wait 1000
+expect helpvis 2
+shot help.png
+release SEL
+wait 50
+expect helpvis 0

@@ -1,0 +1,27 @@
+# the arranger: slots of patterns, a song played through
+wait 200
+press SAVE
+wait 400
+tapkey w1
+release SAVE
+press GLO
+tap HOME
+release GLO
+expect view 4
+tapkey w0
+expect menu 17
+spin K1 -1
+spin K2 0
+tapkey w1
+spin K2 1
+shot song.png
+tap PLAY
+wait 200
+expect song_on 1
+expect playing 1
+until patnow 1 6000
+tap PLAY
+wait 100
+expect song_on 0
+tap HOME
+tap HOME
