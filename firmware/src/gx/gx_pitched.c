@@ -449,9 +449,35 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
             if (s + 1u < GX_MAXBARS * 16u) subon[s + 1u] = 1;
         }
 
+    int32_t mwalk = 0;                         /* the motif's pitch, walked across a 2-bar cell */
+    int32_t forced = -1;                       /* the motif's cell step played even if no chance fires */
     for (bar = 0; bar < c->bars; bar++) {
         int32_t tones[24];
         uint32_t nt = 0, n, step;
+        if (U->mode == GX_UPPER_MOTIF && (bar & 1u) == 0u) {
+            /* a new 2-bar cell: the phrase starts from its own point in the register (the odd cells from another:
+               call and answer, A B A B), and the cell never stays silent (if no slot's chance fires, the
+               strongest slot plays) */
+            uint32_t cs, best = 0;
+            int any = 0;
+            int32_t span = (int32_t)U->hi - (int32_t)U->lo;
+            uint32_t d0 = dbar(seed, id, bar, 0, var);
+            mwalk = (int32_t)U->lo + span / 8 +
+                    (int32_t)gx_range(gx_hash(seed, id, d0, (bar / 2u) & 1u, GX_P_PICK), 0, (uint32_t)(span * 3 / 4));
+            forced = -1;
+            for (cs = 0; cs < 32u && bar + cs / 16u < c->bars; cs++) {
+                int32_t w = U->w[cs];
+                if (!w)
+                    continue;
+                w = clampi(w * (6400 + dd * 100) / 6400, 0, 255);
+                if (gx_chance(gx_hash(seed, id, dbar(seed, id, bar + cs / 16u, cs % 16u, var), cs % 16u, GX_P_ONSET), (uint32_t)w))
+                    any = 1;
+                if (U->w[cs] > U->w[best])
+                    best = cs;
+            }
+            if (!any && U->w[best])
+                forced = (int32_t)best;
+        }
         uint16_t pcs = h->pcs[bar];
         /* the arp's colour: the 9th joins the chord tones for this chord (Tension) */
         if (U->mode == GX_UPPER_ARP &&
@@ -471,7 +497,8 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
             if (U->mode == GX_UPPER_MID && subon[idx])
                 w = w * U->at_sub / 100;
             w = clampi(w * (6400 + dd * 100) / 6400, 0, 255);
-            if (!gx_chance(gx_hash(seed, id, db, step, GX_P_ONSET), (uint32_t)w))
+            if (!gx_chance(gx_hash(seed, id, db, step, GX_P_ONSET), (uint32_t)w) &&
+                !(U->mode == GX_UPPER_MOTIF && forced == (int32_t)cs))
                 continue;
             if (U->mode == GX_UPPER_ARP) {
                 uint32_t m = nt, period, q;
@@ -498,8 +525,17 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 static const uint8_t mw[4] = { 6, 3, 2, 0 };
                 int mv = pick(gx_hash(seed, id, db, step, GX_P_PITCH), mw, 4);
                 note = bass_note(U->lo, U->hi, h->root[bar], mv < 0 ? 0 : mv);
-            } else {                             /* motif: a chord tone, or a colour tone (b2 / b6) */
-                note = tones[gx_range(gx_hash(seed, id, db, step, GX_P_PITCH), 0, nt - 1u)];
+            } else {                             /* motif: a phrase walked over the chord tones, or a colour tone */
+                static const int8_t mv[8] = { -7, -5, -3, -2, 2, 3, 5, 7 };
+                int32_t best = tones[0], j;
+                mwalk += mv[gx_range(gx_hash(seed, id, db, step, GX_P_PITCH), 0, 7u)];
+                if (mwalk > (int32_t)U->hi) mwalk -= 12;
+                if (mwalk < (int32_t)U->lo) mwalk += 12;
+                for (j = 1; j < (int32_t)nt; j++)  /* the chord tone nearest the walk */
+                    if ((tones[j] > mwalk ? tones[j] - mwalk : mwalk - tones[j]) < (best > mwalk ? best - mwalk : mwalk - best))
+                        best = tones[j];
+                note = best;
+                mwalk = note;
                 if (gx_chance(gx_hash(seed, id, db, step, GX_P_REP), U->tension)) {
                     int32_t col = lowest(U->lo, (h->root[bar] + (gx_chance(gx_hash(seed, id, db, step, GX_P_LEN), 128) ? 1u : 8u)) % 12u);
                     while (col + 12 <= note) col += 12;
