@@ -1,4 +1,5 @@
 # MIDI coming in: a clock to follow, the TRS jack's notes passed on
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 midi FA 00 00
 clockin 100 3000

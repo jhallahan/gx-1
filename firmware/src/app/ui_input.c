@@ -795,6 +795,10 @@ static void key_down(int k)
     int w = white_of(k), b = black_of(k);
     if (ui.help)
         ui.help = 0;
+    if (ui.view == V_GEN) {
+        gen_key_down(k);
+        return;
+    }
     if (ui.view == V_KEYS) {
         keys_down(k);
         return;
@@ -835,6 +839,10 @@ static void key_down(int k)
 static void key_up(int k)
 {
     int w = white_of(k), b = black_of(k);
+    if (ui.view == V_GEN) {
+        gen_key_up(k);
+        return;
+    }
     if (ui.view == V_KEYS) {
         keys_up(k);
         return;
@@ -953,6 +961,8 @@ static void btn_down(int b)
     int sh = shift();
     if (b != B_GLO && sh)
         ui.btn_used |= 1u << B_GLO;
+    if (ui.view == V_GEN && !ui.menu && gen_btn_down(b))
+        return;
     switch (b) {
     case B_PLAY: play_down(); break;
     case B_REC:
@@ -1087,6 +1097,11 @@ static void btn_tap(int b)                       /* let go, unused */
 {
     uint32_t now = plat_ms();
     int dtap = now - ui.up_t[b] < DTAP_MS;
+    if (ui.view == V_GEN && !ui.menu && !ui.help && gen_btn_tap(b)) {
+        ui.rec_tap = 0;
+        ui.up_t[b] = now;
+        return;
+    }
     switch (b) {
     case B_REC:
         if (dtap && ui.rec_tap) {                /* a double tap: the notes played captured */
@@ -1125,10 +1140,12 @@ static void btn_tap(int b)                       /* let go, unused */
             close_menu();
         else if (ui.srec)
             ui.srec = 0;
+        else if (dtap && ui.view == V_GRID)
+            set_view(V_PATS);                    /* GX-1: twice, the patterns (held: for as long) */
         else if (ui.view != V_GRID)
             set_view(V_GRID);
         else
-            set_view(V_PATS);
+            set_view(V_GEN);                     /* GX-1: the grid's HOME goes to the GEN page */
         break;
     case B_SAVE: save_now(); break;
     case B_SEQ: set_view(ui.view == V_KEYS ? V_GRID : V_KEYS); break;
@@ -1302,6 +1319,10 @@ static void knob(int k, int32_t e)
         menu_knob(k, (int)e);
         return;
     }
+    if (ui.view == V_GEN && !ui.held) {
+        gen_knob(k, e);
+        return;
+    }
     if (shift() && !ui.held) {
         shift_knob(k, e);
         return;
@@ -1375,14 +1396,19 @@ static void input(void)
     if (btn || keys || ch)
         ui.act_t = now;
     if ((e = plat_enc(EN_ALGO)) != 0) {          /* the sequencer (GLO: the track) */
-        if (shift()) {
+        if (ui.view == V_GEN && !ui.menu) {
+            gen_enc(EN_ALGO, e);
+        } else if (shift()) {
             set_trk(trk() + (e > 0 ? 1 : -1));
             ui.btn_used |= 1u << B_GLO;
         } else
             set_sel(sel() + (e > 0 ? 1 : -1));
         ui.turn_t = ui.act_t = now;
     }
-    if ((e = plat_enc(EN_PRESET)) != 0) {        /* its pattern: in when the knob rests */
+    if ((e = plat_enc(EN_PRESET)) != 0 && ui.view == V_GEN && !ui.menu) {
+        gen_enc(EN_PRESET, e);                   /* GX-1: the seed */
+        ui.turn_t = ui.act_t = now;
+    } else if (e != 0) {                         /* its pattern: in when the knob rests */
         int cur = ui.pending_pat ? ui.pending_pat - 1 : (s4p.next[sel()] != 0xFF ? s4p.next[sel()] : proj.pat[sel()]);
         char t[8];
         cur = clampi(cur + (e > 0 ? 1 : -1), 0, S4_NPAT - 1);
@@ -1398,6 +1424,8 @@ static void input(void)
         if (ui.menu) {
             int n = menu_pages(ui.menu);
             ui.page = (uint8_t)((ui.page + n + d) % n);
+        } else if (ui.view == V_GEN) {
+            gen_enc(EN_SELECT, e);
         } else if (ui.view == V_SONG) {
             ui.slot = (uint8_t)clampi(ui.slot + d, 0, S4_NSLOT - 1);
         } else if (ui.view == V_MOD) {
@@ -1450,6 +1478,7 @@ static void service(void)
         ui.srec = 0;
     midi_learn();
     notes_in();
+    gen_service();
     (void)last_page;
 }
 
@@ -1562,6 +1591,8 @@ static void leds(void)
                 k |= 1u << BLACK_KEY[BK_MUTE];
         }
     }
+    if (ui.view == V_GEN && s4g.leds)
+        gen_leds(&b, &k);
     if (s4g.leds == 2)
         b = 0;
     plat_glow(s4g.glow);

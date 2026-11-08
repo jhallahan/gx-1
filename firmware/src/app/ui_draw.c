@@ -1062,7 +1062,8 @@ void ui_init(void)
     memset(&ui, 0, sizeof ui);
     ui.row = -1;
     ui.first_abs = -1;
-    ui.view = V_GRID;
+    ui.view = ui_boot_view;                      /* GX-1 opens on its GEN page */
+    gen_init();
     for (s = 0; s < S4_NSEQ; s++)
         ui.cur_deg[s] = (int8_t)proj.row[s];
     s4_select(sel());
@@ -1084,14 +1085,24 @@ void ui_frame(void)
     input();
     service();
     UI_MARK_(1);
-    draw_status();
-    UI_MARK_(2);
-    if (ui.help)
-        draw_help();
-    else
-        draw_grid();
-    UI_MARK_(3);
-    draw_bottom();
+    if (ui.view == V_GEN && !ui.menu && !ui.help) {
+        draw_gen();
+        UI_MARK_(2);
+        UI_MARK_(3);
+    } else {
+        if (gen_left()) {                        /* back from the GEN page: everything again */
+            ui.sig[0] = ui.sig[1] = ui.sig[2] = 0;
+            lcd_fill(0, 0, 240, 240, C_BG);
+        }
+        draw_status();
+        UI_MARK_(2);
+        if (ui.help)
+            draw_help();
+        else
+            draw_grid();
+        UI_MARK_(3);
+        draw_bottom();
+    }
     UI_MARK_(4);
     leds();
     UI_MARK_(5);
@@ -1109,7 +1120,7 @@ void ui_dev_view(int v, int s)                   /* SysEx 0C: a view and a seque
 {
     close_menu();
     set_sel(s & 3);
-    set_view(v % 5);
+    set_view(v % 6);
     ui.sig[0] = ui.sig[1] = ui.sig[2] = 0;
 }
 #endif

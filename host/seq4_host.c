@@ -37,6 +37,7 @@
  *   reboot                       re-run boot from the simulated flash (persistence test)
  *   wipe                         an erased flash (then reboot: the demo)
  *   bench K                      a project to measure: 0 all as busy as they get, 1 the demo, 2 a sixteenth line
+ *   bootview grid|gen            the view at start (GX-1 opens on GEN; the SEQ-4 scenarios use the grid)
  *   echo TEXT
  *   gx new GENRE SEED [PART]     GX-1: a new idea (deep_dnb, breaks, autonomic) staged on the four sequencers
  *   gx part N | gx compose SEED | gx lock ROLE 0|1 | gx reseed ROLE SEED | gx mutate ROLE MASK INTENSITY
@@ -844,6 +845,9 @@ static int script_line(const char *line, const char *dir, int lineno, int *fails
         seq4_bench(atoi(a));
     } else if (!strcmp(cmd, "wipe")) {
         memset(nor, 0xFF, sizeof nor);
+    } else if (!strcmp(cmd, "bootview")) {     /* the view at start, from now and after a reboot: grid | gen */
+        ui_boot_view = !strcmp(a, "gen") ? V_GEN : V_GRID;
+        set_view(ui_boot_view);
     } else if (!strcmp(cmd, "echo"))
         printf("%s", line + 5);
     else {

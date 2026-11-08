@@ -1,4 +1,5 @@
 # the arranger: slots of patterns, a song played through
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 press SAVE
 wait 400

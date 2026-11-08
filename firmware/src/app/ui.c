@@ -17,7 +17,7 @@
 #include <stddef.h>
 #include "../seq/fastmath.h"
 
-enum { V_GRID, V_KEYS, V_MOD, V_PATS, V_SONG };
+enum { V_GRID, V_KEYS, V_MOD, V_PATS, V_SONG, V_GEN };
 enum { MN_NONE, MN_DIV, MN_LOOP, MN_RANDP, MN_RANDG, MN_EUCLID, MN_DRUMS, MN_LFO, MN_ARP, MN_SEQ, MN_TRACK,
        MN_MODSET, MN_MAP, MN_REC, MN_SETUP, MN_NUDGE, MN_LANE, MN_SLOT, MN_MASTER, MN_N };
 
@@ -1652,5 +1652,19 @@ static void menu_knob(int k, int e)
 }
 
 static void set_trk(int t);
+/* GX-1's GEN page (ui_gen.c): what ui_input.c and ui_draw.c call of it */
+static void gen_key_down(int k);
+static void gen_key_up(int k);
+static int gen_btn_down(int b);
+static int gen_btn_tap(int b);
+static void gen_enc(int role, int32_t e);
+static void gen_knob(int k, int32_t e);
+static void gen_service(void);
+static void gen_leds(uint32_t *bp, uint32_t *kp);
+static void gen_init(void);
+static void draw_gen(void);
+static uint8_t ui_boot_view = V_GEN;       /* the view at start (the host simulator's SEQ-4 scenarios: the grid) */
+static int gen_left(void);
 #include "ui_input.c"
 #include "ui_draw.c"
+#include "ui_gen.c"

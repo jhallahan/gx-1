@@ -1,4 +1,5 @@
 # the six modes, on sequencer 1 (the others muted)
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 key b10 down
 key w1 down
