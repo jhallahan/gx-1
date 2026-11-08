@@ -246,17 +246,18 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
         }
     }
 
-    /* a build (M5): a snare roll that tightens from 8ths to 16ths (to 32nds) with a crescendo */
+    /* a build (M5): a snare roll that tightens from 8ths to 16ths (to 32nds) with a crescendo, over the
+       phrase's last build_bars bars (0: all of it); before it the groove plays on */
     if (pt->build) {
-        uint32_t step;
-        for (bar = 0; bar < c->bars; bar++) {
-            uint32_t pr = c->bars > 1u ? bar * 100u / (c->bars - 1u) : 100u, every = pr < 50u ? 2u : 1u;
+        uint32_t step, b0 = pt->build_bars && pt->build_bars < c->bars ? (uint32_t)c->bars - pt->build_bars : 0u, nb = c->bars - b0;
+        for (bar = b0; bar < c->bars; bar++) {
+            uint32_t pr = nb > 1u ? (bar - b0) * 100u / (nb - 1u) : 100u, every = pr < 50u ? 2u : 1u;
             uint8_t rep = (uint8_t)((pt->build >= 2u && pr >= 85u) ? 2u : 1u);
             if (pt->silent_last && c->bars > 1u && bar == c->bars - 1u)
                 continue;
             for (step = 0; step < 16u; step += every) {
                 uint32_t i, here = bar * 16u + step, taken = 0;
-                int32_t t, vel = 40 + (int32_t)(70u * here / ((uint32_t)c->bars * 16u));
+                int32_t t, vel = 40 + (int32_t)(70u * (here - b0 * 16u) / (nb * 16u));
                 gx_event_t *e;
                 for (i = s0; i < o->n; i++)
                     if (o->ev[i].lane == GX_LANE_SNARE && (o->ev[i].t + GX_STEP / 2u) / GX_STEP == here)

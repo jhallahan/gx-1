@@ -105,6 +105,7 @@ typedef struct {
     int8_t drum_density;         /* added to the drums' Density macro */
     uint8_t ramp;                /* rising: Density climbs by up to this much across the phrase */
     uint8_t build;               /* snare roll: 0 none, 1 8ths -> 16ths, 2 8ths -> 16ths -> 32nds */
+    uint8_t build_bars;          /* the roll covers the phrase's last N bars (0: all of it) */
     uint8_t silent_last;         /* 1: the last bar drops out (drums and bass): tension before the next part */
     uint8_t sub;                 /* gx_part_sub_t */
     uint8_t chords;              /* gx_part_chords_t */
