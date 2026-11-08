@@ -468,10 +468,15 @@ static int gn_result(int res, const char *what)
         say(what, "DID NOT FIT");
     return res;
 }
-static int gn_ensure(void)                       /* the first idea, in the genre picked */
+/* a fresh seed: the sequencer's generator starts the same at every power-on, so the moment of the press (ms
+   since power-on) is mixed in */
+static uint32_t gn_fresh_seed(void) { return (s4_rand() ^ (plat_ms() * 2654435761u)) % 10000u; }
+static int gn_ensure(void)                       /* the first idea, in the genre picked, from a fresh seed */
 {
     if (gxb_ok)
         return 0;
+    if (!gen.spend)
+        gen.seed = gn_fresh_seed();
     return gn_result(gxb_new(gen.genre, gen.seed), "NEW IDEA") < 0 ? -1 : 0;
 }
 static void gn_seed_text(char *t)
@@ -484,7 +489,7 @@ static void gn_seed_text(char *t)
 static void gn_new_idea(void)
 {
     char t[12];
-    gen.seed = s4_rand() % 10000u;
+    gen.seed = gn_fresh_seed();
     gen.spend = 0;
     if (!gxb_ok)
         gn_ensure();
@@ -664,6 +669,7 @@ static void gen_service(void)
     if (gen.gpend && now - gen.gpend_t > 700u) {
         gen.gpend = 0;
         gen.spend = 0;
+        gen.seed = gn_fresh_seed();             /* a new genre: a fresh starting point */
         if (gn_result(gxb_new(gen.genre, gen.seed), "NEW IDEA") >= 0)
             say(gn_genre_label(gen.genre), "NEW IDEA");
     }
