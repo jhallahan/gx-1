@@ -256,6 +256,7 @@ static int gxb_part(int slot)
     if (gxb_ready() || slot < 0 || slot >= (int)GX_NPART)
         return -1;
     gxb_comp.part = (uint8_t)slot;
+    gxb_now = 1;                               /* a part comes in at the next bar, from its start */
     return gxb_apply();
 }
 static int gxb_lock(int role, int on) { if (gxb_ready()) return -1; gx_lock(&gxb_comp, (gx_role_t)role, on); gxb_push(); return gxb_apply(); }

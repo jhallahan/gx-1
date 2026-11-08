@@ -323,12 +323,43 @@ static void gn_macros(void)
     }
 }
 
+/* GLO held: what the white keys do now. The six parts as tiles (W9-W14; the part chosen filled, outlined while
+   it waits for the next bar), and the mutate keys (W1-W5) */
+static void gn_glo_layer(void)
+{
+    static const char *const K[6] = {"W9", "W10", "W11", "W12", "W13", "W14"};
+    int k, waiting = s4p.on && s4p.next[0] != 0xFF;
+    uint16_t acc = gn_c(sel());
+    pad(2, 174, 236, 64, GN_PANEL);
+    cv_text(7, 176, &FONT_XS, "PARTS", GN_MUTED);
+    text_r(232, 176, &FONT_XS, waiting ? "NEXT BAR" : "GLO + key", waiting ? acc : GN_MUTED);
+    for (k = 0; k < (int)GX_NPART; k++) {
+        int32_t x = 5 + k * 39;
+        int on = gxb_ok && gxb_comp.part == k;
+        const char *nm = gx_part_name((gx_genre_t)(gxb_ok ? gxb_comp.r[0].genre : gen.genre), (uint32_t)k);
+        char t[12];
+        scopy(t, nm, 12);
+        fit(&FONT_XS, t, 34);
+        if (on && !waiting)
+            pad(x, 192, 36, 26, GN_INK);
+        else
+            frame(x, 192, 36, 26, on ? acc : GN_OFF);
+        text_c(x + 18, 192, &FONT_XS, t, on && !waiting ? GN_BG : on ? acc : GN_INK);
+        text_c(x + 18, 205, &FONT_XS, K[k], on && !waiting ? GN_PANEL : GN_MUTED);
+    }
+    cv_text(7, 221, &FONT_XS, "W1 rhythm W2 pitch W3 vel W4 len W5 all", GN_MUTED);
+}
+
 static void gn_strip(void)
 {
     int s = sel(), i, ps = gn_playing_step(s), p = page();
     uint8_t vel[16], len[16];
     uint16_t acc = gn_c(s);
     char t[28], n[8];
+    if (shift()) {
+        gn_glo_layer();
+        return;
+    }
     pad(2, 174, 236, 64, GN_PANEL);
     gn_bar(s, p, vel, len);
     for (i = 0; i < 16; i++) {
@@ -451,6 +482,7 @@ static void draw_gen(void)
     h = gn_sig_bar(h, sel(), page());
     h = hash(h, msg ? hash_s(hash_s(5u, ui.msg[0]), ui.msg[1]) : 0u);
     h = hash(h, s4[sel()].ch);
+    h = hash(h, (uint32_t)shift() << 9 | (uint32_t)(gxb_ok ? gxb_comp.part : 7u) << 1 | (uint32_t)(s4p.on && s4p.next[0] != 0xFF));
     if (gxb_ok && gxb_harm_ok) {                  /* the chords shown: the key, the progression, the bar playing */
         int b;
         h = hash(hash(h, gxb_comp.key), (uint32_t)(gn_playing_step(GX_ROLE_CHORDS) / 16 + 2));
@@ -604,8 +636,9 @@ static int gen_btn_tap(int b)
         return 1;
     case B_EDIT: say(gxb_undo() >= 0 ? "UNDO" : "NOTHING TO UNDO", 0); return 1;
     case B_SEQ: set_view(V_GRID); return 1;      /* the grid, to edit by hand (HOME comes back) */
-    case B_HOME:                                 /* the grid; twice: the patterns */
-        set_view(plat_ms() - ui.up_t[B_HOME] < DTAP_MS ? V_PATS : V_GRID);
+    case B_HOME:                                 /* (SEQ opens the grid) twice: the patterns */
+        if (plat_ms() - ui.up_t[B_HOME] < DTAP_MS)
+            set_view(V_PATS);
         return 1;
     default: return 0;
     }

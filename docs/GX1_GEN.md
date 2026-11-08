@@ -22,7 +22,7 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 | SEL | Mutate the selected track (every aspect) |
 | ENV | Lock or unlock the selected track (ENV lights while it is locked) |
 | EDIT · GLO + EDIT | Undo · redo (the engine's history) |
-| HOME · HOME twice · HOME held | The grid (and back) · the patterns · the patterns while held |
+| HOME twice · HOME held | The patterns · the patterns while held (HOME alone stays on this page; on the grid, HOME comes back here) |
 | SEQ | The grid, to edit by hand (HOME comes back). On the grid SEQ is the keyboard, as in SEQ-4 |
 | GLO held | The second layer only (parts, mutate, the second four macros). SEQ-4's setup (GLO held long) opens from the grid page |
 | Black keys 1–4 | Select drums, sub, chords, upper |
@@ -30,7 +30,7 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 | Black keys 9, 10 · 11 | The bar back and on · mute the selected track |
 | White keys | The selected track's steps, as on the grid: tap one on or off, hold one for its values |
 | GLO + W1–W4 · W5 | Mutate the selected track's rhythm, pitch, velocity or length · all of them |
-| GLO + W9–W14 | The six parts (intro / main / varied / break / build / drop; each genre names its own). The part changes at the next boundary while playing. |
+| GLO + W9–W14 | The six parts (intro / main / varied / break / build / drop; each genre names its own). While GLO is held the strip shows them as tiles with their keys. A part comes in at the next bar, from its start (outlined, "NEXT BAR", until then) |
 | K1–K4 (GLO: the second four) | The macros. The new value applies when the knob rests (about a quarter of a second). |
 | ALGORITHM | The genre: Deep DnB, Breaks, Autonomic, Dub techno, IDM, Electro, UK garage, Minimal, Downtempo, Jungle, Halftime, Deep house, Acid, Dubstep. A new idea in that genre (from a fresh seed) starts when the knob rests. |
 | PRESETS | The seed. A new idea from that seed starts when the knob rests, and locked tracks stay. |

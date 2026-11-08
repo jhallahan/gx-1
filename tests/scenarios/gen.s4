@@ -70,17 +70,15 @@ shot gen_locked_muted.png
 tapkey b5
 tap EDIT
 wait 200
+# HOME on the GEN page stays (only SEQ opens the grid); from the grid, HOME comes back
 tap HOME
-wait 300
-expect view 0
-tap HOME
-wait 300
+wait 400
 expect view 5
 tap SEQ
 wait 300
 expect view 0
 tap HOME
-wait 300
+wait 400
 expect view 5
 # ALGORITHM: the genre (a new idea in it when the knob rests): Breaks -> Autonomic -> Dub techno
 turn ALGO 2
