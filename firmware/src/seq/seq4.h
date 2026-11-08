@@ -338,6 +338,11 @@ extern s4_cstep_t s4_kchord;               /* the chord the chord keyboard plays
 extern volatile uint8_t s4_pc_req;         /* a program change came for pattern n - 1 (the UI loads it) */
 extern volatile uint32_t s4_cap_count;     /* notes waiting to be captured */
 
+/* GX-1: a Poly sequencer with rsv[0] & S4_RSV_DRUMMAP plays its degrees 0..15 as drum sounds, each sent as
+ * s4_dm_note[deg] on channel s4_dm_ch[deg] (the drum map: ADR-024 in the engine repository) */
+#define S4_RSV_DRUMMAP 0x01u
+extern uint8_t s4_dm_note[16], s4_dm_ch[16];
+
 /* the staging buffers (filled by the app, loaded by the engine at the boundary) */
 extern s4_seq_t s4_stage[S4_NSEQ];
 extern s4_seq_t s4_snapbuf[S4_NSEQ];

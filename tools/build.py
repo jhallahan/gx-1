@@ -40,8 +40,10 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fno-builtin", "-Wall", "-Wno-unused-fu
 # the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
-# the sequencer: a separate unit at -O2
-O2_UNITS = ["seq/seq4.c"]
+# the sequencer: a separate unit at -O2; and the GX genre engine (firmware/src/gx, tools/sync_gx.sh), each
+# file its own unit
+O2_UNITS = ["seq/seq4.c", "gx/gx_rng.c", "gx/gx_engine.c", "gx/gx_drums.c", "gx/gx_pitched.c", "gx/gx_mutate.c",
+            "gx/gx_profiles_gen.c"]
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
@@ -200,7 +202,7 @@ def build_loader():
 # ---- app
 
 def build_app():
-    flags = [*CFLAGS, *FPU, "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
+    flags = [*CFLAGS, *FPU, "-Ifirmware/hal", "-Ifirmware/src", "-Ifirmware/src/gx", "-Ibuild/gen", "-DGX_HIST=16"]
     for flag in ("EN_CDC",):
         v = os.environ.get(flag)    # unset: the default in firmware/src/main.c
         if v in ("0", "1"):

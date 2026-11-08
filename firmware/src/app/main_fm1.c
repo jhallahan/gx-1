@@ -130,7 +130,11 @@ static void audio_silence(void)                     /* IRQs off (flash erase): t
  * A development build (./build.sh --bench, -DSEQ4_BENCH) also takes 02 k (a project to measure: 0 all four
  * as busy as they get, 1 the demo, 2 a plain sixteenth line on port A channel 1 to time), 06 p (play, stop),
  * 08 (the demo, saved), 0A (the screen's parts), 0C v s (a view, a sequencer: the screen to measure), 0D s p
- * (pattern p loaded on sequencer s) and 0E t (a snapshot taken, 1, or given back at the bar, 0). */
+ * (pattern p loaded on sequencer s) and 0E t (a snapshot taken, 1, or given back at the bar, 0).
+ * GX-1 (every build): 10 g s0..s4 [p] a new idea (genre 1 deep_dnb, 2 breaks, 3 autonomic; the seed as five
+ * 7-bit groups; a part 0..5), 11 p a part, 12 s0..s4 compose (locked parts kept), 13 r on lock, 14 r m i mutate
+ * (role, aspects mask, intensity), 15 undo, 16 redo, 17 m v a macro, 18 0|1 the map (Tonverk split, GM).
+ * Each replies 10 with the events staged (or 0x7FFFFFFF if it failed). */
 #ifdef SEQ4_BENCH
 void seq4_bench(int k);
 void ui_dev_view(int v, int s);
@@ -244,6 +248,27 @@ static void dev_sysex(void)
         dev_put(r + 25, s4p.bar);
         dev_put(r + 30, s4p.beat);
         dev_reply(r, 7, 6);
+        return;
+    }
+    case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: {
+        uint32_t seed = n >= 9u ? (uint32_t)p[4 + (p[3] == 0x10)] : 0u, k;
+        int res = -1;
+        for (k = 0; k < 5u && 4u + (p[3] == 0x10) + k < n; k++)
+            seed |= (uint32_t)p[4 + (p[3] == 0x10) + k] << (7u * k);
+        ota_frame_done();
+        switch (p[3]) {
+        case 0x10: res = n >= 10u ? gxb_new(p[4], seed) : -1; if (res >= 0 && n >= 11u) res = gxb_part(p[10]); break;
+        case 0x11: res = n >= 5u ? gxb_part(p[4]) : -1; break;
+        case 0x12: res = n >= 9u ? gxb_compose(seed) : -1; break;
+        case 0x13: res = n >= 6u ? gxb_lock(p[4] & 3, p[5]) : -1; break;
+        case 0x14: res = n >= 7u ? gxb_mutate(p[4] & 3, p[5], p[6], s4_rand()) : -1; break;
+        case 0x15: res = gxb_undo(); break;
+        case 0x16: res = gxb_redo(); break;
+        case 0x17: res = n >= 6u ? gxb_macro(p[4], p[5]) : -1; break;
+        case 0x18: res = n >= 5u ? gxb_set_map(p[4] ? GX_MAP_GM : GX_MAP_TONVERK_SPLIT) : -1; break;
+        }
+        dev_put(r + 5, res < 0 ? 0x7FFFFFFFu : (uint32_t)res);
+        dev_reply(r, 0x10, 1);
         return;
     }
 #ifdef SEQ4_BENCH

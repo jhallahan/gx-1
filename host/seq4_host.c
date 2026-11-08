@@ -38,6 +38,9 @@
  *   wipe                         an erased flash (then reboot: the demo)
  *   bench K                      a project to measure: 0 all as busy as they get, 1 the demo, 2 a sixteenth line
  *   echo TEXT
+ *   gx new GENRE SEED [PART]     GX-1: a new idea (deep_dnb, breaks, autonomic) staged on the four sequencers
+ *   gx part N | gx compose SEED | gx lock ROLE 0|1 | gx reseed ROLE SEED | gx mutate ROLE MASK INTENSITY
+ *   gx macro M V | gx undo | gx redo | gx map tonverk|gm     (ROLE 0 drums, 1 sub, 2 chords, 3 upper)
  */
 #define EN_HOST 1
 #ifndef _POSIX_C_SOURCE
@@ -243,6 +246,7 @@ uint32_t plat_xruns(void) { return 0; }
 /* -------------------------------------------------------------- app --- */
 #include "../firmware/src/app/app.h"
 #include "../firmware/src/app/project.c"
+#include "../firmware/src/app/gx_bridge.c"
 #include "../firmware/src/app/ui.c"
 #include "../firmware/src/app/bench.c"
 
@@ -767,6 +771,33 @@ static int script_line(const char *line, const char *dir, int lineno, int *fails
         if (sscanf(line, "%*s %*s %*s %*s %15s", e) == 1)
             cable = (uint32_t)atoi(e);
         min_q[mi_w++ % MQ] = cable << 4 | cin | s << 8 | d1 << 16 | d2 << 24;
+    } else if (!strcmp(cmd, "gx")) {
+        char d[64] = {0}, e2[64] = {0};
+        int res = -1;
+        sscanf(line, "%*s %*s %*s %*s %63s %63s", d, e2);
+        if (!strcmp(a, "new")) {
+            res = gxb_new(gx_genre_from_name(b), (uint32_t)strtoul(c, 0, 0));
+            if (res >= 0 && d[0])
+                res = gxb_part(atoi(d));
+        } else if (!strcmp(a, "part")) res = gxb_part(atoi(b));
+        else if (!strcmp(a, "compose")) res = gxb_compose((uint32_t)strtoul(b, 0, 0));
+        else if (!strcmp(a, "lock")) res = gxb_lock(atoi(b), atoi(c));
+        else if (!strcmp(a, "reseed")) res = gxb_reseed(atoi(b), (uint32_t)strtoul(c, 0, 0));
+        else if (!strcmp(a, "mutate")) res = gxb_mutate(atoi(b), atoi(c), atoi(d), 0x2545f491u);
+        else if (!strcmp(a, "macro")) res = gxb_macro(atoi(b), atoi(c));
+        else if (!strcmp(a, "undo")) res = gxb_undo();
+        else if (!strcmp(a, "redo")) res = gxb_redo();
+        else if (!strcmp(a, "map")) res = gxb_set_map(!strcmp(b, "gm") ? GX_MAP_GM : GX_MAP_TONVERK_SPLIT);
+        else if (!strcmp(a, "dump")) {
+            char path[512];
+            snprintf(path, sizeof path, "%s/%s", dir, b);
+            res = gxb_dump(path);
+        }
+        if (res < 0) {
+            fprintf(stderr, "seq4_host: %s: failed\n", line);
+            exit(1);
+        }
+        run_ms(2);                             /* the engine takes the queued patterns */
     } else if (!strcmp(cmd, "clockin")) {
         clk_in_bpm = atof(a);
         clk_in_next_us = now_us;

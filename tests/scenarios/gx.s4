@@ -1,0 +1,30 @@
+# GX-1: generate, play, switch parts while playing (queued at the boundary), lock, mutate, undo, the GM map
+wait 300
+gx new breaks 1
+expect mode 1
+tap PLAY
+wait 2000
+expect playing 1
+expect notes_on >40
+shot gx_breaks.png
+gx part 4
+wait 15500
+gx part 3
+gx lock 0 1
+gx compose 77
+gx mutate 1 3 60
+gx undo
+gx redo
+gx macro 0 100
+wait 4000
+expect notes_on >200
+gx map gm
+gx new autonomic 9 5
+wait 6000
+gx new deep_dnb 3 2
+wait 6000
+expect playing 1
+tap PLAY
+wait 300
+expect playing 0
+shot gx_end.png

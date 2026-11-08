@@ -31,6 +31,8 @@ s4_seq_t s4[S4_NSEQ] S4_POOL;
 /* pattern_swap and snapshot_restore copy sequencers by words: s4[1] and s4[3] must be word aligned too */
 _Static_assert(sizeof(s4_seq_t) % 4u == 0 && _Alignof(s4_seq_t) >= 4, "s4_seq_t must be word aligned");
 s4_seq_t s4_stage[S4_NSEQ] S4_POOL;
+uint8_t s4_dm_note[16] = { 36, 35, 38, 37, 39, 42, 46, 51, 75, 70, 60, 61, 62, 63, 64, 65 };   /* GX-1 drum map */
+uint8_t s4_dm_ch[16] = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
 s4_seq_t s4_snapbuf[S4_NSEQ] S4_POOL;
 s4_glob_t s4g;
 s4_song_t s4song[S4_NSONG] S4_POOL;

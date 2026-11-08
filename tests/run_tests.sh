@@ -44,6 +44,8 @@ run host-build sh host/build_host.sh
 if command -v emcc >/dev/null 2>&1; then
     run emu sh -c "sh web/emu/build.sh >/dev/null && node tests/host/emu_test.mjs build/emu/seq4.wasm"
 fi
+# GX-1: what the firmware plays against what the genre engine rendered (several genres, seeds, parts, maps)
+run gx-parity sh tests/gx_parity.sh
 for s in tests/scenarios/*.s4; do
     n=$(basename "$s" .s4)
     mkdir -p "build/scenarios/$n"
@@ -56,8 +58,9 @@ int main(void) { return 0; }
 C
 then
     run sanitized-build sh -c "$CC -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
-        -ffp-contract=off -std=c99 -w -DEN_HOST -Ifirmware/src -Ifirmware/src/seq -Ibuild/gen \
-        -o $OUT/seq4_host_san host/seq4_host.c firmware/src/seq/seq4.c -lm"
+        -ffp-contract=off -std=c99 -w -DEN_HOST -DGX_HIST=16 -Ifirmware/src -Ifirmware/src/seq -Ifirmware/src/gx -Ibuild/gen \
+        -o $OUT/seq4_host_san host/seq4_host.c firmware/src/seq/seq4.c firmware/src/gx/gx_rng.c firmware/src/gx/gx_engine.c \
+        firmware/src/gx/gx_drums.c firmware/src/gx/gx_pitched.c firmware/src/gx/gx_mutate.c firmware/src/gx/gx_profiles_gen.c -lm"
     for s in tests/scenarios/*.s4; do
         n=$(basename "$s" .s4)
         mkdir -p "build/scenarios/san-$n"
