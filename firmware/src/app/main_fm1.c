@@ -131,7 +131,7 @@ static void audio_silence(void)                     /* IRQs off (flash erase): t
  * as busy as they get, 1 the demo, 2 a plain sixteenth line on port A channel 1 to time), 06 p (play, stop),
  * 08 (the demo, saved), 0A (the screen's parts), 0C v s (a view, a sequencer: the screen to measure), 0D s p
  * (pattern p loaded on sequencer s) and 0E t (a snapshot taken, 1, or given back at the bar, 0).
- * GX-1 (every build): 10 g s0..s4 [p] a new idea (genre 1 deep_dnb, 2 breaks, 3 autonomic, 4 dub_techno, 5 idm, 6 electro, 7 uk_garage, 8 minimal, 9 downtempo; the seed as five
+ * GX-1 (every build): 10 g s0..s4 [p] a new idea (genre 1 deep_dnb, 2 breaks, 3 autonomic, 4 dub_techno, 5 idm, 6 electro, 7 uk_garage, 8 minimal, 9 downtempo, 10 jungle, 11 halftime, 12 deep_house, 13 acid, 14 dubstep; the seed as five
  * 7-bit groups; a part 0..5), 11 p a part, 12 s0..s4 compose (locked parts kept), 13 r on lock, 14 r m i mutate
  * (role, aspects mask, intensity), 15 undo, 16 redo, 17 m v a macro, 18 0|1 the map (Tonverk split, GM).
  * Each replies 10 with the events staged (or 0x7FFFFFFF if it failed). */

@@ -39,7 +39,8 @@ const gx_outmap_t *gx_outmap(gx_map_id_t id)
 /* ---- genres ---- */
 
 static const char *const genre_names[GX_NGENRE] = { "test", "deep_dnb", "breaks", "autonomic", "dub_techno", "idm", "electro",
-                                                     "uk_garage", "minimal", "downtempo" };
+                                                     "uk_garage", "minimal", "downtempo", "jungle",
+                                                     "halftime", "deep_house", "acid", "dubstep" };
 
 const gx_genre_prof_t *gx_profile(gx_genre_t g)
 {

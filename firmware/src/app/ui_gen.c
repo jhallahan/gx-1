@@ -48,7 +48,8 @@ static uint16_t gn_dim(int r) { return mix(GN_TRACK[r & 3], GN_BG, 120); }
 static const char *gn_genre_label(int g)
 {
     static const char *const N[GX_NGENRE] = {"TEST", "DEEP DNB", "BREAKS", "AUTONOMIC", "DUB TECHNO", "IDM", "ELECTRO",
-                                             "UK GARAGE", "MINIMAL", "DOWNTEMPO"};
+                                             "UK GARAGE", "MINIMAL", "DOWNTEMPO", "JUNGLE", "HALFTIME",
+                                             "DEEP HOUSE", "ACID", "DUBSTEP"};
     return (unsigned)g < GX_NGENRE ? N[g] : "?";
 }
 static const char *gn_track_label(int r)
