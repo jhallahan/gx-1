@@ -99,8 +99,8 @@ GitHub; a tag `vX.Y.Z` makes a release, and the site (emulator, installer, manua
 
 ```
 tests/run_tests.sh                               # the tests, the app in a simulator
-./build.sh                                       # build/seq4.fwsc (see BUILDING.md)
-python3 tools/fm1_install.py build/seq4.fwsc     # install it over USB
+./build.sh                                       # build/gx1.fwsc (see BUILDING.md)
+python3 tools/fm1_install.py build/gx1.fwsc      # install it over USB
 ```
 
 ## Credits

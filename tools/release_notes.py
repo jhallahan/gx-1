@@ -21,11 +21,11 @@ def main(version, repo=""):
     if site:
         out.append(f"- **From the browser** (Chrome or Edge, the FM-1 on USB): the [web installer]({site}install/). "
                    f"Or [try it in the browser first]({site}emu/).")
-    out.append(f"- **From the command line:** `python3 tools/fm1_install.py seq4-{version}.fwsc` "
+    out.append(f"- **From the command line:** `python3 tools/fm1_install.py gx1-{version}.fwsc` "
                "(Python 3 with `pip3 install mido python-rtmidi`).")
     out.append("- **Going back:** the installer's \"Back to the stock firmware\", or M-VAVE's M-UPGRADE.")
     out.append("")
-    out.append(f"The firmware is `seq4-{version}.fwsc` below; its source is this tag. Installing other firmware is "
+    out.append(f"The firmware is `gx1-{version}.fwsc` below; its source is this tag. Installing other firmware is "
                "at your own risk; see the manual's Troubleshooting.")
     print("\n".join(out))
 

@@ -27,18 +27,18 @@ run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/h
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 run logstore sh -c "$CC -O2 -Wall -Wextra -o $OUT/logstore_test tests/logstore_test.c && $OUT/logstore_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
-if [ -f build/seq4.fwsc ]; then
-    run ota-entry sh -c "$CC -o $OUT/ota_test tests/ota_test.c && $OUT/ota_test build/seq4.fwsc"
+if [ -f build/gx1.fwsc ]; then
+    run ota-entry sh -c "$CC -o $OUT/ota_test tests/ota_test.c && $OUT/ota_test build/gx1.fwsc"
     if [ -z "${AC79_SDK:-}" ]; then
         echo "  skip update-loader (needs AC79_SDK, as the build)"
     else
-    run update-loader sh -c "head -c 100000 build/seq4.bin > $OUT/old_app.bin && \
+    run update-loader sh -c "head -c 100000 build/gx1.bin > $OUT/old_app.bin && \
         python3 tools/fm1pkg_make.py $OUT/old_app.bin build/loader/ota.bin $OUT/old.fwsc >/dev/null && \
-        $CC -o $OUT/ldr_test tests/ldr_test.c && $OUT/ldr_test $OUT/old.fwsc build/seq4.fwsc"
+        $CC -o $OUT/ldr_test tests/ldr_test.c && $OUT/ldr_test $OUT/old.fwsc build/gx1.fwsc"
     fi
     run installer python3 tests/install_test.py
 else
-    echo "  skip update-path tests (no build/seq4.fwsc: run ./build.sh)"
+    echo "  skip update-path tests (no build/gx1.fwsc: run ./build.sh)"
 fi
 run host-build sh host/build_host.sh
 if command -v emcc >/dev/null 2>&1; then

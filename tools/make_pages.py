@@ -8,11 +8,11 @@
   install/index.html          the web installer (web/seq4_installer.html, with fm1pkg.js, fm1ota.js and
                               the package's metadata inlined; Chrome or Edge, Web MIDI)
   manual/index.html, img/     the manual (tools/manual_html.py, from docs/MANUAL.md)
-  firmware/seq4-VERSION.fwsc   the package the installer writes; also the download
+  firmware/gx1-VERSION.fwsc   the package the installer writes; also the download
   source/                     the complete source (GPL-3.0: whoever gets the firmware gets the source),
                               as a tarball of this tree; and SEQ4_REPO, if set, the repository's address
 
-  [SEQ4_REPO=https://...] tools/make_pages.py build/seq4-0.1.fwsc 0.1 OUT_DIR
+  [SEQ4_REPO=https://...] tools/make_pages.py build/gx1-0.1.fwsc 0.1 OUT_DIR
 
 The package must be a release build (./build.sh --release X.Y): its identity, FM-1_1XXYYZZ, is what
 the installer checks the download against and what the FM-1 reports after the install."""
@@ -145,7 +145,7 @@ def main(pkg, version, out):
         raise SystemExit(f"{pkg}: identity {product!r}: make a release build (./build.sh --release X.Y)")
     if b"FELUCCA-LOADER-1" not in raw:
         raise SystemExit(f"{pkg}: no update loader in it")
-    name = f"seq4-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
+    name = f"gx1-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
     if out.exists():
         shutil.rmtree(out)
     for d in ("install", "manual", "firmware", "source"):

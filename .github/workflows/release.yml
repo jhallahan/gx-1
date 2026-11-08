@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # A tag vX.Y.Z makes a release: the tests on a development build, then the release build (identity
-# FM-1_1XXYYZZ, the version on the FM-1's screen), and a GitHub release with seq4-X.Y.Z.fwsc and its notes
+# FM-1_1XXYYZZ, the version on the FM-1's screen), and a GitHub release with gx1-X.Y.Z.fwsc and its notes
 # from CHANGELOG.md. The Pages workflow then puts the site up for it.
 #   git tag v0.2.0 && git push origin v0.2.0
 name: Release
@@ -39,7 +39,7 @@ jobs:
         run: |
           python3 tools/release_notes.py "$VERSION" "$GITHUB_REPOSITORY" > notes.md
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "build/seq4-$VERSION.fwsc" --clobber
+            gh release upload "$TAG" "build/gx1-$VERSION.fwsc" --clobber
           else
-            gh release create "$TAG" "build/seq4-$VERSION.fwsc" --title "SEQ-4 $VERSION" --notes-file notes.md --verify-tag
+            gh release create "$TAG" "build/gx1-$VERSION.fwsc" --title "GX-1 $VERSION" --notes-file notes.md --verify-tag
           fi

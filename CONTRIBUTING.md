@@ -18,10 +18,10 @@ is attached to the run as an artifact to download. On your own machine:
 | | |
 |---|---|
 | `tests/run_tests.sh` | the tests (the platform, the flash, the app in a simulator, the browser build if Emscripten is there) |
-| `./build.sh` | the firmware, `build/seq4.fwsc` (needs the JieLi toolchain and three SDK files; see [BUILDING.md](BUILDING.md)) |
+| `./build.sh` | the firmware, `build/gx1.fwsc` (needs the JieLi toolchain and three SDK files; see [BUILDING.md](BUILDING.md)) |
 | `build/host/seq4_host SCRIPT OUT` | the whole app on your computer from a script, with the screen as PNGs and the MIDI as a timed log (`tests/scenarios/*.s4`) |
 | `web/emu/build.sh` | the browser emulator (needs Emscripten) |
-| `python3 tools/fm1_install.py build/seq4.fwsc` | install it over USB |
+| `python3 tools/fm1_install.py build/gx1.fwsc` | install it over USB |
 | `python3 tools/fm1_status.py load` | the engine's load on the FM-1 itself, the screen's, the MIDI it sends |
 
 On a Mac the build runs the JieLi tools in Docker; on Linux x86-64 (and on GitHub) it runs them directly.
