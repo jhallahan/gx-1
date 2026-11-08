@@ -146,6 +146,10 @@ void gx_mutate_apply(const gx_recipe_t *r, gx_role_t role, const gx_comp_t *c, c
                 }
                 if (nst < 0 || (uint32_t)nst >= (uint32_t)c->bars * 16u)
                     continue;
+                /* a pitched note never crosses a bar line into a different chord (it would no longer fit it) */
+                if (role != GX_ROLE_DRUMS && h && st / 16u != (uint32_t)nst / 16u && st / 16u < GX_MAXBARS &&
+                    (uint32_t)nst / 16u < GX_MAXBARS && h->pcs[st / 16u] != h->pcs[(uint32_t)nst / 16u])
+                    continue;
                 if (role == GX_ROLE_CHORDS) {  /* a chord moves as one */
                     uint32_t t0 = e->t;
                     for (i = start; i < o->n; i++)

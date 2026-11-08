@@ -135,6 +135,9 @@ static void mono_note(s4_seq_t *q, const gx_event_t *e)
     int ofs, st = ev_step(e, &ofs), last, n = ev_steps(e, st, &last), k;
     if (st > 0 && q->d.mono[st - 1].gate == S4_TIE && q->d.mono[st - 1].deg == (int)e->note - GXB_BASE)
         q->d.mono[st - 1].gate = 95;               /* the same note tied into this step: it retriggers */
+    else if (st > 0 && q->d.mono[st - 1].vel && q->d.mono[st - 1].gate == S4_TIE)
+        q->d.mono[st - 1].gate = S4_LEG;           /* another note tied into this step: legato (they overlap, so a
+                                                      synth's glide hears it) */
     for (k = 0; k < n && st + k < (int)S4_NSTEP; k++) {
         s4_step_t *x = &q->d.mono[st + k];
         x->deg = (int8_t)((int)e->note - GXB_BASE);

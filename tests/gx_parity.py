@@ -15,6 +15,9 @@ import sys
 TOL_ON_MS = 3.0        # a tick (0.73 ms) + the offset's 1 % rounding (1.15 ms at 130 BPM) + margin
 TOL_OFF_MS = 6.0       # the last step's gate is a whole % of a step; ties end on the grid
 TOL_RETRIG_MS = 9.0    # a note cut for the same note again ends a 95 % gate before it
+# a Mono part's note that runs into the next (another note on its channel starts before it ends) is legato:
+# on the FM-1 it ends just after the next begins (SEQ-4's LEG_U), so it must end between that start and
+# where the engine said: the overlap (which a synth's glide or legato hears) is kept, not its exact length
 
 
 def main():
@@ -72,6 +75,12 @@ def main():
                     if abs(end - want) < 0.5:
                         continue
                 off = next((f[0] for f in offs if f[1] == ch and f[2] == note and f[0] > best[0] + 0.01), None)
+                cut = [u2 * ms_per_unit for (u2, _l, r2, c2, n2, *_x) in events
+                       if c2 == ch and r2 == role and n2 != note and t < u2 and u2 * ms_per_unit < end - 0.01]
+                if role in (1, 3) and cut and off is not None:    # Mono legato into the next note
+                    if not (min(cut) - TOL_ON_MS <= off <= end + TOL_OFF_MS):
+                        durbad.append((round(want, 1), ch, note, round(end, 1), round(off, 1), "legato"))
+                    continue
                 if off is not None and end < phrase_ms - 1.0:
                     err = abs(off - end)
                     worst_off = max(worst_off, err)
