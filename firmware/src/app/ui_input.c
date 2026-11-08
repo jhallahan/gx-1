@@ -1203,6 +1203,9 @@ static void hold_tick(void)
     for (i = 0; i < NB; i++) {
         if (b != 1u << i || (ui.btn_used & b) || (int32_t)(ui.turn_t - ui.down_t[i]) > 0)
             continue;
+        if (ui.view == V_GEN && i != B_HOME && i != B_SAVE && i != B_PLAY)
+            continue;                            /* GX-1's GEN page: GLO is the shift layer (parts, mutate),
+                                                    not setup; and SEQ-4's help cards describe the grid */
         if (i == B_GLO && now - ui.down_t[i] >= SETUP_MS) {
             open_menu(MN_SETUP);
             ui.btn_used |= b;

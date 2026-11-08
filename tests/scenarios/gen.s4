@@ -50,7 +50,10 @@ expect sel 2
 wait 1600
 shot gen_chords.png
 press GLO
-wait 100
+wait 1200
+expect menu 0
+expect view 5
+expect helpvis 0
 shot gen_glo.png
 tapkey w0
 tapkey w12
@@ -68,6 +71,12 @@ tapkey b5
 tap EDIT
 wait 200
 tap HOME
+wait 300
+expect view 0
+tap HOME
+wait 300
+expect view 5
+tap SEQ
 wait 300
 expect view 0
 tap HOME

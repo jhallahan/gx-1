@@ -23,6 +23,8 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 | ENV | Lock or unlock the selected track (ENV lights while it is locked) |
 | EDIT · GLO + EDIT | Undo · redo (the engine's history) |
 | HOME · HOME twice · HOME held | The grid (and back) · the patterns · the patterns while held |
+| SEQ | The grid, to edit by hand (HOME comes back). On the grid SEQ is the keyboard, as in SEQ-4 |
+| GLO held | The second layer only (parts, mutate, the second four macros). SEQ-4's setup (GLO held long) opens from the grid page |
 | Black keys 1–4 | Select drums, sub, chords, upper |
 | Black keys 5–8 | Mute or unmute them |
 | Black keys 9, 10 · 11 | The bar back and on · mute the selected track |

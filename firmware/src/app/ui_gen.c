@@ -603,6 +603,7 @@ static int gen_btn_tap(int b)
             say(gn_track_label(r), gn_locked(r) ? "LOCKED" : "UNLOCKED");
         return 1;
     case B_EDIT: say(gxb_undo() >= 0 ? "UNDO" : "NOTHING TO UNDO", 0); return 1;
+    case B_SEQ: set_view(V_GRID); return 1;      /* the grid, to edit by hand (HOME comes back) */
     case B_HOME:                                 /* the grid; twice: the patterns */
         set_view(plat_ms() - ui.up_t[B_HOME] < DTAP_MS ? V_PATS : V_GRID);
         return 1;
