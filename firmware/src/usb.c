@@ -241,18 +241,20 @@ static const uint8_t STR0[4] = {4, 3, 0x09, 0x04};
 static const uint8_t STR1[] = {42, 3, 'H', 0, 0xFC, 0, 'g', 0, 'e', 0, 'l', 0, 't', 0, 'o', 0, 'n', 0, ' ', 0, 'I', 0,
                                'n', 0, 's', 0, 't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0};
 #else
-static const uint8_t STR1[] = {12, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0};   /* SEQ-4: manufacturer */
+static const uint8_t STR1[] = {10, 3, 'G', 0, 'X', 0, '-', 0, '1', 0};   /* GX-1 (fm1-genre-ator): manufacturer */
 #endif
 #ifdef FELUCCA_LOADER
 static const uint8_t STR2[] = {30, 3, 'F', 0, 'e', 0, 'l', 0, 'u', 0, 'c', 0, 'c', 0, 'a', 0, ' ', 0, 'U', 0, 'p', 0,
                                'd', 0, 'a', 0, 't', 0, 'e', 0};
 #else
-static const uint8_t STR2[] = {22, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0, ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};   /* SEQ-4 FM-1 */
+static const uint8_t STR2[] = {20, 3, 'G', 0, 'X', 0, '-', 0, '1', 0, ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};   /* GX-1 FM-1 */
 #endif
-#if USB_MIDI_PORTS > 1                         /* the ports' names: "SEQ-4 A" .. "SEQ-4 D" */
-static const uint8_t STR_PORT[4][16] = {
-    {16, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0, ' ', 0, 'A', 0}, {16, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0, ' ', 0, 'B', 0},
-    {16, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0, ' ', 0, 'C', 0}, {16, 3, 'S', 0, 'E', 0, 'Q', 0, '-', 0, '4', 0, ' ', 0, 'D', 0}};
+#if USB_MIDI_PORTS > 1                         /* the ports' names: "GX-1 A" .. "GX-1 D" */
+static const uint8_t STR_PORT[4][14] = {
+    {14, 3, 'G', 0, 'X', 0, '-', 0, '1', 0, ' ', 0, 'A', 0},
+    {14, 3, 'G', 0, 'X', 0, '-', 0, '1', 0, ' ', 0, 'B', 0},
+    {14, 3, 'G', 0, 'X', 0, '-', 0, '1', 0, ' ', 0, 'C', 0},
+    {14, 3, 'G', 0, 'X', 0, '-', 0, '1', 0, ' ', 0, 'D', 0}};
 #endif
 
 static int get_desc(uint32_t wvalue, const uint8_t **d, uint16_t *l)
@@ -284,7 +286,7 @@ static int get_desc(uint32_t wvalue, const uint8_t **d, uint16_t *l)
 #if USB_MIDI_PORTS > 1
             if ((wvalue & 0xFFu) >= 4u && (wvalue & 0xFFu) < 4u + USB_MIDI_PORTS) {
                 *d = STR_PORT[(wvalue & 0xFFu) - 4u];
-                *l = 16;
+                *l = sizeof STR_PORT[0];
                 return 1;
             }
 #endif

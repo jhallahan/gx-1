@@ -28,7 +28,7 @@ jobs:
           path: |
             build/host/*.log
             build/scenarios/
-      - name: The firmware (a development build, identity FM-1_100)
+      - name: The firmware (a development build, identity FM-1_770)
         uses: actions/upload-artifact@v7
         with:
           name: seq4-dev-${{ github.sha }}

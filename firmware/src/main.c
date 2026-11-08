@@ -37,7 +37,7 @@ static inline int32_t clamp(int32_t v, int32_t lo, int32_t hi) { return v < lo ?
 #endif
 #define FELUCCA_UAC EN_UAC
 #ifndef FELUCCA_ID
-#define FELUCCA_ID "FM-1_100"     /* package identity (tools/build.py) */
+#define FELUCCA_ID "FM-1_770"     /* package identity (tools/build.py); GX-1 is FM-1_77... */
 #endif
 #define USB_MIDI_PORTS 4          /* SEQ-4: four MIDI ports, A .. D */
 #define MQ_OUT 1024u              /* ... and room for a bar's worth of notes on all of them */

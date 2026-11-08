@@ -11,7 +11,7 @@
 #ifndef EN_VERSION                       /* a release build passes its own (tools/build.py --release) */
 #define EN_VERSION "DEV"
 #endif
-#define PROJ_MAGIC 0x50345153u           /* "SQ4P" */
+#define PROJ_MAGIC 0x50315847u           /* "GX1P" (SEQ-4 is "SQ4P": never read each other's saves) */
 #define PROJ_FORMAT 1u
 
 /* the log's keys (logstore.c): a pattern each, the sequencers as they are, the project, its songs */

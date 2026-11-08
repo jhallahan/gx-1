@@ -51,7 +51,7 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_100"                # package identity; release builds are FM-1_1XXYYZZ (see main)
+PRODUCT = "FM-1_770"                # package identity; release builds are FM-1_77XXYYZZ (see main)
 BENCH = False                        # --bench: the development build that takes the heavy test patterns over SysEx
 VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
 
@@ -358,7 +358,7 @@ def main():
         m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
         if not m:
             raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = "FM-1_1%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
+        PRODUCT = "FM-1_77%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))   # GX-1: prefix 77 (1..9 are taken)
         VERSION = a.release.upper()
         name = f"seq4-{a.release}.fwsc"
     fm1pkg_make.SDK = a.sdk
