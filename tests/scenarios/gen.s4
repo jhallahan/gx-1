@@ -6,6 +6,30 @@ shot gen_boot.png
 tap FX
 wait 300
 expect mode 1
+expect tempo 1300
+# SELECT: the tempo; it stays through new ideas, mutations and macros (only a new genre sets it: ADR-028)
+spin SELECT 12
+expect tempo 1420
+wait 1600
+shot gen_tempo_out.png
+spin SELECT -12
+tap FX
+wait 300
+expect tempo 1300
+spin SELECT 4
+tap FX
+wait 300
+expect tempo 1340
+# OCT+ / OCT-: the key; GLO + FX: re-roll the selected track
+tap OCT+
+tap OCT+
+wait 300
+shot gen_key.png
+tap OCT-
+press GLO
+tap FX
+release GLO
+wait 300
 tap PLAY
 wait 2200
 expect playing 1
@@ -20,6 +44,8 @@ wait 600
 shot gen_density.png
 tapkey b2
 expect sel 2
+wait 1600
+shot gen_chords.png
 press GLO
 wait 100
 shot gen_glo.png

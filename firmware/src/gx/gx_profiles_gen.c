@@ -3,7 +3,7 @@
 #include "gx_profile.h"
 
 static const gx_genre_prof_t prof_deep_dnb = {
-    "Deep DnB", 1720, 1700, 1740, GX_KIT_BREAK,
+    "Deep DnB", 1720, 1680, 1760, GX_KIT_BREAK,
     55, 5, 6, 2, 18, 10,
     8, 4, 0,
     {

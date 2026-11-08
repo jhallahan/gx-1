@@ -16,8 +16,10 @@
  *   K1-K4             density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution)
  *   ALGORITHM         the genre (a new idea in it when the knob rests)
  *   PRESETS           the seed (a new idea from it when the knob rests; locked tracks stay)
- *   SELECT            the track
- *   FX new idea · SEL mutate · ENV lock · EDIT undo (GLO: redo) · HOME the grid (and back) */
+ *   SELECT            the tempo (the genre's range is marked, not enforced: ADR-028)
+ *   OCT- / OCT+       the key, a semitone (everything pitched moves; the drums stay)
+ *   FX new idea (GLO: re-roll the selected track) · SEL mutate · ENV lock · EDIT undo (GLO: redo)
+ *   HOME the grid (and back) */
 
 #define GN_BG RGB(17, 17, 20)
 #define GN_PANEL RGB(30, 30, 35)
@@ -63,6 +65,51 @@ static int gn_macro(int m)
     return gxb_ok ? gxb_comp.r[0].macro[m] : 64;
 }
 static int gn_locked(int r) { return gxb_ok && (gxb_comp.lock >> r & 1u); }
+
+/* ---- the key, the chords, the tempo range (ADR-028) ---- */
+static const char *const GN_NOTE[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
+static const uint8_t GN_SCALE[3][7] = {{0, 2, 3, 5, 7, 8, 10}, {0, 2, 3, 5, 7, 9, 10}, {0, 1, 3, 5, 7, 8, 10}};
+static const gx_genre_prof_t *gn_prof(void) { return gx_profile((gx_genre_t)(gxb_ok ? gxb_comp.r[GX_ROLE_CHORDS].genre : gen.genre)); }
+static int gn_scale(void) { const gx_genre_prof_t *p = gn_prof(); return p && p->harm.scale < 3 ? p->harm.scale : 0; }
+static int gn_key(void) { const gx_genre_prof_t *p = gn_prof(); return gxb_ok ? gxb_comp.key : p ? p->harm.key : 0; }
+static void gn_key_text(char *t, int full)        /* "F#m" / "F# minor" */
+{
+    static const char *const S[3] = {"m", "dor", "phr"}, *const F[3] = {" minor", " dorian", " phrygian"};
+    scopy(t, GN_NOTE[gn_key() % 12], 16);
+    scat(t, full ? F[gn_scale()] : S[gn_scale()], 16);
+}
+static int gn_semi(int d) { return GN_SCALE[gn_scale()][d % 7] + 12 * (d / 7); }
+static void gn_numeral(int bar, char *t)          /* the scale's own triad on the bar's degree: i, VI, ii° */
+{
+    static const char *const U[7] = {"I", "II", "III", "IV", "V", "VI", "VII"}, *const L[7] = {"i", "ii", "iii", "iv", "v", "vi", "vii"};
+    int d = gxb_harm.deg[bar & 31] % 7, third = gn_semi(d + 2) - gn_semi(d), fifth = gn_semi(d + 4) - gn_semi(d);
+    scopy(t, third == 3 ? L[d] : U[d], 8);
+    if (third == 3 && fifth == 6)
+        scat(t, "o", 8);
+}
+static void gn_chord_text(int bar, char *t)       /* "Dmaj7", "F#m9" */
+{
+    int root = gxb_harm.root[bar & 31] % 12, pcs = gxb_harm.pcs[bar & 31];
+#define GN_HAS(i) ((pcs >> ((root + (i)) % 12)) & 1)
+    const char *q = GN_HAS(3) ? "m" : GN_HAS(4) ? "" : GN_HAS(2) ? "sus2" : "5", *ext = "";
+    if (GN_HAS(3) && GN_HAS(6) && !GN_HAS(7))
+        q = "dim";
+    if (GN_HAS(10))
+        ext = GN_HAS(5) && q[0] == 'm' && !q[1] ? "11" : (GN_HAS(2) && q[0] != 's' ? "9" : "7");
+    else if (GN_HAS(11))
+        ext = "maj7";
+    else if (GN_HAS(2) && q[0] != 's')
+        ext = "add9";
+#undef GN_HAS
+    scopy(t, GN_NOTE[root], 16);
+    scat(t, q, 16);
+    scat(t, ext, 16);
+}
+static int gn_tempo_out(void)                     /* the tempo is outside the genre's range */
+{
+    const gx_genre_prof_t *p = gn_prof();
+    return p && (s4g.tempo < p->tempo_min_x10 || s4g.tempo > p->tempo_max_x10);
+}
 
 /* a track's bar: each step's velocity where a note starts (the loudest), and its length in steps */
 static void gn_bar(int s, int bar, uint8_t *vel, uint8_t *len)
@@ -137,11 +184,15 @@ static void gn_header(void)
     int bar = (gn_playing_step(0) >= 0 ? gn_playing_step(0) : page() * 16) / 16;
     x = cv_text(4, 2, &FONT_B, gn_genre_label(gen.gpend ? gen.genre : (gxb_ok ? gxb_comp.r[0].genre : gen.genre)),
                 gen.gpend ? GN_MUTED : GN_INK);
-    t[0] = 0;
+    gn_key_text(t, 0);
+    x = cv_text(x + 6, 3, &FONT_XS, t, GN_MUTED);
     itoa_u(s4g.tempo / 10u, n);
-    scat(t, n, 24);
-    scat(t, " BPM", 24);
-    cv_text(x + 7, 3, &FONT_XS, t, gn_c(sel()));
+    {
+        int32_t x1 = cv_text(x + 5, 3, &FONT_XS, n, gn_tempo_out() ? GN_INK : gn_c(sel()));
+        if (gn_tempo_out())                       /* outside the genre's range: underlined */
+            for (; x1 > x + 5; x1 -= 3)
+                cv_rect(x1 - 2, 17, 2, 1, GN_INK);
+    }
     if (gxb_ok) {
         const char *pn = gx_part_name((gx_genre_t)gxb_comp.r[0].genre, gxb_comp.part);
         int32_t w = text_w(&FONT_XS, pn) + 8, bx = 236 - 30 - w;
@@ -306,12 +357,34 @@ static void gn_strip(void)
         cv_text(7, 219, &FONT_XS, t, GN_INK);
         return;
     }
-    cv_text(7, 219, &FONT_XS, gn_track_label(s), acc);
-    t[0] = 0;
-    scat(t, "ch ", 28);
-    itoa_u((uint32_t)s4[s].ch + 1u, n);
-    scat(t, n, 28);
-    cv_text(7 + text_w(&FONT_XS, gn_track_label(s)) + 8, 219, &FONT_XS, t, GN_MUTED);
+    {
+        int32_t x = cv_text(7, 219, &FONT_XS, gn_track_label(s), acc) + 8;
+        int bar = gn_playing_step(GX_ROLE_CHORDS) >= 0 ? gn_playing_step(GX_ROLE_CHORDS) / 16 : p;
+        if (!gxb_ok || !gxb_harm_ok) {
+            t[0] = 0;
+            scat(t, "ch ", 28);
+            itoa_u((uint32_t)s4[s].ch + 1u, n);
+            scat(t, n, 28);
+            cv_text(x, 219, &FONT_XS, t, GN_MUTED);
+        } else if (s == GX_ROLE_CHORDS) {        /* the progression: a numeral a chord, the one playing lit */
+            int b;
+            for (b = 0; b < 8 && x < 196; b++) {
+                int b1 = b;
+                if (b && !gxb_harm.change[b] && gxb_harm.deg[b] == gxb_harm.deg[b - 1])
+                    continue;
+                while (b1 + 1 < 8 && !gxb_harm.change[b1 + 1] && gxb_harm.deg[b1 + 1] == gxb_harm.deg[b])
+                    b1++;
+                gn_numeral(b, n);
+                x = cv_text(x, 219, &FONT_XS, n, bar >= b && bar <= b1 ? acc : GN_MUTED) + 7;
+            }
+        } else {                                  /* the chord playing: VI Dmaj7 */
+            char c[16];
+            gn_numeral(bar, n);
+            gn_chord_text(bar, c);
+            x = cv_text(x, 219, &FONT_XS, n, GN_INK) + 4;
+            cv_text(x, 219, &FONT_XS, c, GN_MUTED);
+        }
+    }
     t[0] = 0;
     scat(t, "bar ", 28);
     itoa_u((uint32_t)p + 1u, n);
@@ -353,6 +426,7 @@ static void draw_gen(void)
     /* the top: the header and the tracks */
     h = hash(hash(hash(1u, sel()), s4g.tempo), (uint32_t)(gn_playing_step(0) / 16) + 7u * (uint32_t)page());
     h = hash(hash(h, gen.gpend ? gen.genre : 0xFFu), gxb_ok ? (uint32_t)gxb_comp.part << 8 | gxb_comp.lock : 0x1234u);
+    h = hash(h, (uint32_t)gn_key() << 8 | (uint32_t)gn_tempo_out());
     for (r = 0; r < 4; r++) {
         int ps = gn_playing_step(r);
         h = hash(hash(h, s4[r].mute), gxb_ok ? gxb_comp.r[r].mut_n | (uint32_t)gxb_comp.r[r].genre << 4 : 0u);
@@ -375,6 +449,12 @@ static void draw_gen(void)
     h = gn_sig_bar(h, sel(), page());
     h = hash(h, msg ? hash_s(hash_s(5u, ui.msg[0]), ui.msg[1]) : 0u);
     h = hash(h, s4[sel()].ch);
+    if (gxb_ok && gxb_harm_ok) {                  /* the chords shown: the key, the progression, the bar playing */
+        int b;
+        h = hash(hash(h, gxb_comp.key), (uint32_t)(gn_playing_step(GX_ROLE_CHORDS) / 16 + 2));
+        for (b = 0; b < 8; b++)
+            h = hash(h, (uint32_t)gxb_harm.deg[b] << 16 | (uint32_t)gxb_harm.pcs[b]);
+    }
     if (h != gen.sig[2]) {
         gen.sig[2] = h;
         gn_band(172, 68, gn_strip);
@@ -478,6 +558,26 @@ static void gen_key_up(int k)
 
 static int gen_btn_down(int b)
 {
+    if (b == B_OCTDN || b == B_OCTUP) {          /* the key, a semitone */
+        char t[16];
+        ui.btn_used |= 1u << b;
+        if (!gn_ensure() && gn_result(gxb_key(gxb_comp.key + (b == B_OCTUP ? 1 : -1)), "KEY") >= 0) {
+            gn_key_text(t, 1);
+            say("KEY", t);
+        }
+        return 1;
+    }
+    if (b == B_FX && shift()) {                  /* GLO + FX: re-roll the selected track */
+        int r = sel();
+        ui.btn_used |= 1u << b | 1u << B_GLO;
+        if (gn_ensure())
+            return 1;
+        if (gn_locked(r))
+            say(gn_track_label(r), "LOCKED");
+        else if (gn_result(gxb_reseed(r, s4_rand()), "RE-ROLL") >= 0)
+            say("RE-ROLL", gn_track_label(r));
+        return 1;
+    }
     if (b == B_EDIT && shift()) {
         say(gxb_redo() >= 0 ? "REDO" : "NOTHING TO REDO", 0);
         ui.btn_used |= 1u << b | 1u << B_GLO;
@@ -522,10 +622,28 @@ static void gen_enc(int role, int32_t e)
         gn_seed_text(t);
         say("SEED", t);
         break;
-    case EN_SELECT:
-        set_sel((sel() + 4 + d) & 3);
-        say(gn_track_label(sel()), "");
+    case EN_SELECT: {                            /* the tempo (any; the genre's range is marked) */
+        int v = clampi((int)s4g.tempo + (int)accel(EN_SELECT, e, 100) * 10, 600, 2000);
+        const gx_genre_prof_t *p = gn_prof();
+        s4g.tempo = (uint16_t)v;
+        if (gxb_ok)
+            gxb_comp.bpm_x10 = (uint16_t)v;
+        dirty_g();
+        itoa_u((uint32_t)v / 10u, t);
+        scat(t, " BPM", 12);
+        if (p && gn_tempo_out()) {
+            char r[24], n2[6];
+            scopy(r, "OUTSIDE ", 24);
+            itoa_u(p->tempo_min_x10 / 10u, n2);
+            scat(r, n2, 24);
+            scat(r, "-", 24);
+            itoa_u(p->tempo_max_x10 / 10u, n2);
+            scat(r, n2, 24);
+            say(t, r);
+        } else
+            say("TEMPO", t);
         break;
+    }
     default: break;
     }
 }

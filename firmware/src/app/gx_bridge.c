@@ -29,6 +29,9 @@ static gx_history_t gxb_hist;
 static int gxb_ok;
 static gx_map_id_t gxb_map = GX_MAP_TONVERK_SPLIT;
 static uint32_t gxb_last_n;                    /* events in the last render (status) */
+static gx_harmony_t gxb_harm;                  /* the last render's chords, per bar (the GEN page shows them) */
+static int gxb_harm_ok;
+static int gxb_set_tempo;                      /* the next render sets the tempo (a new genre only: ADR-028) */
 
 static int clampb(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 
@@ -209,7 +212,15 @@ static int gxb_apply(void)
             break;
         }
     }
-    s4g.tempo = gxb_comp.bpm_x10;
+    {
+        const gx_genre_prof_t *hp = gx_profile((gx_genre_t)gxb_comp.r[GX_ROLE_CHORDS].genre);
+        gxb_harm_ok = hp != 0;
+        if (hp)
+            gx_harmony_build(&gxb_comp.r[GX_ROLE_CHORDS], &gxb_comp, hp, &gxb_harm);
+    }
+    if (gxb_set_tempo)                         /* only a new genre sets the tempo; the player's stays */
+        s4g.tempo = gxb_comp.bpm_x10;
+    gxb_set_tempo = 0;
     for (s = 0; s < S4_NSEQ; s++)
         s4_queue_pattern(s, s4p.pat[s]);
     return (int)r.n;
@@ -226,6 +237,7 @@ static int gxb_new(int genre, uint32_t seed)
     gx_comp_init(&gxb_comp, (gx_genre_t)genre, seed, gx_genre_tempo((gx_genre_t)genre), (uint8_t)GXB_BARS);
     gx_hist_init(&gxb_hist, &gxb_comp);
     gxb_ok = 1;
+    gxb_set_tempo = 1;
     return gxb_apply();
 }
 static int gxb_ready(void) { return gxb_ok ? 0 : gxb_new(GX_GENRE_DEEP_DNB, 1) < 0 ? -1 : 0; }
@@ -253,6 +265,15 @@ static int gxb_macro(int m, int v)
         return -1;
     for (r = 0; r < (int)GX_NROLE; r++)
         gxb_comp.r[r].macro[m] = (uint8_t)clampb(v, 0, 127);
+    gxb_push();
+    return gxb_apply();
+}
+/* the key: every pitched part moves, the drums stay (ADR-028) */
+static int gxb_key(int key)
+{
+    if (gxb_ready())
+        return -1;
+    gxb_comp.key = (uint8_t)(((key % 12) + 12) % 12);
     gxb_push();
     return gxb_apply();
 }
