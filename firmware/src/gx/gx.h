@@ -54,6 +54,7 @@ typedef enum {
     GX_GENRE_DEEP_DNB,
     GX_GENRE_BREAKS,
     GX_GENRE_AUTONOMIC,
+    GX_GENRE_DUB_TECHNO,
     GX_NGENRE
 } gx_genre_t;
 

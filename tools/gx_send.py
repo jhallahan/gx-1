@@ -3,7 +3,7 @@
 """Drive GX-1's genre engine on an FM-1 over USB (SysEx), until the panel's GEN page lands.
 
     pip3 install mido python-rtmidi
-    python3 tools/gx_send.py new breaks 42 [PART]   # a new idea: deep_dnb | breaks | autonomic; PART 0..5
+    python3 tools/gx_send.py new breaks 42 [PART]   # a new idea: deep_dnb | breaks | autonomic | dub_techno; PART 0..5
     python3 tools/gx_send.py part 4                 # INTRO 0, MAIN A 1, MAIN B 2, BREAK 3, BUILD 4, DROP 5
     python3 tools/gx_send.py compose 7              # new idea, locked parts kept
     python3 tools/gx_send.py lock 0 1               # role 0 drums, 1 sub, 2 chords, 3 upper; 1 lock, 0 unlock
@@ -17,7 +17,7 @@ The FM-1 answers with the number of events it staged; the parts start at the nex
 import sys
 import time
 
-GENRES = {"deep_dnb": 1, "breaks": 2, "autonomic": 3}
+GENRES = {"deep_dnb": 1, "breaks": 2, "autonomic": 3, "dub_techno": 4}
 HDR = [0x7D, 0x53, 0x34]
 
 

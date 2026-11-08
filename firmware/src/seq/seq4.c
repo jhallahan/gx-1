@@ -94,6 +94,7 @@ void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2) { cmd(C_L
 void s4_panic(void) { cmd(C_PANIC, 0, 0, 0, 0); }
 void s4_load_now(int s) { cmd(C_LOADNOW, s, 0, 0, 0); }
 void s4_queue_pattern(int s, int pat) { cmd(C_QPAT, s, pat, 0, 0); }
+void s4_queue_pattern_bar(int s, int pat) { cmd(C_QPAT, s, pat, 1, 0); }
 void s4_mute(int s, int on) { cmd(C_MUTE, s, on, 0, 0); }
 void s4_tap(void) { cmd(C_TAP, 0, 0, 0, 0); }
 void s4_restart(int s) { cmd(C_RESTART, s < 0 ? 0xFF : s, 0, 0, 0); }
@@ -231,6 +232,7 @@ static uint8_t counting;
 static uint32_t count_left;
 static uint8_t snap_release;   /* a snapshot goes back at the next bar */
 static uint8_t qpat[S4_NSEQ];  /* a staged pattern waits for its boundary (pattern + 1) */
+static uint8_t qbar[S4_NSEQ];  /* GX-1: ... the next bar line instead (a new idea: in from its start) */
 
 void s4_select(int s) { s4_sel = (uint8_t)(s & 3); }
 
@@ -582,6 +584,7 @@ static void do_cmd(const cmd_t *c)
         break;
     case C_QPAT:
         qpat[s] = (uint8_t)(c->b + 1);
+        qbar[s] = c->d;
         s4p.next[s] = c->b;
         if (!playing) {
             pattern_swap(s);
@@ -664,8 +667,10 @@ static void boundaries(uint32_t prev)
     }
     for (s = 0; s < S4_NSEQ; s++) {
         uint32_t bars = q_bars(s4[s].punch == 0 ? s4g.loadq : s4[s].punch);
-        if (qpat[s] && at_boundary(prev, gpos, bars ? bars : q_bars(s4g.loadq)))
+        if (qpat[s] && at_boundary(prev, gpos, qbar[s] ? 1u : bars ? bars : q_bars(s4g.loadq))) {
+            qbar[s] = 0;
             pattern_swap(s);
+        }
         if (rt[s].waiting && at_boundary(prev, gpos, bars)) {
             rt[s].waiting = 0;
             rt[s].active = 1;

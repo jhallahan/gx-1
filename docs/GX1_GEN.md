@@ -18,7 +18,7 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 
 | Control | On the GEN page |
 |---|---|
-| FX · GLO + FX | A new idea: the unlocked tracks get a new seed · re-roll just the selected track |
+| FX · GLO + FX | A new idea: the unlocked tracks get a new seed. While playing it comes in at the next bar line, from its bar 1 (mutations, macros and parts wait for the loop) · re-roll just the selected track |
 | SEL | Mutate the selected track (every aspect) |
 | ENV | Lock or unlock the selected track (ENV lights while it is locked) |
 | EDIT · GLO + EDIT | Undo · redo (the engine's history) |
@@ -30,7 +30,7 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 | GLO + W1–W4 · W5 | Mutate the selected track's rhythm, pitch, velocity or length · all of them |
 | GLO + W9–W14 | The six parts (intro / main / varied / break / build / drop; each genre names its own). The part changes at the next boundary while playing. |
 | K1–K4 (GLO: the second four) | The macros. The new value applies when the knob rests (about a quarter of a second). |
-| ALGORITHM | The genre. A new idea in that genre starts when the knob rests. |
+| ALGORITHM | The genre: Deep DnB, Breaks, Autonomic, Dub techno. A new idea in that genre starts when the knob rests. |
 | PRESETS | The seed. A new idea from that seed starts when the knob rests, and locked tracks stay. |
 | SELECT | The tempo. Any tempo plays; outside the genre's range it is underlined (Deep DnB 168–176, Breaks 122–135, Autonomic 160–175). Only choosing a genre resets it |
 | OCT− · OCT+ | The key, a semitone down or up. Everything pitched moves (locked tracks too); the drums stay. EDIT undoes it |

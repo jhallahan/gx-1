@@ -320,6 +320,7 @@ void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2);
 void s4_panic(void);
 void s4_load_now(int s);                   /* s4[s] was replaced (a pattern loaded): restart its state */
 void s4_queue_pattern(int s, int pat);     /* the staged pattern goes in at the next boundary */
+void s4_queue_pattern_bar(int s, int pat); /* GX-1: ... at the next bar line, from its start */
 void s4_mute(int s, int on);
 void s4_tap(void);
 void s4_restart(int s);                    /* -1 all */

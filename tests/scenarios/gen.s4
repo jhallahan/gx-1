@@ -35,6 +35,9 @@ wait 2200
 expect playing 1
 expect notes_on >20
 shot gen_playing.png
+# a new idea while playing comes in at the next bar line (from its bar 1), not at the end of the 8-bar loop
+tap FX
+until next -1 2200
 tapkey b1
 wait 100
 expect sel 1
@@ -70,6 +73,13 @@ expect view 0
 tap HOME
 wait 300
 expect view 5
+# ALGORITHM: the genre (a new idea in it when the knob rests): Breaks -> Autonomic -> Dub techno
+turn ALGO 2
+wait 1000
+until next -1 2400
+wait 1600
+shot gen_dub.png
+expect tempo 1220
 tap PLAY
 wait 300
 expect playing 0

@@ -8,11 +8,11 @@ cd "$(dirname "$0")/.."
 FAIL=0
 # genre seed part(0..5) map
 for c in "deep_dnb 1 1 tonverk" "deep_dnb 7 4 tonverk" "breaks 1 1 tonverk" "breaks 3 4 gm" "breaks 5 3 tonverk" \
-         "autonomic 2 1 tonverk" "autonomic 4 4 gm" "deep_dnb 9 2 gm"; do
+         "autonomic 2 1 tonverk" "autonomic 4 4 gm" "deep_dnb 9 2 gm" "dub_techno 1 1 tonverk" "dub_techno 6 3 gm"; do
     set -- $c
     d="build/gx/$1_s$2_p$3_$4"
     mkdir -p "$d"
-    case "$1" in breaks) ms=15200 ;; autonomic) ms=11600 ;; *) ms=11500 ;; esac
+    case "$1" in breaks) ms=15200 ;; autonomic) ms=11600 ;; dub_techno) ms=16200 ;; *) ms=11500 ;; esac
     cat > "$d/case.s4" <<EOF
 wait 300
 gx map $4

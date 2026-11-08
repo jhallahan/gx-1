@@ -47,16 +47,16 @@ static uint16_t gn_dim(int r) { return mix(GN_TRACK[r & 3], GN_BG, 120); }
 
 static const char *gn_genre_label(int g)
 {
-    static const char *const N[GX_NGENRE] = {"TEST", "DEEP DNB", "BREAKS", "AUTONOMIC"};
+    static const char *const N[GX_NGENRE] = {"TEST", "DEEP DNB", "BREAKS", "AUTONOMIC", "DUB TECHNO"};
     return (unsigned)g < GX_NGENRE ? N[g] : "?";
 }
 static const char *gn_track_label(int r)
 {
     static const char *const N[3] = {"Drums", "Sub", "Chords"};
-    int g = gxb_ok ? gxb_comp.r[GX_ROLE_UPPER].genre : gen.genre;
+    const gx_genre_prof_t *p = gx_profile((gx_genre_t)(gxb_ok ? gxb_comp.r[GX_ROLE_UPPER].genre : gen.genre));
     if (r < 3)
         return N[r];
-    return g == GX_GENRE_DEEP_DNB ? "Mid" : g == GX_GENRE_AUTONOMIC ? "Motif" : "Arp";
+    return !p ? "Upper" : p->upper.mode == GX_UPPER_MID ? "Mid" : p->upper.mode == GX_UPPER_MOTIF ? "Motif" : "Arp";
 }
 static int gn_macro(int m)
 {
@@ -370,9 +370,9 @@ static void gn_strip(void)
             int b;
             for (b = 0; b < 8 && x < 196; b++) {
                 int b1 = b;
-                if (b && !gxb_harm.change[b] && gxb_harm.deg[b] == gxb_harm.deg[b - 1])
+                if (b && gxb_harm.deg[b] == gxb_harm.deg[b - 1])   /* a chord held or repeated: one numeral */
                     continue;
-                while (b1 + 1 < 8 && !gxb_harm.change[b1 + 1] && gxb_harm.deg[b1 + 1] == gxb_harm.deg[b])
+                while (b1 + 1 < 8 && gxb_harm.deg[b1 + 1] == gxb_harm.deg[b])
                     b1++;
                 gn_numeral(b, n);
                 x = cv_text(x, 219, &FONT_XS, n, bar >= b && bar <= b1 ? acc : GN_MUTED) + 7;
@@ -610,7 +610,7 @@ static void gen_enc(int role, int32_t e)
     char t[12];
     switch (role) {
     case EN_ALGO:
-        gen.genre = (uint8_t)(1 + (gen.genre - 1 + 3 + d) % 3);
+        gen.genre = (uint8_t)(1 + (gen.genre - 1 + (GX_NGENRE - 1) + d) % (GX_NGENRE - 1));
         gen.gpend = 1;
         gen.gpend_t = now;
         say(gn_genre_label(gen.genre), "NEW IDEA...");

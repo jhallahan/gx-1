@@ -32,6 +32,7 @@ static uint32_t gxb_last_n;                    /* events in the last render (sta
 static gx_harmony_t gxb_harm;                  /* the last render's chords, per bar (the GEN page shows them) */
 static int gxb_harm_ok;
 static int gxb_set_tempo;                      /* the next render sets the tempo (a new genre only: ADR-028) */
+static int gxb_now;                            /* the next render comes in at the next bar, from its start (a new idea) */
 
 static int clampb(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
 
@@ -222,7 +223,11 @@ static int gxb_apply(void)
         s4g.tempo = gxb_comp.bpm_x10;
     gxb_set_tempo = 0;
     for (s = 0; s < S4_NSEQ; s++)
-        s4_queue_pattern(s, s4p.pat[s]);
+        if (gxb_now)
+            s4_queue_pattern_bar(s, s4p.pat[s]);
+        else
+            s4_queue_pattern(s, s4p.pat[s]);
+    gxb_now = 0;
     return (int)r.n;
 }
 
@@ -238,10 +243,11 @@ static int gxb_new(int genre, uint32_t seed)
     gx_hist_init(&gxb_hist, &gxb_comp);
     gxb_ok = 1;
     gxb_set_tempo = 1;
+    gxb_now = 1;
     return gxb_apply();
 }
 static int gxb_ready(void) { return gxb_ok ? 0 : gxb_new(GX_GENRE_DEEP_DNB, 1) < 0 ? -1 : 0; }
-static int gxb_compose(uint32_t seed) { if (gxb_ready()) return -1; gx_compose(&gxb_comp, seed); gxb_push(); return gxb_apply(); }
+static int gxb_compose(uint32_t seed) { if (gxb_ready()) return -1; gx_compose(&gxb_comp, seed); gxb_push(); gxb_now = 1; return gxb_apply(); }
 static int gxb_part(int slot)
 {
     if (gxb_ready() || slot < 0 || slot >= (int)GX_NPART)
