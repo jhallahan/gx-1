@@ -80,8 +80,15 @@ expect view 0
 tap HOME
 wait 400
 expect view 5
-# ALGORITHM: the genre (a new idea in it when the knob rests): Breaks -> Autonomic -> Dub techno
-turn ALGO 2
+# ALGORITHM: the family, GLO + ALGORITHM: the style in it (a new idea when the knob rests)
+# Breaks (BREAKS & BASS) -> TECHNO: Minimal (124) -> GLO: Dub techno (122)
+turn ALGO 1
+wait 1000
+until next -1 2400
+expect tempo 1240
+press GLO
+turn ALGO 1
+release GLO
 wait 1000
 until next -1 2400
 wait 1600

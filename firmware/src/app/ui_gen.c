@@ -31,6 +31,7 @@ static const uint16_t GN_TRACK[4] = {RGB(242, 180, 78), RGB(255, 111, 97), RGB(9
 
 static struct {
     uint8_t genre;                     /* the genre picked (gx_genre_t) */
+    uint8_t fam_style[8];              /* the style last used in each family (+1; 0: its first) */
     uint32_t seed;
     uint8_t gpend, spend;              /* ALGORITHM / PRESETS turned: a new idea when it rests */
     uint32_t gpend_t, spend_t;
@@ -47,10 +48,33 @@ static uint16_t gn_dim(int r) { return mix(GN_TRACK[r & 3], GN_BG, 120); }
 
 static const char *gn_genre_label(int g)
 {
-    static const char *const N[GX_NGENRE] = {"TEST", "DEEP DNB", "BREAKS", "AUTONOMIC", "DUB TECHNO", "IDM", "ELECTRO",
-                                             "UK GARAGE", "MINIMAL", "DOWNTEMPO", "JUNGLE", "HALFTIME",
-                                             "DEEP HOUSE", "ACID", "DUBSTEP"};
-    return (unsigned)g < GX_NGENRE ? N[g] : "?";
+    static char t[16];
+    const gx_genre_prof_t *p = gx_profile((gx_genre_t)g);
+    const char *n = p ? p->name : "?";
+    int k = 0;
+    for (; n[k] && k < 15; k++)
+        t[k] = (char)(n[k] >= 'a' && n[k] <= 'z' ? n[k] - 32 : n[k]);
+    t[k] = 0;
+    return t;
+}
+
+/* families (profiles/families.toml): ALGORITHM the family, GLO + ALGORITHM the style in it */
+static int gn_family_of(int g)
+{
+    uint32_t f, k;
+    for (f = 0; f < gx_nfamily; f++)
+        for (k = 0; k < gx_families[f].n; k++)
+            if (gx_families[f].g[k] == g)
+                return (int)f;
+    return 0;
+}
+static int gn_style_index(int f, int g)
+{
+    int k;
+    for (k = 0; k < gx_families[f].n; k++)
+        if (gx_families[f].g[k] == g)
+            return k;
+    return 0;
 }
 static const char *gn_track_label(int r)
 {
@@ -650,12 +674,22 @@ static void gen_enc(int role, int32_t e)
     uint32_t now = plat_ms();
     char t[12];
     switch (role) {
-    case EN_ALGO:
-        gen.genre = (uint8_t)(1 + (gen.genre - 1 + (GX_NGENRE - 1) + d) % (GX_NGENRE - 1));
+    case EN_ALGO: {                              /* the family; GLO: the style in it */
+        int f = gn_family_of(gen.genre), nf = (int)gx_nfamily, n;
+        if (shift()) {
+            ui.btn_used |= 1u << B_GLO;
+            n = gx_families[f].n;
+            gen.genre = gx_families[f].g[(gn_style_index(f, gen.genre) + n + d) % n];
+        } else {
+            gen.fam_style[f] = (uint8_t)(gn_style_index(f, gen.genre) + 1);
+            f = (f + nf + d) % nf;
+            gen.genre = gx_families[f].g[gen.fam_style[f] ? gen.fam_style[f] - 1 : 0];
+        }
         gen.gpend = 1;
         gen.gpend_t = now;
-        say(gn_genre_label(gen.genre), "NEW IDEA...");
+        say(gx_families[gn_family_of(gen.genre)].name, gn_genre_label(gen.genre));
         break;
+    }
     case EN_PRESET:
         gen.seed = (gen.seed + 10000u + (uint32_t)d) % 10000u;
         gen.spend = 1;

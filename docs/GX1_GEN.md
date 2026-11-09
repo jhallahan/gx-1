@@ -32,7 +32,7 @@ SEQ-4's grid, keyboard, mod lanes and menus are all still there: HOME goes to th
 | GLO + W1–W4 · W5 | Mutate the selected track's rhythm, pitch, velocity or length · all of them |
 | GLO + W9–W14 | The six parts (intro / main / varied / break / build / drop; each genre names its own). While GLO is held the strip shows them as tiles with their keys. A part comes in at the next bar, from its start (outlined, "NEXT BAR", until then) |
 | K1–K4 (GLO: the second four) | The macros. The new value applies when the knob rests (about a quarter of a second). |
-| ALGORITHM | The genre: Deep DnB, Breaks, Autonomic, Dub techno, IDM, Electro, UK garage, Minimal, Downtempo, Jungle, Halftime, Deep house, Acid, Dubstep. A new idea in that genre (from a fresh seed) starts when the knob rests. |
+| ALGORITHM · GLO + ALGORITHM | The family (DNB, BREAKS & BASS, TECHNO, HOUSE, LEFTFIELD) · the style in it (e.g. DNB: Deep DnB, Liquid, Rollers, Jungle, Halftime, Autonomic). Each family remembers its last style. A new idea in it (from a fresh seed) starts when the knob rests |
 | PRESETS | The seed. A new idea from that seed starts when the knob rests, and locked tracks stay. |
 | SELECT | The tempo. Any tempo plays; outside the genre's range it is underlined (Deep DnB 168–176, Breaks 122–135, Autonomic 160–175). Only choosing a genre resets it |
 | OCT− · OCT+ | The key, a semitone down or up. Everything pitched moves (locked tracks too); the drums stay. EDIT undoes it |

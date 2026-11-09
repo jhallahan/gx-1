@@ -143,6 +143,15 @@ const gx_genre_prof_t *gx_profile(gx_genre_t g);
 /* generated (gx_profiles_gen.c) */
 extern const gx_genre_prof_t *const gx_profiles[GX_NGENRE];
 
+/* families: styles grouped for picking (profiles/families.toml) */
+typedef struct {
+    const char *name;            /* "DNB", "TECHNO" */
+    uint8_t n;                   /* styles in it */
+    uint8_t g[8];                /* their genre ids (gx_genre_t) */
+} gx_family_t;
+extern const gx_family_t gx_families[];
+extern const uint32_t gx_nfamily;
+
 /* the drum context the pitched parts read (built from the drum render, or from locked drums) */
 typedef struct {
     uint8_t kick[GX_MAXBARS * 16u];     /* 0 none, else velocity */
