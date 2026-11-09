@@ -71,6 +71,8 @@ typedef enum {
     GX_GENRE_HARD_TECHNO,
     GX_GENRE_LOFI_HOUSE,
     GX_GENRE_AMBIENT,
+    GX_GENRE_PSYBIENT,
+    GX_GENRE_GLITCH_AMBIENT,
     GX_NGENRE
 } gx_genre_t;
 

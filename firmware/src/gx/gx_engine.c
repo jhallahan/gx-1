@@ -42,7 +42,7 @@ static const char *const genre_names[GX_NGENRE] = { "test", "deep_dnb", "breaks"
                                                      "uk_garage", "minimal", "downtempo", "jungle",
                                                      "halftime", "deep_house", "acid", "dubstep",
                                                      "liquid", "rollers", "detroit", "hard_techno", "lofi_house",
-                                                     "ambient" };
+                                                     "ambient", "psybient", "glitch_ambient" };
 
 const gx_genre_prof_t *gx_profile(gx_genre_t g)
 {
