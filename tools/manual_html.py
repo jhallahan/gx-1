@@ -16,7 +16,8 @@ import sys
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parents[1]
-PART_COLOURS = {}                                     # (X0X marks its parts with a swatch; SEQ-4 has none)
+# GX-1's four tracks, in the GEN page's colours: a track named at the start of a table cell gets its swatch
+PART_COLOURS = {"Drums": "#f2b44e", "Sub": "#ff6f61", "Chords": "#5fd6a0", "Upper": "#a08cff"}
 
 CSS = """
 /* SEQ-4's colours, as the site: a dark body, a track's cyan (the names
@@ -97,6 +98,7 @@ def inline(t):
     t = re.sub(r"(?<![\w*])\*([^*\s][^*]*)\*(?![\w*])", r"<em>\1</em>", t)
     t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>', t)
     t = re.sub(r'href="#(\d+)-[a-z0-9-]+"', r'href="#s\1"', t)   # GitHub's section anchors -> this page's ids
+    t = t.replace('href="MANUAL.md"', 'href="../seq4-manual/"').replace('href="GX1_MANUAL.md"', 'href="../manual/"')
     for name, col in PART_COLOURS.items():          # a part named at the start of a table cell gets its swatch
         t = re.sub(rf"^<strong>{name}</strong>", f'<span class="swatch" style="background:{col}"></span><strong>{name}</strong>', t)
     return t
@@ -107,7 +109,7 @@ def slug(title):
     return f"s{m.group(1)}" if m else re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
 
 
-NAME = "SEQ-4"
+NAME = "GX-1"
 IMG_BASE = SRC / "docs"
 EMBED = False                                         # --fragment: images as data URIs
 
@@ -168,11 +170,12 @@ def convert(md):
             continue
         if ln.startswith("# "):                         # the title; SEQ-4's own a way home (the site's root)
             t = ln[2:].strip()
-            if t == NAME:                               # the site's header (home, the other pages), then the title
-                out.append('<header class="site"><a class="home" href="../">SEQ-4</a><nav><a href="../emu/">Emulator</a><a href="../install/">Install</a><a href="../manual/" aria-current="page">Manual</a><a href="../source/">Source</a></nav></header>')
-                out.append('<h1>Manual</h1>')
-            else:
-                out.append(f'<a class="home" href="../">{NAME}</a>\n<h1>{inline(t)}</h1>')
+            here = "seq4" if t.startswith("SEQ-4") else "gx1"     # the site's header (home, the other pages), then the title
+            cur = {k: ' aria-current="page"' if k == here else "" for k in ("gx1", "seq4")}
+            out.append(f'<header class="site"><a class="home" href="../">{NAME}</a><nav><a href="../install/">Install</a>'
+                       f'<a href="../manual/"{cur["gx1"]}>Manual</a><a href="../seq4-manual/"{cur["seq4"]}>SEQ-4 manual</a>'
+                       '<a href="../emu/">Emulator</a><a href="../source/">Source</a></nav></header>')
+            out.append(f'<h1>{inline(t)}</h1>')
         elif ln.startswith("## "):
             t = ln[3:].strip()
             m = re.match(r"(\d+)\. (.+)", t)
@@ -241,10 +244,10 @@ def main():
     dst = Path(args[1]) if len(args) > 1 else SRC / "docs" / "manual.html"
     md = src.read_text()
     h1 = re.search(r"^# (.+)$", md, re.M)
-    title, what = (f"{NAME} Manual", "The manual") if not h1 or h1.group(1) == NAME else (f"{NAME}: {h1.group(1)}", h1.group(1))
+    title = h1.group(1) if h1 else f"{NAME} manual"
     body = convert(md)
     page = (f"<title>{html.escape(title)}</title>\n"
-            f'<meta name="description" content="{html.escape(what)} for {NAME}, firmware that makes the M-VAVE FM-1 four MIDI sequencers.">\n'
+            f'<meta name="description" content="{html.escape(title)}: GX-1, genre-aware generative MIDI firmware for the M-VAVE FM-1, built on SEQ-4.">\n'
             f"<style>{CSS}</style>\n<main>\n{body}\n</main>\n")
     if not fragment:
         head, _, rest = page.partition("<main>")

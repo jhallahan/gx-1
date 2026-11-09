@@ -2,9 +2,28 @@
 
 Each release's notes come from its section here (`tools/release_notes.py`). The newest is first.
 
+## 0.2.0 — GX-1
+
+The first GX-1 release: SEQ-4 with a generative, genre-aware composer on top.
+
+- **The GEN page**, where GX-1 starts: four generated tracks (drums, sub, chords, upper) in their own colours,
+  four macros drawn as pictures, the selected track's 16 steps, the key, tempo, part and bar, and the chord playing
+  or the whole progression in Roman numerals.
+- **Twenty styles in five families:** DNB (Deep DnB, Liquid, Rollers, Jungle, Halftime, Autonomic), Breaks & bass
+  (Breaks, UK garage, Electro, Dubstep), Techno (Minimal, Dub techno, Acid, Detroit, Hard), House (Deep house, Lo-fi
+  house) and Leftfield (IDM, Downtempo, Ambient). ALGORITHM picks the family, GLO + ALGORITHM the style.
+- **Steering:** a new idea (FX), re-roll one track (GLO + FX), mutate (SEL, or by aspect with GLO + W1–W5), lock
+  (ENV), undo and redo (EDIT), a chosen seed (PRESETS). New ideas start at the next bar from bar 1.
+- **Six song parts** a style (GLO + W9–W14), shown as tiles while GLO is held, coming in at the next bar.
+- **Macros:** Density, Sync, Space, Groove, Human and Evolve (Tension and Complex are reserved).
+- **Key and tempo:** OCT− and OCT+ change key; SELECT the tempo, with each style's usual range shown.
+- **MIDI out** on port A, channels to suit an Elektron Tonverk: kicks 1, kit 2, sub 5, chords 7, upper 8.
+- **Experimental:** a USB host probe (hold SEQ at power-on) to test plugging MIDI devices into the FM-1.
+- The firmware is now `gx1-X.Y.Z.fwsc`, and the site has the GX-1 manual beside SEQ-4's.
+
 ## 0.1.0 — 2026-10-16
 
-The first release.
+The first SEQ-4 release (devrvega), which GX-1 is built on.
 
 - **Four MIDI sequencers**, each on its own channel and USB port (four ports, A–D: 64 channels), up to 128
   steps in eight pages, sixteen patterns each, all running together from one clock (its own, or USB or TRS

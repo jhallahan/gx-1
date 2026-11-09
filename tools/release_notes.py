@@ -14,7 +14,7 @@ SRC = Path(__file__).resolve().parents[1]
 def main(version, repo=""):
     text = (SRC / "CHANGELOG.md").read_text(encoding="utf-8")
     m = re.search(rf"^## {re.escape(version)}\b[^\n]*\n(.*?)(?=^## |\Z)", text, re.M | re.S)
-    body = m.group(1).strip() if m else f"SEQ-4 {version}."
+    body = m.group(1).strip() if m else f"GX-1 {version}."
     owner, _, name = repo.partition("/")
     site = f"https://{owner.lower()}.github.io/{name}/" if repo else ""
     out = [body, "", "## Install", ""]
