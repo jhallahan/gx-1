@@ -128,22 +128,12 @@ static int uh_try(uint32_t cid)
 
     fm1_usb_reset();
     uh_wait(30);
-    FM1_CLK_CON1 &= ~3u;                                 /* USB clock = PLL48M (as the device attach) */
-    fm1_usb_ep0_buf(uh_buf);
-    FM1_USB_IO_CON0 |= (1u << 10) | (1u << 9);           /* the data inputs on (as the device attach) */
-    FM1_USB_IO_CON0 &= ~(1u << 11);
-    FM1_USB_IO_CON0 |= 1u << 12;
-    FM1_USB_IO_CON0 &= ~0xF0u;
-    FM1_USB_IO_CON0 |= 0x30u;                            /* host: 15k pull-downs on D+ and D-, no pull-up */
-    FM1_USB_CON0 &= ~0x4035u;
-    FM1_USB_CON1 = 0;
-    FM1_USB_CON0 |= 1u;                                  /* PHY on */
-    FM1_USB_CON0 |= 0x2Cu | (cid << 4);                  /* NRST, TM1, VBUS valid; CID as asked */
+    fm1_usb_host_attach(uh_buf, cid);
     uh_wait(50);
 
-    v = FM1_USB_CON0;
-    uh_line(cid ? "CID=1  D+ D-" : "CID=0  D+ D-", ((v >> 17) & 1u) << 4 | ((v >> 16) & 1u), 2,
-            (v >> 17) & 1u ? 1 : 2);                     /* 10: a full-speed device on the line */
+    v = fm1_usb_line_state();
+    uh_line(cid ? "CID=1  D+ D-" : "CID=0  D+ D-", (v >> 1) << 4 | (v & 1u), 2,
+            (v >> 1) ? 1 : 2);                           /* 10: a full-speed device on the line */
 
     sie_wr(UH_S_DEVCTL, 0x01u);                          /* Session */
     uh_wait(20);
