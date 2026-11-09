@@ -348,7 +348,7 @@ void fm1_timer5_irq(void)
             uac_service();
 #endif
     }
-    if (usb_due && !en_dbg.in_audio) {
+    if (usb_due && !en_dbg.in_audio && !usbh_mode) {   /* (the USB host probe owns the core) */
         usb_due = 0;
         usb_poll();
 #if EN_TRS
@@ -554,6 +554,8 @@ static void fm1_main(void)
     fm1_delay_ms(30);
     if ((fm1_in.buttons & 3u) == 3u)
         panel_setup();                              /* OCT- + OCT+ held at power-on */
+    if (fm1_in.buttons & (1u << panel.btn[B_SEQ]))
+        usbhost_probe();                            /* SEQ held at power-on: the USB host probe (never returns) */
     fm1_delay_ms(400);
     ui_init();
 
