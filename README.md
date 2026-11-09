@@ -62,7 +62,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 | **LEFTFIELD** | IDM · Downtempo · Ambient |
 
 The music engine is [fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator): integer-only C, deterministic
-(the same style and seed always give the same music), with the styles written as profiles.
+(the same style and idea number always give the same music), with the styles written as profiles.
 
 ## The controls in short
 
@@ -74,7 +74,7 @@ The music engine is [fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator
 | Black keys 1–4 · 5–8 | Select · mute drums, sub, chords, upper |
 | GLO + W9–W14 | The song parts |
 | K1–K4 · GLO + K1–K4 | Density, Sync, Space, Groove · Human, Tension, Complex, Evolve |
-| ALGORITHM · PRESETS · SELECT | Family (GLO: style) · seed · tempo |
+| ALGORITHM · PRESETS · SELECT | Family (GLO: style) · idea number · tempo |
 | OCT− · OCT+ | The key down · up |
 | SEQ · HOME | SEQ-4's grid · back to GEN |
 

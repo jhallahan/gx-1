@@ -13,7 +13,7 @@ The first GX-1 release: SEQ-4 with a generative, genre-aware composer on top.
   (Breaks, UK garage, Electro, Dubstep), Techno (Minimal, Dub techno, Acid, Detroit, Hard), House (Deep house, Lo-fi
   house) and Leftfield (IDM, Downtempo, Ambient). ALGORITHM picks the family, GLO + ALGORITHM the style.
 - **Steering:** a new idea (FX), re-roll one track (GLO + FX), mutate (SEL, or by aspect with GLO + W1–W5), lock
-  (ENV), undo and redo (EDIT), a chosen seed (PRESETS). New ideas start at the next bar from bar 1.
+  (ENV), undo and redo (EDIT), an idea by its number (PRESETS). New ideas start at the next bar from bar 1.
 - **Six song parts** a style (GLO + W9–W14), shown as tiles while GLO is held, coming in at the next bar.
 - **Eight macros:** Density, Sync, Space, Groove, and with GLO Human, Tension (harmonic colour) and Complex
   (rhythmic and melodic detail), Evolve. The parts lean on Tension and Complex: a build leans in, a drop resolves.

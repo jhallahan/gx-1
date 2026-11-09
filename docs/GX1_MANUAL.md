@@ -31,7 +31,7 @@ This manual covers version 0.2.
    Set up four instruments: drums on channels 1 and 2, a bass on channel 5, a pad or keys on channel 7,
    and a lead or pluck on channel 8. [Section 3](#3-connecting-it-up) has the details.
 3. **Press PLAY.** The four tracks start.
-4. **Press FX** for a new idea: all four tracks are rewritten from a new seed, starting at the next bar.
+4. **Press FX** for a new idea: all four tracks are rewritten as a new idea, starting at the next bar.
 5. **Turn ALGORITHM** to change family (DNB, TECHNO, HOUSE…). **Hold GLO and turn ALGORITHM** to pick a style
    in that family.
 6. **Press black keys 1–4** to choose drums, sub, chords or upper. Press **SEL** to mutate that track, or
@@ -134,7 +134,7 @@ GX-1 starts on the GEN page.
 ## 5. Families and styles
 
 **ALGORITHM** chooses the family. **GLO + ALGORITHM** chooses the style in it. The screen shows both names, and a
-new idea in that style starts when the knob stops (at its usual tempo, from a fresh seed). Each family remembers
+new idea in that style starts when the knob stops (at its usual tempo, as a fresh idea). Each family remembers
 the style you last used.
 
 | Family | Styles (usual tempo, BPM) |
@@ -146,19 +146,19 @@ the style you last used.
 | **LEFTFIELD** | IDM (110–150) · Downtempo (80–100) · Ambient (60–100) |
 
 Each style has its own drum language, scale (minor, Dorian or Phrygian), chord progressions, bass behaviour and
-upper part, and its own six song parts. The same style and seed always give the same music.
+upper part, and its own six song parts. The same style and idea number always give the same music.
 
 ## 6. New ideas, mutate, lock, re-roll, undo
 
 | Do this | Press | What happens |
 |---|---|---|
-| A new idea | **FX** | Every unlocked track is rewritten from a new seed. While playing, it starts at the next bar from bar 1 |
-| Re-roll one track | **GLO + FX** | Only the selected track gets a new seed |
+| A new idea | **FX** | Every unlocked track is rewritten as a new idea. While playing, it starts at the next bar from bar 1 |
+| Re-roll one track | **GLO + FX** | Only the selected track is rewritten |
 | Mutate | **SEL** | The selected track changes a little in every aspect. It keeps its character |
 | Mutate one aspect | **GLO + W1–W4** | Rhythm, pitch, velocity or length of the selected track (W5: all four) |
 | Lock | **ENV** | The selected track is kept through new ideas (ENV lights while it's locked) |
 | Undo · redo | **EDIT · GLO + EDIT** | Back and forward through everything above, and key changes |
-| A particular seed | **PRESETS** | Turn to choose the seed number; a new idea from it starts when the knob stops. Locked tracks stay |
+| A particular idea | **PRESETS** | Every idea has a number (it shows as `IDEA #3806`). Turn to step through them; it starts when the knob stops. Locked tracks stay. Note a number you like to find it again |
 
 A good way to work: press FX until the drums are right, lock them (ENV), then keep pressing FX for the other
 three. Use SEL for small changes.
@@ -205,7 +205,7 @@ and the loop drifting from its original for Evolve.
 - **Key:** OCT− and OCT+ move the key a semitone down or up. Everything pitched moves (locked tracks too); the
   drums stay. EDIT undoes it.
 - **Tempo:** turn **SELECT**. Any tempo plays; outside the style's usual range it's underlined. Choosing a new
-  style resets it, but new ideas, seeds and parts don't.
+  style resets it, but new ideas and parts don't.
 - **Progression:** select Chords (black key 3). The bottom line shows the progression in Roman numerals
   (`i VII VI VII`), with the chord playing lit.
 
@@ -229,7 +229,7 @@ and the loop drifting from its original for Evolve.
 | GLO + W9–W14 | The six song parts (at the next bar) |
 | K1–K4 · GLO + K1–K4 | The macros |
 | ALGORITHM · GLO + ALGORITHM | The family · the style in it |
-| PRESETS | The seed |
+| PRESETS | The idea number |
 | SELECT | The tempo |
 | OCT− · OCT+ | The key down · up |
 | REC, SAVE, ARP, LFO | As in SEQ-4 |

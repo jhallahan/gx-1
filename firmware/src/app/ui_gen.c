@@ -15,7 +15,7 @@
  *   black 9, 10       the page (bar) back and on
  *   K1-K4             density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution)
  *   ALGORITHM         the genre (a new idea in it when the knob rests)
- *   PRESETS           the seed (a new idea from it when the knob rests; locked tracks stay)
+ *   PRESETS           the idea number (a new idea from it when the knob rests; locked tracks stay)
  *   SELECT            the tempo (the genre's range is marked, not enforced: ADR-028)
  *   OCT- / OCT+       the key, a semitone (everything pitched moves; the drums stay)
  *   FX new idea (GLO: re-roll the selected track) · SEL mutate · ENV lock · EDIT undo (GLO: redo)
@@ -777,7 +777,7 @@ static void gen_enc(int role, int32_t e)
         gen.spend = 1;
         gen.spend_t = now;
         gn_seed_text(t);
-        say("SEED", t);
+        say("IDEA", t);
         break;
     case EN_SELECT: {                            /* the tempo (any; the genre's range is marked) */
         int v = clampi((int)s4g.tempo + (int)accel(EN_SELECT, e, 100) * 10, 600, 2000);
@@ -831,9 +831,9 @@ static void gen_service(void)
         if (!gxb_ok)
             gn_ensure();
         else
-            gn_result(gxb_compose(gen.seed), "SEED");
+            gn_result(gxb_compose(gen.seed), "IDEA");
         gn_seed_text(t);
-        say("SEED", t);
+        say("IDEA", t);
     }
     if (gen.mpend && now - gen.mpend_t > 250u) {
         if (!gn_ensure())
