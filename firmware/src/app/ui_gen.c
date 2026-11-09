@@ -331,7 +331,7 @@ static void gn_glo_layer(void)
     int k, waiting = s4p.on && s4p.next[0] != 0xFF;
     uint16_t acc = gn_c(sel());
     pad(2, 174, 236, 64, GN_PANEL);
-    cv_text(7, 176, &FONT_XS, "PARTS", GN_MUTED);
+    cv_text(7, 176, &FONT_XS, "PARTS: the lit keys", GN_MUTED);
     text_r(232, 176, &FONT_XS, waiting ? "NEXT BAR" : "GLO + key", waiting ? acc : GN_MUTED);
     for (k = 0; k < (int)GX_NPART; k++) {
         int32_t x = 5 + k * 39;
@@ -743,10 +743,11 @@ static void gen_leds(uint32_t *bp, uint32_t *kp)
     if (shift()) {                               /* the second layer: mutate, the parts */
         for (i = 0; i < 16; i++)
             k &= ~(1u << WHITE_KEY[i]);
-        for (i = 0; i < 5; i++)
+        for (i = 0; i < 5; i++)                  /* W1-W5: mutate */
             k |= 1u << WHITE_KEY[i];
-        if (gxb_ok)
-            k |= 1u << WHITE_KEY[8 + gxb_comp.part];
+        for (i = 0; i < (int)GX_NPART; i++)      /* W9-W14: the six parts lit, the one chosen blinking */
+            if (!(gxb_ok && i == gxb_comp.part) || blink())
+                k |= 1u << WHITE_KEY[8 + i];
     }
     if (gn_locked(sel()))
         b |= 1u << B_ENV;
