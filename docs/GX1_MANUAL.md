@@ -194,10 +194,11 @@ leaves the style as written.
 
 **The parts lean on Tension and Complex for you.** Your knob sets the level for the whole idea, and each part adds
 its own lean: the break opens the harmony, the build leans in hard and gets busier, the drop resolves to plainer
-chords with a bit more detail, and the intro is plainer and simpler. Each picture shows what its macro does: the
-number of bars for Density, hits pushed off the beat for Sync, a gap for Space, the swung second hit for Groove,
-wandering bars for Human, a chord stacking up for Tension, the beat dividing for Complex, and a loop drifting for
-Evolve.
+chords with a bit more detail, and the intro is plainer and simpler. Each picture shows what its macro does, in grey
+where things start and in the track's colour where the knob has taken them, with a small square on the value: the
+voices playing for Density, pulses sliding off the beat for Sync, the silence after a hit for Space, the swung
+second hit for Groove, a line wandering for Human, a chord stacking up for Tension, the beat dividing for Complex,
+and the loop drifting from its original for Evolve.
 
 ## 9. Key, tempo and the progression
 

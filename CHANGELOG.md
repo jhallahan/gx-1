@@ -17,7 +17,7 @@ The first GX-1 release: SEQ-4 with a generative, genre-aware composer on top.
 - **Six song parts** a style (GLO + W9–W14), shown as tiles while GLO is held, coming in at the next bar.
 - **Eight macros:** Density, Sync, Space, Groove, and with GLO Human, Tension (harmonic colour) and Complex
   (rhythmic and melodic detail), Evolve. The parts lean on Tension and Complex: a build leans in, a drop resolves.
-  Each macro has its own picture, in flat blocks of the track's colour.
+  Each macro has its own picture: grey guides, the track's colour for what the knob does, a handle on the value.
 - **Key and tempo:** OCT− and OCT+ change key; SELECT the tempo, with each style's usual range shown.
 - **MIDI out** on port A, channels to suit an Elektron Tonverk: kicks 1, kit 2, sub 5, chords 7, upper 8.
 - **Experimental:** a USB host probe (hold SEQ at power-on) to test plugging MIDI devices into the FM-1.
