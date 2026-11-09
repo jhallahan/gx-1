@@ -44,7 +44,7 @@ static struct {
 } gen;
 
 static uint16_t gn_c(int r) { return GN_TRACK[r & 3]; }
-static uint16_t gn_dim(int r) { return mix(GN_TRACK[r & 3], GN_BG, 120); }
+static uint16_t gn_dim(int r) { (void)r; return RGB(104, 104, 114); }   /* an unselected track: grey (colour is for the selected one) */
 
 static const char *gn_genre_label(int g)
 {
@@ -214,7 +214,7 @@ static void gn_header(void)
     x = cv_text(x + 6, 3, &FONT_XS, t, GN_MUTED);
     itoa_u(s4g.tempo / 10u, n);
     {
-        int32_t x1 = cv_text(x + 5, 3, &FONT_XS, n, gn_tempo_out() ? GN_INK : gn_c(sel()));
+        int32_t x1 = cv_text(x + 5, 3, &FONT_XS, n, gn_tempo_out() ? GN_INK : GN_MUTED);
         if (gn_tempo_out())                       /* outside the genre's range: underlined */
             for (; x1 > x + 5; x1 -= 3)
                 cv_rect(x1 - 2, 17, 2, 1, GN_INK);
@@ -249,7 +249,7 @@ static void gn_rows(void)
             cv_rect(4, y + 5, 10, 10, c);
         else
             frame(4, y + 5, 10, 10, c);
-        cv_text(19, y + 2, &FONT_S, gn_track_label(r), muted ? GN_MUTED : on ? GN_INK : RGB(185, 185, 192));
+        cv_text(19, y + 2, &FONT_S, gn_track_label(r), muted ? GN_OFF : on ? GN_INK : GN_MUTED);
         gn_bar(r, bar, vel, len);
         cv_rect(70, y + 16, 128, 1, on ? c : mix(c, GN_BG, 140));
         for (i = 0; i < 16; i++) {
@@ -416,7 +416,7 @@ static void gn_macros(void)
     static const char *const N[GX_NMACRO] = {"Density", "Sync", "Space", "Groove", "Human", "Tension", "Complex",
                                              "Evolve"};
     int i, hi = shift() ? 4 : 0;
-    uint16_t acc = gn_c(sel());
+    uint16_t acc = GN_INK;                       /* the macros change every track: neutral, not the track's colour */
     cv_rect(4, 101, 232, 1, GN_LINE);
     for (i = 0; i < 4; i++) {
         int m = hi + i, v = gn_macro(m);
@@ -424,7 +424,7 @@ static void gn_macros(void)
         char t[6];
         cv_text(x, 103, &FONT_XS, N[m], GN_INK);
         gn_macro_pic(m, v, x, 120, acc);
-        cv_text(x, 154, &FONT_XS, itoa_u((uint32_t)v, t), (gen.mpend >> m & 1u) ? GN_INK : acc);
+        cv_text(x, 154, &FONT_XS, itoa_u((uint32_t)v, t), (gen.mpend >> m & 1u) ? GN_INK : GN_MUTED);
         cv_text(x + 22, 154, &FONT_XS, i == 0 ? "K1" : i == 1 ? "K2" : i == 2 ? "K3" : "K4", GN_OFF);
     }
 }
@@ -435,7 +435,7 @@ static void gn_glo_layer(void)
 {
     static const char *const K[6] = {"W9", "W10", "W11", "W12", "W13", "W14"};
     int k, waiting = s4p.on && s4p.next[0] != 0xFF;
-    uint16_t acc = gn_c(sel());
+    uint16_t acc = GN_INK;                       /* parts are the whole song's: neutral */
     pad(2, 174, 236, 64, GN_PANEL);
     cv_text(7, 176, &FONT_XS, "PARTS: the lit keys", GN_MUTED);
     text_r(232, 176, &FONT_XS, waiting ? "NEXT BAR" : "GLO + key", waiting ? acc : GN_MUTED);
