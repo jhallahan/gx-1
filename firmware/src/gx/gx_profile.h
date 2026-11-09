@@ -168,6 +168,8 @@ typedef struct {
     uint16_t pcs[GX_MAXBARS];           /* bit p: pitch class p is a chord tone */
     uint8_t col[GX_MAXBARS];            /* gx_colour_t */
     uint8_t change[GX_MAXBARS];         /* 1: a new chord starts on this bar */
+    uint8_t prog;                       /* the progression used (0-based) */
+    uint8_t bpc;                        /* bars per chord used */
 } gx_harmony_t;
 
 void gx_ctx_build(const gx_render_t *drums, uint32_t bars, gx_ctx_t *ctx);

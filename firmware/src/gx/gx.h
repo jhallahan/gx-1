@@ -110,6 +110,8 @@ typedef struct {
     uint8_t lock;              /* bit per role: locked roles keep their seed and their notes */
     uint8_t part;              /* the part slot playing (M5): 0 opening, 1 main (the default), 2 varied,
                                 * 3 breakdown, 4 rising, 5 peak; each genre names and shapes its own */
+    uint8_t prog;              /* the progression: 0 the idea picks one of the style's, 1..nprog that one */
+    uint8_t bpc;               /* bars per chord: 0 the idea picks (from the style's), else 1, 2, 4 or 8 */
     gx_recipe_t lsub[2];       /* the sub's context when it was locked: drums, chords */
     gx_recipe_t lup[4];        /* the upper part's context when locked: the sub's drums and chords,
                                 * the upper part's chords, the sub */

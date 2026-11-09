@@ -151,11 +151,16 @@ void gx_harmony_build(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_p
 {
     const gx_harm_prof_t *H = &p->harm;
     uint32_t seed = r->seed, bar;
-    uint32_t pi = gx_range(gx_hash(seed, HARM_ID, 0, 0, GX_P_PICK), 0, H->nprog ? H->nprog - 1u : 0u);
-    uint32_t bpc = H->nbpc ? H->bpc[gx_range(gx_hash(seed, HARM_ID, 0, 1, GX_P_PICK), 0, H->nbpc - 1u)] : 2u;
+    /* the progression and the bars per chord: chosen by the player (c->prog, c->bpc), or by the idea */
+    uint32_t pi = c->prog && c->prog <= H->nprog ? c->prog - 1u
+                  : gx_range(gx_hash(seed, HARM_ID, 0, 0, GX_P_PICK), 0, H->nprog ? H->nprog - 1u : 0u);
+    uint32_t bpc = c->bpc ? c->bpc
+                   : H->nbpc ? H->bpc[gx_range(gx_hash(seed, HARM_ID, 0, 1, GX_P_PICK), 0, H->nbpc - 1u)] : 2u;
     uint32_t len = H->prog_len[pi] ? H->prog_len[pi] : 1u;
     if (!bpc)
         bpc = 2;
+    h->prog = (uint8_t)pi;
+    h->bpc = (uint8_t)bpc;
     /* Tension: plain triads give way to sevenths, add9s, sus2s and elevenths (and back the other way) */
     const int32_t dt = tension_of(r, p, c);
     uint8_t cw[GX_NCOL];

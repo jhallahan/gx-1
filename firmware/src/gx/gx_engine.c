@@ -98,6 +98,8 @@ void gx_comp_init(gx_comp_t *c, gx_genre_t genre, uint32_t seed, uint16_t bpm_x1
     c->bars = bars;
     c->lock = 0;
     c->part = GX_PART_MAIN;
+    c->prog = 0;
+    c->bpc = 0;
     c->lsub[0] = c->lsub[1] = c->r[GX_ROLE_SUB];
     c->lup[0] = c->lup[1] = c->lup[2] = c->lup[3] = c->r[GX_ROLE_UPPER];
 }
