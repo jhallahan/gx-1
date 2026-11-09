@@ -185,11 +185,19 @@ playing blinking.
 | K3 | **Space** | Gaps and drop-outs: higher leaves more room (all tracks) |
 | K4 | **Groove** | Swing in the drums |
 | GLO + K1 | **Human** | Looser drum timing and velocity |
-| GLO + K2 | **Tension** | Not connected yet |
-| GLO + K3 | **Complex** | Not connected yet |
+| GLO + K2 | **Tension** | Harmonic colour: plain triads at 0, sevenths, add9s and elevenths as it rises; the bass leaves the root more and the lead takes more colour tones |
+| GLO + K3 | **Complex** | Detail: more off-beat 16ths, ghost notes and ratchets in the fills as it rises, octave leaps in the lead; simpler and squarer below 64 |
 | GLO + K4 | **Evolve** | How much the loop changes over its bars (all tracks) |
 
-A new value applies when the knob stops turning (about a quarter of a second), at the next loop.
+A new value applies when the knob stops turning (about a quarter of a second), at the next loop. At 64 a macro
+leaves the style as written.
+
+**The parts lean on Tension and Complex for you.** Your knob sets the level for the whole idea, and each part adds
+its own lean: the break opens the harmony, the build leans in hard and gets busier, the drop resolves to plainer
+chords with a bit more detail, and the intro is plainer and simpler. Each picture shows what its macro does: the
+number of bars for Density, hits pushed off the beat for Sync, a gap for Space, the swung second hit for Groove,
+wandering bars for Human, a chord stacking up for Tension, the beat dividing for Complex, and a loop drifting for
+Evolve.
 
 ## 9. Key, tempo and the progression
 

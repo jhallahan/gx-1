@@ -112,6 +112,8 @@ typedef struct {
     uint8_t upper;               /* 1 on, 0 off */
     uint8_t vary;                /* 0..127: a built-in variation of drums, sub and upper (the "B" part) */
     uint8_t cc;                  /* gx_cc_mode_t */
+    int8_t tension;              /* added to the Tension macro in this part (a build leans in, a drop resolves) */
+    int8_t complex;              /* added to the Complex macro in this part */
 } gx_part_prof_t;
 
 typedef struct {

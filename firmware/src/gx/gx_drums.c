@@ -83,6 +83,8 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
     const uint16_t aonly = ANCHOR_ONLY[pt->drums < 5u ? pt->drums : 0u];
     const uint32_t s0 = o->n;
     const int32_t dg = mdelta(r, GX_M_GROOVE), dh = mdelta(r, GX_M_HUMAN), dev = mdelta(r, GX_M_EVOLVE);
+    /* Complex (the knob plus the part's lean): ghost notes, and ratchets in the fills */
+    const int32_t dc = clampi(mdelta(r, GX_M_COMPLEX) + pt->complex, -64, 63);
     const uint32_t var = (uint32_t)clampi((int32_t)p->var * (64 + dev) / 64, 0, 255);
     const int32_t swing = clampi((int32_t)p->swing + dg * (int32_t)p->swing_range / 64, 50, 75);
     const int32_t vj = (int32_t)p->vjit * (64 + dh) / 64;
@@ -136,6 +138,8 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 if (in_fill && L->fill_set)
                     w = L->fill_w[step - fill_from];
                 w = shape_weight(w, step, L, ddb, ds);
+                if (L->ghost)
+                    w = (uint32_t)clampi((int32_t)w * (64 + dc) / 64, 0, 255);
                 wt[l][step] = (uint8_t)w;
                 if (ab_off)
                     continue;
@@ -222,9 +226,15 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 t += jitter(gx_hash(seed, LANE_ID(l), db, step, GX_P_TIME), tj) * (int32_t)GX_STEP / 100;
                 t = clampi(t, 0, (int32_t)end - 1);
 
-                if (fill && p->break_edits && step >= fill_from && L->rep_p &&
-                    gx_chance(gx_hash(seed, LANE_ID(l), bar, step, GX_P_REP), L->rep_p))
-                    rep = (uint8_t)gx_range(gx_hash(seed, LANE_ID(l), bar, step, GX_P_LEN), 2, L->rep_max);
+                if (fill && step >= fill_from) {
+                    /* break edits ratchet as the genre says (more or less with Complex); any genre's
+                       non-kick lanes may ratchet once Complex is high */
+                    uint32_t rp = p->break_edits && L->rep_p ? (uint32_t)clampi((int32_t)L->rep_p * (64 + dc) / 64, 0, 255)
+                                  : (l > GX_LANE_KICK_B && dc > 16 ? (uint32_t)(dc - 16) * 3u : 0u);
+                    if (rp && gx_chance(gx_hash(seed, LANE_ID(l), bar, step, GX_P_REP), rp))
+                        rep = (uint8_t)gx_range(gx_hash(seed, LANE_ID(l), bar, step, GX_P_LEN), 2,
+                                                L->rep_max >= 2u ? L->rep_max : 2u);
+                }
 
                 if (o->n >= o->cap) {
                     o->dropped++;

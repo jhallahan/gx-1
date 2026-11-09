@@ -272,58 +272,79 @@ static void gn_rows(void)
     }
 }
 
-static void gn_macro_pic(int m, int v, int32_t x, int32_t y, uint16_t acc)   /* 52 x 30 */
+/* the macros as pictures (52 x 30): flat blocks in the track's colour, unlit parts grey, no outlines. Each
+   macro has its own picture and the knob changes most of it. web/player.html draws the same at twice the size. */
+static void gn_blk(int32_t x, int32_t b, int32_t w, int32_t h, uint16_t c) { cv_rect(x, b - h, w, h, c); }
+static void gn_macro_pic(int m, int v, int32_t x, int32_t y, uint16_t acc)
 {
     int i;
-    int32_t b = y + 29;
-    switch (m & 3) {
-    case 0: {                                    /* density: bars lit */
-        static const uint8_t H[6] = {16, 24, 12, 28, 20, 14};
-        int n = 1 + v * 6 / 128;
-        for (i = 0; i < 6; i++) {
-            if (i < n)
-                cv_rect(x + i * 9, b - H[i], 6, H[i], acc);
-            else
-                cv_rect(x + i * 9, b - 3, 6, 3, GN_OFF);
-        }
+    const int32_t b = y + 30;
+    switch (m) {
+    case 0: {                                    /* density: how many of eight bars play */
+        int n = 1 + v * 8 / 128;
+        for (i = 0; i < 8; i++)
+            gn_blk(x + i * 7, b, 5, i < n ? 26 : 3, i < n ? acc : GN_OFF);
         break;
     }
-    case 1: {                                    /* syncopation: pulses pushed off the beat */
-        int32_t sh = v * 6 / 127, px = x;
+    case 1: {                                    /* sync: hits pushed off their beats (grey: the empty beat) */
+        static const uint8_t ORDER[4] = {1, 3, 0, 2};
+        int n = v * 5 / 128, k;
         for (i = 0; i < 4; i++) {
-            int32_t p0 = x + i * 13 + sh;
-            cv_line(px, b, p0, b, GN_INK);
-            cv_line(p0, b, p0, y + 6, GN_INK);
-            cv_line(p0, y + 6, p0 + 5, y + 6, GN_INK);
-            cv_line(p0 + 5, y + 6, p0 + 5, b, GN_INK);
-            cv_rect(p0 + 1, y + 7, 4, b - y - 7, acc);
-            px = p0 + 5;
-        }
-        cv_line(px, b, x + 51, b, GN_INK);
-        break;
-    }
-    case 2: {                                    /* space: the tail after a hit */
-        int32_t k = 2 + v / 5, py = y + 2;
-        for (i = 0; i < 52; i++) {
-            int32_t yy = b - 27 * k / (k + i * 2);
-            cv_rect(x + i, yy, 1, b - yy, mix(acc, GN_BG, 90));
-            if (i)
-                cv_line(x + i - 1, py, x + i, yy, GN_INK);
-            py = yy;
+            int off = 0;
+            for (k = 0; k < n && k < 4; k++)
+                off |= ORDER[k] == i;
+            gn_blk(x + i * 13, b, 5, off ? 3 : 26, off ? GN_OFF : acc);
+            if (off)
+                gn_blk(x + i * 13 + 6, b, 5, 26, acc);
         }
         break;
     }
-    default: {                                   /* groove: the off-beats pushed late */
-        int32_t sw = v * 7 / 127, lx = x, ly = b;
+    case 2: {                                    /* space: a gap opens in the run */
+        int g = v * 9 / 128;
+        for (i = 0; i < 10; i++) {
+            int gap = i >= 2 && i < 2 + g;
+            gn_blk(x + i * 5, b, 3, gap ? 3 : 26, gap ? GN_OFF : acc);
+        }
+        break;
+    }
+    case 3: {                                    /* groove: each pair's second hit swung late */
+        int32_t sw = v * 5 / 127;
         for (i = 0; i < 4; i++) {
-            int32_t ux = x + i * 13 + (i & 1 ? sw : 0) + 6, uy = (i & 1) ? y + 10 : y + 4;
-            cv_line(lx, ly, ux, uy, GN_INK);
-            cv_rect(ux - 1, uy - 1, 3, 3, acc);
-            lx = ux;
-            ly = b;
-            cv_line(ux, uy, ux + 6 > x + 51 ? x + 51 : ux + 6, b, GN_INK);
-            lx = ux + 6;
+            gn_blk(x + i * 13, b, 3, 26, acc);
+            gn_blk(x + i * 13 + 4 + sw, b, 3, 16, acc);
         }
+        break;
+    }
+    case 4: {                                    /* human: even bars wander in height and place */
+        static const int8_t JH[8] = {-8, 4, -12, 2, -4, 6, -10, 0}, JX[8] = {0, 1, -1, 1, -1, 1, 0, -1};
+        for (i = 0; i < 8; i++)
+            gn_blk(x + i * 7 + JX[i] * v / 127, b, 4, 22 + JH[i] * v / 127, acc);
+        break;
+    }
+    case 5: {                                    /* tension: the chord stacks up (triad, 7th, 9th, 11th...) */
+        int n = 3 + v * 4 / 128;
+        for (i = 0; i < 6; i++)
+            cv_rect(x + (i & 1) * 18, b - 4 - i * 5, 32, 3, i < n ? acc : GN_OFF);
+        break;
+    }
+    case 6: {                                    /* complex: the beat divides into 8ths, then 16ths */
+        int lvl = v < 43 ? 0 : v < 86 ? 1 : 2;
+        for (i = 0; i < 16; i++) {
+            int l = (i & 3) == 0 ? 0 : (i & 1) == 0 ? 1 : 2;
+            if (l <= lvl)
+                gn_blk(x + i * 3 + 1, b, 2, l == 0 ? 26 : l == 1 ? 18 : 10, acc);
+            else if (l == 0 || lvl == l - 1)
+                gn_blk(x + i * 3 + 1, b, 2, 2, GN_OFF);
+        }
+        break;
+    }
+    default: {                                   /* evolve: four bars of a loop, the later ones drifting */
+        static const uint8_t H[3] = {20, 12, 24};
+        static const int8_t D[3] = {6, 10, -12};
+        int g, k;
+        for (g = 0; g < 4; g++)
+            for (k = 0; k < 3; k++)
+                gn_blk(x + g * 13 + k * 4, b, 3, H[k] + D[(k + g) % 3] * g * v / (3 * 127), acc);
         break;
     }
     }
@@ -341,7 +362,7 @@ static void gn_macros(void)
         int32_t x = 6 + i * 59;
         char t[6];
         cv_text(x, 103, &FONT_XS, N[m], GN_INK);
-        gn_macro_pic(m, v, x, 121, acc);
+        gn_macro_pic(m, v, x, 120, acc);
         cv_text(x, 154, &FONT_XS, itoa_u((uint32_t)v, t), (gen.mpend >> m & 1u) ? acc : GN_MUTED);
         cv_text(x + 22, 154, &FONT_XS, i == 0 ? "K1" : i == 1 ? "K2" : i == 2 ? "K3" : "K4", GN_OFF);
     }

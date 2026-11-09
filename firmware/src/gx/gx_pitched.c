@@ -20,6 +20,25 @@ static const uint8_t SCALE[GX_NSCALE][7] = {
 static int32_t clampi(int32_t v, int32_t lo, int32_t hi) { return v < lo ? lo : v > hi ? hi : v; }
 static int32_t mdelta(const gx_recipe_t *r, gx_macro_t m) { return (int32_t)r->macro[m] - 64; }
 
+/* Tension and Complex: the knob, plus the part's lean (a build leans in, an intro is plainer); -64..63 */
+static const gx_part_prof_t *part_of(const gx_genre_prof_t *p, const gx_comp_t *c)
+{
+    return &p->part[c->part < GX_NPART ? c->part : GX_PART_MAIN];
+}
+static int32_t tension_of(const gx_recipe_t *r, const gx_genre_prof_t *p, const gx_comp_t *c)
+{
+    return clampi(mdelta(r, GX_M_TENSION) + part_of(p, c)->tension, -64, 63);
+}
+static int32_t complex_of(const gx_recipe_t *r, const gx_genre_prof_t *p, const gx_comp_t *c)
+{
+    return clampi(mdelta(r, GX_M_COMPLEX) + part_of(p, c)->complex, -64, 63);
+}
+/* Complex on a step's weight: the off-16ths (odd steps) get busier or plainer; on-steps are left alone */
+static int32_t complex_w(int32_t w, uint32_t step, int32_t dc)
+{
+    return (step & 1u) ? w * (64 + dc) / 64 : w;
+}
+
 /* semitones of a scale degree (any octave) above the key */
 static uint32_t deg_semi(uint32_t scale, uint32_t deg) { return SCALE[scale][deg % 7u] + 12u * (deg / 7u); }
 
@@ -137,9 +156,21 @@ void gx_harmony_build(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_p
     uint32_t len = H->prog_len[pi] ? H->prog_len[pi] : 1u;
     if (!bpc)
         bpc = 2;
+    /* Tension: plain triads give way to sevenths, add9s, sus2s and elevenths (and back the other way) */
+    const int32_t dt = tension_of(r, p, c);
+    uint8_t cw[GX_NCOL];
+    uint32_t i;
+    for (i = 0; i < GX_NCOL; i++) {
+        int32_t w = H->colour[i];
+        if (i == GX_COL_TRIAD)
+            w = w * (64 - dt) / 64;
+        else
+            w = w * (64 + dt) / 64 + (dt >= 32 ? 1 : 0);
+        cw[i] = (uint8_t)clampi(w, 0, 255);
+    }
     for (bar = 0; bar < GX_MAXBARS; bar++) {
         uint32_t k = bar / bpc, slot = k % len, d = H->prog[pi][slot];
-        int col = pick(gx_hash(seed, HARM_ID, slot, 2, GX_P_PICK), H->colour, GX_NCOL);
+        int col = pick(gx_hash(seed, HARM_ID, slot, 2, GX_P_PICK), cw, GX_NCOL);
         if (col < 0)
             col = GX_COL_TRIAD;
         h->deg[bar] = (uint8_t)d;
@@ -242,7 +273,7 @@ void gx_chords_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_p
 {
     const gx_chord_prof_t *C = &p->chords;
     const uint32_t seed = r->seed, end = (uint32_t)c->bars * GX_BAR;
-    const int32_t dd = mdelta(r, GX_M_DENSITY);
+    const int32_t dd = mdelta(r, GX_M_DENSITY), dc = complex_of(r, p, c);
     const uint32_t var = evolve_var(r, p);
     int stab = gx_chance(gx_hash(seed, ID(GX_ROLE_CHORDS, 0), 0, 0, GX_P_PICK), C->stab_p);
     const gx_part_prof_t *pt = &p->part[c->part < GX_NPART ? c->part : GX_PART_MAIN];
@@ -281,7 +312,7 @@ void gx_chords_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_p
             for (bar = b0; bar < b1; bar++) {
                 uint32_t step;
                 for (step = 0; step < 16u; step++) {
-                    int32_t w = (int32_t)C->w[step] * (6400 + dd * 100) / 6400;
+                    int32_t w = complex_w((int32_t)C->w[step] * (6400 + dd * 100) / 6400, step, dc);
                     uint32_t db = dbar(seed, ID(GX_ROLE_CHORDS, 3), bar, step, var);
                     int32_t vel, t;
                     if (w <= 0 || !gx_chance(gx_hash(seed, ID(GX_ROLE_CHORDS, 3), db, step, GX_P_ONSET), (uint32_t)clampi(w, 0, 255)))
@@ -322,7 +353,13 @@ void gx_sub_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_prof
     const gx_sub_prof_t *S = &p->sub;
     const uint32_t seed = r->seed, nsteps = (uint32_t)c->bars * 16u, end = (uint32_t)c->bars * GX_BAR;
     const int32_t dd = mdelta(r, GX_M_DENSITY), dsp = mdelta(r, GX_M_SPACE);
+    const int32_t dt = tension_of(r, p, c), dc = complex_of(r, p, c);
     const uint32_t var = evolve_var(r, p), id = ID(GX_ROLE_SUB, 0);
+    uint8_t mvw[4];                            /* Tension: fewer roots, more sevenths */
+    mvw[0] = (uint8_t)clampi((int32_t)S->move[0] * (128 - dt) / 128, 0, 255);
+    mvw[1] = S->move[1];
+    mvw[2] = S->move[2];
+    mvw[3] = (uint8_t)clampi((int32_t)S->move[3] * (64 + dt) / 64 + (dt >= 32 ? 1 : 0), 0, 255);
     uint8_t on[GX_MAXBARS * 16u];
     uint32_t i, bar;
     int32_t last_root = -1;
@@ -369,6 +406,7 @@ void gx_sub_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_prof
             w = w * (300 + (int32_t)S->dens_follow * (int32_t)a) / 300;
             w = w * (6400 + dd * 100) / 6400;
             w = w * (128 - dsp) / 128;          /* Space: fewer bass notes, longer silences */
+            w = complex_w(w, step, dc / 2);     /* Complex: more (or fewer) off-16ths, gently */
             w = clampi(w, 0, 255);
             wbar[step] = (uint8_t)w;
             if (anchor || gx_chance(gx_hash(seed, id, dbar(seed, id, bar, step, var), step, GX_P_ONSET), (uint32_t)w)) {
@@ -405,7 +443,7 @@ void gx_sub_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_prof
         len = gx_range(gx_hash(seed, id, db, step, GX_P_LEN), S->len_min, S->len_max);
         if (gx_chance(gx_hash(seed, id, db, step, GX_P_REP), S->legato) || len > gap)
             len = gap;
-        move = (root != last_root) ? 0 : pick(gx_hash(seed, id, db, step, GX_P_PITCH), S->move, 4);
+        move = (root != last_root) ? 0 : pick(gx_hash(seed, id, db, step, GX_P_PITCH), mvw, 4);
         if (move < 0)
             move = 0;
         note = bass_note(S->lo, S->hi, (uint32_t)root, move);
@@ -431,7 +469,11 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
 {
     const gx_upper_prof_t *U = &p->upper;
     const uint32_t seed = r->seed, end = (uint32_t)c->bars * GX_BAR, id = ID(GX_ROLE_UPPER, 0);
-    const int32_t dd = mdelta(r, GX_M_DENSITY);
+    const int32_t dd = mdelta(r, GX_M_DENSITY), dt = tension_of(r, p, c), dc = complex_of(r, p, c);
+    /* Tension: the chance of a colour tone; Complex: the motif's interval range and octave leaps */
+    const uint32_t ten = (uint32_t)clampi((int32_t)U->tension * (64 + dt) / 64 + (dt >= 32 ? dt : 0), 0, 255);
+    const uint32_t mlo = dc < 0 ? (uint32_t)clampi(-dc / 24, 0, 2) : 0u;
+    const uint32_t leap = dc > 0 ? (uint32_t)(dc * 2) : 0u;
     const uint32_t var = evolve_var(r, p);
     uint8_t subon[GX_MAXBARS * 16u];
     uint32_t i, bar, k = 0;
@@ -481,7 +523,7 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
         uint16_t pcs = h->pcs[bar];
         /* the arp's colour: the 9th joins the chord tones for this chord (Tension) */
         if (U->mode == GX_UPPER_ARP &&
-            gx_chance(gx_hash(seed, id, bar - bar % 2u, 0, GX_P_PITCH), U->tension))
+            gx_chance(gx_hash(seed, id, bar - bar % 2u, 0, GX_P_PITCH), ten))
             pcs |= (uint16_t)(1u << ((h->root[bar] + 2u) % 12u));
         for (n = U->lo; n <= U->hi && nt < 24u; n++)
             if ((pcs >> (n % 12u)) & 1u)
@@ -496,7 +538,7 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 continue;
             if (U->mode == GX_UPPER_MID && subon[idx])
                 w = w * U->at_sub / 100;
-            w = clampi(w * (6400 + dd * 100) / 6400, 0, 255);
+            w = clampi(complex_w(w * (6400 + dd * 100) / 6400, step, dc), 0, 255);
             if (!gx_chance(gx_hash(seed, id, db, step, GX_P_ONSET), (uint32_t)w) &&
                 !(U->mode == GX_UPPER_MOTIF && forced == (int32_t)cs))
                 continue;
@@ -528,7 +570,7 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
             } else {                             /* motif: a phrase walked over the chord tones, or a colour tone */
                 static const int8_t mv[8] = { -7, -5, -3, -2, 2, 3, 5, 7 };
                 int32_t best = tones[0], j;
-                mwalk += mv[gx_range(gx_hash(seed, id, db, step, GX_P_PITCH), 0, 7u)];
+                mwalk += mv[gx_range(gx_hash(seed, id, db, step, GX_P_PITCH), mlo, 7u - mlo)];
                 if (mwalk > (int32_t)U->hi) mwalk -= 12;
                 if (mwalk < (int32_t)U->lo) mwalk += 12;
                 for (j = 1; j < (int32_t)nt; j++)  /* the chord tone nearest the walk */
@@ -536,11 +578,16 @@ void gx_upper_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                         best = tones[j];
                 note = best;
                 mwalk = note;
-                if (gx_chance(gx_hash(seed, id, db, step, GX_P_REP), U->tension)) {
+                if (gx_chance(gx_hash(seed, id, db, step, GX_P_REP), ten)) {
                     int32_t col = lowest(U->lo, (h->root[bar] + (gx_chance(gx_hash(seed, id, db, step, GX_P_LEN), 128) ? 1u : 8u)) % 12u);
                     while (col + 12 <= note) col += 12;
                     note = col <= (int32_t)U->hi ? col : note;
                 }
+            }
+            /* Complex: an arp or motif note jumps an octave (inside the register) */
+            if (leap && U->mode != GX_UPPER_MID && gx_chance(gx_hash(seed, id, db, step + 32u, GX_P_PITCH), leap)) {
+                if (note + 12 <= (int32_t)U->hi) note += 12;
+                else if (note - 12 >= (int32_t)U->lo) note -= 12;
             }
             vel = (int32_t)U->vel_lo + ((int32_t)U->vel_hi - (int32_t)U->vel_lo) * U->acc[step] / 9;
             vel += (int32_t)gx_range(gx_hash(seed, id, db, step, GX_P_VEL), 0, 8) - 4;

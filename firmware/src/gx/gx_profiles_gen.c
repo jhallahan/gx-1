@@ -79,12 +79,12 @@ static const gx_genre_prof_t prof_deep_dnb = {
     /* upper */ {GX_UPPER_MID, {0, 0, 0, 0, 75, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 75, 0, 0, 0, 125, 0}, 41, 55, GX_ARP_UP,
         2, 68, 88, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 25},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -166,12 +166,12 @@ static const gx_genre_prof_t prof_breaks = {
     /* upper */ {GX_UPPER_ARP, {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255}, 64, 88, GX_ARP_CYCLE5,
         1, 52, 92, {9, 0, 5, 0, 7, 0, 5, 0, 9, 0, 5, 0, 7, 0, 5, 0}, 90, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 45, GX_CC_DRIFT},
-        {"BREAK", GX_PD_PERC, -30, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"BUILD", GX_PD_PERC, 0, 50, 2, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 45, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_PERC, -30, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, 16, -8},
+        {"BUILD", GX_PD_PERC, 0, 50, 2, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -253,12 +253,12 @@ static const gx_genre_prof_t prof_autonomic = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 125, 0, 0, 0, 175, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 125, 0, 0, 0, 0}, 55, 84, GX_ARP_UP,
         4, 48, 70, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 100, 100},
     /* parts */ {
-        {"SPARSE", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"MAIN", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"SHIFT", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT},
-        {"SPACE", GX_PD_PERC, -20, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"TENSION", GX_PD_NOKICK, 0, 30, 0, 0, 1, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_SWEEP},
-        {"RETURN", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"SPARSE", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"SHIFT", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT, 8, 8},
+        {"SPACE", GX_PD_PERC, -20, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"TENSION", GX_PD_NOKICK, 0, 30, 0, 0, 1, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"RETURN", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -340,12 +340,12 @@ static const gx_genre_prof_t prof_dub_techno = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75, 0, 0, 0, 0}, 67, 91, GX_ARP_UP,
         1, 40, 62, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT},
-        {"DUB", GX_PD_NOKICK, -20, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 0, 0, GX_CC_SWEEP},
-        {"DEEP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT, 8, 8},
+        {"DUB", GX_PD_NOKICK, -20, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 0, 0, GX_CC_SWEEP, 32, 24},
+        {"DEEP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -427,12 +427,12 @@ static const gx_genre_prof_t prof_idm = {
     /* upper */ {GX_UPPER_ARP, {255, 0, 255, 0, 255, 255, 0, 255, 255, 0, 255, 0, 255, 255, 0, 255, 255, 0, 255, 255, 0, 255, 0, 255, 255, 0, 255, 0, 255, 0, 255, 255}, 62, 88, GX_ARP_WALK,
         1, 45, 85, {9, 0, 5, 0, 7, 0, 5, 0, 9, 0, 5, 0, 7, 0, 5, 0}, 120, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 60, GX_CC_DRIFT},
-        {"BREAK", GX_PD_PERC, -30, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"RISE", GX_PD_THIN, 0, 40, 2, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"GLITCH", GX_PD_FULL, 12, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 60, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_PERC, -30, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 40, 2, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"GLITCH", GX_PD_FULL, 12, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -514,12 +514,12 @@ static const gx_genre_prof_t prof_electro = {
     /* upper */ {GX_UPPER_ARP, {200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0, 200, 0}, 60, 84, GX_ARP_UP,
         1, 55, 90, {9, 0, 5, 0, 7, 0, 5, 0, 9, 0, 5, 0, 7, 0, 5, 0}, 60, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED},
-        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_CLOSED, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -601,12 +601,12 @@ static const gx_genre_prof_t prof_uk_garage = {
     /* upper */ {GX_UPPER_MID, {0, 0, 125, 0, 0, 0, 100, 0, 0, 0, 125, 0, 0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 125, 0, 0, 100, 0, 0, 0, 125, 0, 100}, 40, 55, GX_ARP_UP,
         1, 70, 100, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 40},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -688,12 +688,12 @@ static const gx_genre_prof_t prof_minimal = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 75, 0, 0}, 62, 84, GX_ARP_UP,
         1, 40, 62, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 40, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 30, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"PEAK", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 30, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"PEAK", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -775,12 +775,12 @@ static const gx_genre_prof_t prof_downtempo = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0}, 60, 84, GX_ARP_UP,
         4, 45, 70, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 40, 100},
     /* parts */ {
-        {"HAZE", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 25, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"FULL", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"HAZE", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 25, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"FULL", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -862,12 +862,12 @@ static const gx_genre_prof_t prof_jungle = {
     /* upper */ {GX_UPPER_MID, {0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0}, 38, 52, GX_ARP_UP,
         2, 70, 96, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 40},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 55, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"ROLL", GX_PD_THIN, 0, 50, 2, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 10, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 55, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT, 16, -8},
+        {"ROLL", GX_PD_THIN, 0, 50, 2, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 10, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -949,12 +949,12 @@ static const gx_genre_prof_t prof_halftime = {
     /* upper */ {GX_UPPER_MID, {0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0}, 38, 52, GX_ARP_UP,
         2, 72, 100, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 30},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"RISE", GX_PD_THIN, 0, 30, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_CLOSED, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1036,12 +1036,12 @@ static const gx_genre_prof_t prof_deep_house = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0}, 60, 84, GX_ARP_UP,
         2, 50, 76, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 60, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"PEAK", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"PEAK", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -1123,12 +1123,12 @@ static const gx_genre_prof_t prof_acid = {
     /* upper */ {GX_UPPER_ARP, {255, 200, 255, 255, 0, 200, 255, 200, 255, 0, 255, 200, 255, 255, 0, 200, 255, 200, 255, 0, 255, 200, 255, 255, 200, 255, 0, 255, 200, 255, 255, 200}, 36, 60, GX_ARP_WALK,
         1, 62, 110, {9, 0, 3, 0, 6, 0, 9, 0, 3, 0, 6, 0, 9, 0, 3, 0}, 30, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED},
-        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"SQUELCH", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"SQUELCH", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1210,12 +1210,12 @@ static const gx_genre_prof_t prof_dubstep = {
     /* upper */ {GX_UPPER_MID, {0, 0, 150, 0, 0, 0, 0, 0, 125, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0}, 36, 50, GX_ARP_UP,
         2, 72, 100, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 30},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"DUB", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"DUB", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1297,12 +1297,12 @@ static const gx_genre_prof_t prof_liquid = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0}, 62, 86, GX_ARP_UP,
         3, 50, 76, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 40, 25},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -1384,12 +1384,12 @@ static const gx_genre_prof_t prof_rollers = {
     /* upper */ {GX_UPPER_MID, {0, 0, 0, 0, 125, 0, 0, 0, 150, 0, 0, 0, 125, 0, 100, 0, 0, 0, 100, 0, 0, 0, 125, 0, 0, 0, 150, 0, 0, 100, 0, 125}, 41, 55, GX_ARP_UP,
         2, 72, 96, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 40},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP},
-        {"ROLL", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 40, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, -10, 40, 1, 2, 0, GX_PS_LONG, GX_PC_PAD, 0, 0, GX_CC_SWEEP, 32, 24},
+        {"ROLL", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1471,12 +1471,12 @@ static const gx_genre_prof_t prof_detroit = {
     /* upper */ {GX_UPPER_ARP, {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200}, 60, 84, GX_ARP_UPDOWN,
         1, 50, 86, {9, 0, 5, 0, 7, 0, 5, 0, 9, 0, 5, 0, 7, 0, 5, 0}, 80, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 30, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_ON, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 30, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_ON, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"DROP", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1558,12 +1558,12 @@ static const gx_genre_prof_t prof_hard_techno = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0}, 48, 72, GX_ARP_WALK,
         1, 70, 100, {9, 0, 3, 0, 6, 0, 9, 0, 3, 0, 6, 0, 9, 0, 3, 0}, 120, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED},
-        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"PEAK", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 50, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_OFF, 1, 0, GX_CC_CLOSED, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 40, 1, 2, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"PEAK", GX_PD_FULL, 8, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_UPPER
 };
@@ -1645,12 +1645,12 @@ static const gx_genre_prof_t prof_lofi_house = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0}, 60, 84, GX_ARP_UP,
         3, 44, 66, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 60, 100},
     /* parts */ {
-        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT},
-        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"WARM", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"INTRO", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 0, 0, GX_CC_CLOSED, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_NONE, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_NOKICK, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 30, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"WARM", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
@@ -1732,12 +1732,12 @@ static const gx_genre_prof_t prof_ambient = {
     /* upper */ {GX_UPPER_MOTIF, {0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 0}, 60, 84, GX_ARP_UP,
         8, 36, 56, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 40, 100},
     /* parts */ {
-        {"DRIFT", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT},
-        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT},
-        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT},
-        {"RISE", GX_PD_THIN, 0, 25, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP},
-        {"BLOOM", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN},
+        {"DRIFT", GX_PD_PERC, 0, 0, 0, 0, 0, GX_PS_OFF, GX_PC_PAD, 1, 0, GX_CC_DRIFT, -8, -16},
+        {"MAIN A", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_DRIFT, 0, 0},
+        {"MAIN B", GX_PD_FULL, 0, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 35, GX_CC_DRIFT, 8, 8},
+        {"BREAK", GX_PD_OFF, 0, 0, 0, 0, 0, GX_PS_LONG, GX_PC_PAD, 1, 0, GX_CC_DRIFT, 16, -8},
+        {"RISE", GX_PD_THIN, 0, 25, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_SWEEP, 32, 24},
+        {"BLOOM", GX_PD_FULL, 6, 0, 0, 0, 0, GX_PS_ON, GX_PC_ON, 1, 0, GX_CC_OPEN, -8, 8},
     },
     /* cc */ 74, GX_ROLE_CHORDS
 };
