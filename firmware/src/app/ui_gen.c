@@ -3,8 +3,8 @@
  * through them; the tabs at the top say which is on. Sections are blocked out by tone (chrome, grey where you
  * edit, near-black for the controls), the selected thing in the app's colour.
  *
- *   y   0 ..  15  the pages: SONG / TRACK / ARRANGE
- *   y  16 ..  31  the song line: the style, the key, the part; the tempo and the loop's 8 bars
+ *   y   0 ..  15  the song line: the style, the key, the part; the tempo and the loop's 8 bars
+ *   y  16 ..  31  the pages: SONG / TRACK / ARRANGE (the open one the colour of what it opens)
  *   SONG     32..83 the four tracks (this bar) · 84..99 GEN: the idea · 100..171 the macros (K1-K4) ·
  *            172..239 the selected track's 16 steps (the white keys)
  *   TRACK    32..47 the track tabs (black keys 1-4) · 48..99 the editor: the drum lanes, or the steps ·
@@ -506,28 +506,28 @@ static void gn_tabs(void)
     int i, bar = (gn_playing_step(0) >= 0 ? gn_playing_step(0) : page() * 16) / 16;
     int32_t x;
     cv_rect(0, 0, 240, 32, GN_CHROME);
-    for (i = 0; i < 3; i++) {                    /* equal cells; the open one sits darker, in the app's colour */
+    for (i = 0; i < 3; i++) {                    /* equal cells; the open one is the colour of what it opens */
         if (i == gen.pg)
-            cv_rect(i * 80, 0, 80, 16, GN_BG);
+            cv_rect(i * 80, 16, 80, 16, gen.pg == 1 ? GN_BG : GN_EDIT);
         if (i)
-            cv_rect(i * 80, 0, 1, 16, GN_BG);
-        text_c(i * 80 + 40, 0, &FONT_XS, T[i], i == gen.pg ? GN_ACC : GN_MUTED);
+            cv_rect(i * 80, 16, 1, 16, GN_BG);
+        text_c(i * 80 + 40, 16, &FONT_XS, T[i], i == gen.pg ? GN_ACC : GN_MUTED);
     }
     cv_rect(0, 16, 240, 1, GN_BG);
     scopy(t, gn_genre_label(gen.gpend ? gen.genre : (gxb_ok ? gxb_comp.r[0].genre : gen.genre)), 24);
     fit(&FONT_XS, t, 92);
-    x = cv_text(4, 17, &FONT_XS, t, gen.gpend ? GN_MUTED : GN_INK);
+    x = cv_text(4, 0, &FONT_XS, t, gen.gpend ? GN_MUTED : GN_INK);
     gn_key_text(t, 0);
-    x = cv_text(x + 8, 17, &FONT_XS, t, GN_INK);
+    x = cv_text(x + 8, 0, &FONT_XS, t, GN_INK);
     if (gxb_ok) {
         scopy(t, gx_part_name((gx_genre_t)gxb_comp.r[0].genre, gxb_comp.part), 24);
         fit(&FONT_XS, t, 184 - (x + 8));
-        cv_text(x + 8, 17, &FONT_XS, t, s4p.on && s4p.next[0] != 0xFF ? GN_ACC : GN_INK);
+        cv_text(x + 8, 0, &FONT_XS, t, s4p.on && s4p.next[0] != 0xFF ? GN_ACC : GN_INK);
     }
     itoa_u(s4g.tempo / 10u, n);
-    text_r(210, 17, &FONT_XS, n, gn_tempo_out() ? GN_INK : GN_MUTED);
+    text_r(210, 0, &FONT_XS, n, gn_tempo_out() ? GN_INK : GN_MUTED);
     for (i = 0; i < 8; i++) {                    /* the loop's bars, the one shown filled */
-        int32_t bx = 213 + (i & 3) * 6, by = 19 + (i >> 2) * 6;
+        int32_t bx = 213 + (i & 3) * 6, by = 3 + (i >> 2) * 6;
         if (i == bar)
             cv_rect(bx, by, 5, 5, GN_ACC);
         else
@@ -591,12 +591,10 @@ static void gn_track_tabs(void)
         int32_t x = r * 60;
         int on = r == sel();
         char t[10];
-        cv_rect(x + (r ? 1 : 0), 32, r ? 59 : 60, 16, GN_BG);
+        cv_rect(x + (r ? 1 : 0), 32, r ? 59 : 60, 16, on ? GN_EDIT : GN_BG);
         scopy(t, gn_track_label(r), 10);
         fit(&FONT_XS, t, 54);
         text_c(x + 30, 32, &FONT_XS, t, s4[r].mute ? GN_OFF : on ? GN_ACC : GN_MUTED);
-        if (on)
-            cv_rect(x, 46, 60, 2, GN_ACC);
     }
 }
 static void gn_lanes(int bar, uint16_t *hit)     /* the drums' lanes this bar: a bit a step */
