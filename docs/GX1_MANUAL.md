@@ -40,7 +40,8 @@ This manual covers version 0.2.
    variation, break, build, drop. The part changes at the next bar.
 8. **EDIT** undoes anything you didn't like.
 
-![The GEN page: Liquid in D Dorian, the four tracks, the macros and the drum steps](img/gx1-gen.png)
+![The GEN page: Liquid in D Dorian, the pages on top, the four tracks, the macros and the drum steps](img/gx1-gen.png)
+![TRACK: the drum lanes, the track's own macros and MUTATE](img/gx1-track.png) ![ARRANGE: the energy of the six parts, the parts on W1–W6](img/gx1-arrange.png)
 
 ## 2. Installing the latest version
 

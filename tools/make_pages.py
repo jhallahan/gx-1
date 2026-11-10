@@ -76,14 +76,15 @@ code { font-size: .88em; }
 <h1>GX-1</h1>
 <div class="bars" aria-hidden="true">__BARS__</div>
 <p class="sub">Generative, genre-aware MIDI for the M-VAVE FM-1</p>
-<p class="lede">Pick a style (Liquid, Jungle, Dub techno, Acid, Deep house, IDM and fourteen more), press a button, and GX-1
+<p class="lede">Pick a style (Liquid, Jungle, Dub techno, Acid, Deep house, R&B and nineteen more), press a button, and GX-1
 composes four tracks that fit together: drums, a sub bass, chords and a lead. Then steer it: mutate a track, lock the ones
 you like, re-roll the rest, turn the macros, move between song parts, change key. It plays out over USB MIDI to your DAW,
 a Tonverk or any synth, and SEQ-4's full sequencer is underneath for editing by hand.</p>
+<p class="lede">Built on <a href="https://github.com/devrvega/SEQ-4">SEQ-4</a> by devrvega, which gave it a solid basis. Want a conventional sequencer for the FM-1? Use SEQ-4 itself.</p>
 <div class="shots">
-  <img src="img/gx1-gen.png" width="240" height="240" alt="The GEN page: four tracks in amber, coral, green and violet, four macros, and the drum steps">
-  <img src="img/gx1-chords.png" width="240" height="240" alt="Chords selected: the progression in Roman numerals, the chord playing lit">
-  <img src="img/gx1-glo.png" width="240" height="240" alt="GLO held: the six song parts as tiles above the white keys">
+  <img src="img/gx1-gen.png" width="240" height="240" alt="GEN: the four tracks, the idea number, the macros and the selected track's steps">
+  <img src="img/gx1-track.png" width="240" height="240" alt="TRACK: the drum lanes, the track's own macros and MUTATE">
+  <img src="img/gx1-arrange.png" width="240" height="240" alt="ARRANGE: the energy of the six parts and the parts on W1 to W6">
 </div>
 <nav class="ways" aria-label="Get GX-1">
   <a href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge, with the FM-1 connected by USB. Nothing to install on the computer.</span></a>

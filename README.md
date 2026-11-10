@@ -5,12 +5,25 @@
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
 GX-1 turns the M-VAVE FM-1 into a genre-aware generative MIDI instrument. Pick a style (Liquid, Jungle, Dub techno,
-Acid, Deep house, IDM and fourteen more), press a button, and it composes four tracks that fit together: **drums**,
+Acid, Deep house, R&B and nineteen more), press a button, and it composes four tracks that fit together: **drums**,
 a **sub** bass, **chords** and an **upper** part (lead, arpeggio or motif). Then you steer it. Mutate a track, lock
 the ones you like, re-roll the rest, turn the macros, move between six song parts, change key. Everything plays out
 over USB MIDI, and [SEQ-4](https://github.com/devrvega/SEQ-4)'s full sequencer is underneath for editing by hand.
 
-![GX-1's GEN page](docs/img/gx1-gen.png) ![The progression](docs/img/gx1-chords.png) ![The song parts](docs/img/gx1-glo.png)
+![GEN: the four tracks, the idea, the macros](docs/img/gx1-gen.png) ![TRACK: one track, its own macros, MUTATE](docs/img/gx1-track.png) ![ARRANGE: the energy and the six parts](docs/img/gx1-arrange.png)
+
+There's a player for the phone and the computer too, the same engine in the browser:
+[fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator).
+
+> ### Built on SEQ-4
+>
+> GX-1 stands on [**SEQ-4**](https://github.com/devrvega/SEQ-4) by [devrvega](https://github.com/devrvega), a
+> measured, tested, MIDI-only four-sequencer firmware for the FM-1 with a host simulator, USB clock, CC lanes and a
+> careful manual. It gave GX-1 a solid basis: the generator writes SEQ-4 patterns, the parity tests run in SEQ-4's
+> simulator, and SEQ-4's full sequencer is still underneath (SEQ). Thank you.
+>
+> **Want a conventional sequencer?** Steps, six modes, an arranger and no generator: use
+> [SEQ-4](https://github.com/devrvega/SEQ-4) itself.
 
 | | |
 |---|---|
@@ -50,6 +63,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 3. **ALGORITHM** for the family, **GLO + ALGORITHM** for the style.
 4. Black keys **1–4** select a track: **SEL** mutates it, **ENV** locks it, **GLO + FX** re-rolls it.
 5. **GLO + W9–W14**: the six song parts, at the next bar. **EDIT** undoes.
+6. **HOME** steps through the pages: **GEN**, **TRACK** (one track up close) and **ARRANGE** (the parts).
 
 ## Twenty-five styles in six families
 
@@ -77,7 +91,9 @@ The music engine is [fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator
 | K1–K4 · GLO + K1–K4 | Density, Sync, Space, Groove · Human, Tension, Complex, Evolve |
 | ALGORITHM · PRESETS · SELECT | Family (GLO: style) · idea number · tempo |
 | OCT− · OCT+ | The key down · up |
-| SEQ · HOME | SEQ-4's grid · back to GEN |
+| HOME · HOME twice | The next page (GEN, TRACK, ARRANGE) · the patterns |
+| SEQ | SEQ-4's grid (HOME comes back) |
+| A MIDI controller | Channel 16: the macros, mutes, locks, new ideas and parts ([GX1_MIDI.md](docs/GX1_MIDI.md)) |
 
 GX-1 is a fork of SEQ-4, and everything in the [SEQ-4 manual](docs/MANUAL.md) is still there underneath.
 
