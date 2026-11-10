@@ -130,7 +130,12 @@ static void audio_silence(void)                     /* IRQs off (flash erase): t
  * A development build (./build.sh --bench, -DSEQ4_BENCH) also takes 02 k (a project to measure: 0 all four
  * as busy as they get, 1 the demo, 2 a plain sixteenth line on port A channel 1 to time), 06 p (play, stop),
  * 08 (the demo, saved), 0A (the screen's parts), 0C v s (a view, a sequencer: the screen to measure), 0D s p
- * (pattern p loaded on sequencer s) and 0E t (a snapshot taken, 1, or given back at the bar, 0). */
+ * (pattern p loaded on sequencer s) and 0E t (a snapshot taken, 1, or given back at the bar, 0).
+ * GX-1 (every build): 10 g s0..s4 [p] a new idea (genre 1 deep_dnb, 2 breaks, 3 autonomic, 4 dub_techno, 5 idm, 6 electro, 7 uk_garage, 8 minimal, 9 downtempo, 10 jungle, 11 halftime, 12 deep_house, 13 acid, 14 dubstep, 15 liquid, 16 rollers, 17 detroit,
+ * 18 hard_techno, 19 lofi_house, 20 ambient, 21 psybient, 22 glitch_ambient, 23 pop, 24 rnb, 25 synthpop; the seed as five
+ * 7-bit groups; a part 0..5), 11 p a part, 12 s0..s4 compose (locked parts kept), 13 r on lock, 14 r m i mutate
+ * (role, aspects mask, intensity), 15 undo, 16 redo, 17 m v a macro, 18 0|1 the map (Tonverk split, GM).
+ * Each replies 10 with the events staged (or 0x7FFFFFFF if it failed). */
 #ifdef SEQ4_BENCH
 void seq4_bench(int k);
 void ui_dev_view(int v, int s);
@@ -246,6 +251,27 @@ static void dev_sysex(void)
         dev_reply(r, 7, 6);
         return;
     }
+    case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: {
+        uint32_t seed = n >= 9u ? (uint32_t)p[4 + (p[3] == 0x10)] : 0u, k;
+        int res = -1;
+        for (k = 0; k < 5u && 4u + (p[3] == 0x10) + k < n; k++)
+            seed |= (uint32_t)p[4 + (p[3] == 0x10) + k] << (7u * k);
+        ota_frame_done();
+        switch (p[3]) {
+        case 0x10: res = n >= 10u ? gxb_new(p[4], seed) : -1; if (res >= 0 && n >= 11u) res = gxb_part(p[10]); break;
+        case 0x11: res = n >= 5u ? gxb_part(p[4]) : -1; break;
+        case 0x12: res = n >= 9u ? gxb_compose(seed) : -1; break;
+        case 0x13: res = n >= 6u ? gxb_lock(p[4] & 3, p[5]) : -1; break;
+        case 0x14: res = n >= 7u ? gxb_mutate(p[4] & 3, p[5], p[6], s4_rand()) : -1; break;
+        case 0x15: res = gxb_undo(); break;
+        case 0x16: res = gxb_redo(); break;
+        case 0x17: res = n >= 6u ? gxb_macro(p[4], p[5]) : -1; break;
+        case 0x18: res = n >= 5u ? gxb_set_map(p[4] ? GX_MAP_GM : GX_MAP_TONVERK_SPLIT) : -1; break;
+        }
+        dev_put(r + 5, res < 0 ? 0x7FFFFFFFu : (uint32_t)res);
+        dev_reply(r, 0x10, 1);
+        return;
+    }
 #ifdef SEQ4_BENCH
     case 2:
         if (n >= 5u)
@@ -323,7 +349,7 @@ void fm1_timer5_irq(void)
             uac_service();
 #endif
     }
-    if (usb_due && !en_dbg.in_audio) {
+    if (usb_due && !en_dbg.in_audio && !usbh_mode) {   /* (the USB host probe owns the core) */
         usb_due = 0;
         usb_poll();
 #if EN_TRS
@@ -363,7 +389,7 @@ static void fm1_fault(const fm1_crash_t *c)
     uint32_t t0;
     fm1_audio_stop();
     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
-    draw_text_box(0, 8, 240, &FONT_S, "SEQ-4 CRASH", C_WHITE, 1);
+    draw_text_box(0, 8, 240, &FONT_S, "GX-1 CRASH", C_WHITE, 1);
     hexs(b, c->vec);
     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->pc);
@@ -400,7 +426,7 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 18, 240, &FONT_B, "SEQ-4 SAFE MODE", C_HI, 1);
+    draw_text_box(0, 18, 240, &FONT_B, "GX-1 SAFE MODE", C_HI, 1);
     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
@@ -430,7 +456,7 @@ static void safe_main(void)
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
             bootguard.failed = 0;                   /* try SEQ-4 again, from scratch */
             bootguard.pending = 0;
-            draw_text_box(0, 172, 240, &FONT_S, "STARTING SEQ-4...", C_HI, 1);
+            draw_text_box(0, 172, 240, &FONT_S, "STARTING GX-1...", C_HI, 1);
             usb_detach();
             fm1_delay_ms(30);
             fm1_reboot();
@@ -459,10 +485,10 @@ static void splash(void)                            /* the name, and the four se
             cv_rect(16 + i * 13 + (i >> 2) * 2, 8 + j * 16, 11, 12, c);
         }
     {
-        int32_t w = text_w(&FONT_L, "SEQ-4");
-        cv_text((240 - w) / 2, 80, &FONT_L, "SEQ-4", RGB(236, 238, 246));
-        w = text_w(&FONT_S, "Four sequencers for MIDI");
-        cv_text((240 - w) / 2, 116, &FONT_S, "Four sequencers for MIDI", RGB(146, 148, 160));
+        int32_t w = text_w(&FONT_L, "GX-1");
+        cv_text((240 - w) / 2, 80, &FONT_L, "GX-1", RGB(236, 238, 246));
+        w = text_w(&FONT_S, "Genre-aware MIDI composer");
+        cv_text((240 - w) / 2, 116, &FONT_S, "Genre-aware MIDI composer", RGB(146, 148, 160));
         w = text_w(&FONT_XS, "v" EN_VERSION);
         cv_text((240 - w) / 2, 134, &FONT_XS, "v" EN_VERSION, RGB(86, 88, 100));
     }
@@ -529,6 +555,8 @@ static void fm1_main(void)
     fm1_delay_ms(30);
     if ((fm1_in.buttons & 3u) == 3u)
         panel_setup();                              /* OCT- + OCT+ held at power-on */
+    if (fm1_in.buttons & (1u << panel.btn[B_SEQ]))
+        usbhost_probe();                            /* SEQ held at power-on: the USB host probe (never returns) */
     fm1_delay_ms(400);
     ui_init();
 

@@ -4,9 +4,9 @@ The build makes three files in `build/`:
 
 | File | What |
 | --- | --- |
-| `seq4.bin` | the firmware app |
+| `gx1.bin` | the firmware app |
 | `loader/ota.bin` | the update loader |
-| `seq4.fwsc` | the installable package (app + loader) |
+| `gx1.fwsc` | the installable package (app + loader) |
 
 ## Prerequisites (macOS)
 
@@ -48,7 +48,7 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 
 `./build.sh --release 0.1` makes a release build; the package is `build/seq4-0.1.fwsc`.
 
-`./build.sh --bench` makes a development build (`build/seq4-bench.fwsc`) that also takes test projects over
+`./build.sh --bench` makes a development build (`build/gx1-bench.fwsc`) that also takes test projects over
 SysEx, to measure the FM-1 itself. Every build answers the status query: send `F0 7D 53 34 01 F7` and the
 FM-1 replies `F0 7D 53 34 01` with these, each as five 7-bit groups:
 - the engine's load (%), its slowest tick (µs, of the 725 µs between ticks), ticks late, ticks
@@ -89,7 +89,7 @@ tests/run_tests.sh
 
 Runs, on the build machine: the maths library against libm; the panel's encoder decoding and the TRS
 jack's MIDI parser; flash storage (the settings' objects, and the patterns' log with a cut at every point of
-a save); Felucca's update-path tests against `build/seq4.fwsc`; and the whole app in the simulator
+a save); Felucca's update-path tests against `build/gx1.fwsc`; and the whole app in the simulator
 (`tests/scenarios/*.s4`: the steps, the six modes, recording and capture, patterns and persistence, songs,
 MIDI in and the transport CCs, the menus), with its screenshots and MIDI logs in `build/scenarios/`; the
 browser build too when Emscripten is there.
@@ -106,7 +106,7 @@ its flash across a simulated restart. `bench K` loads the bench projects.
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
-python3 tools/fm1_install.py build/seq4.fwsc
+python3 tools/fm1_install.py build/gx1.fwsc
 python3 tools/fm1_install.py --info          # identity of the connected FM-1
 ```
 

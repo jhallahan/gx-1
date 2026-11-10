@@ -1,4 +1,5 @@
 # patterns: saving, loading (now, and at the bar while playing), the patterns view, persistence
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 expect pat 0
 tap SAVE
@@ -21,7 +22,8 @@ turn PRESET -1
 wait 700
 expect pat 0
 expect vel0 >0
-# the patterns view: a key loads one; while playing, at the bar
+# the patterns view (GX-1: HOME twice): a key loads one; while playing, at the bar
+tap HOME
 tap HOME
 expect view 3
 shot pats.png

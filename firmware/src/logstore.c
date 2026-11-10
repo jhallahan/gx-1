@@ -14,7 +14,7 @@
 #define LS_BASE 0x97000u
 #define LS_NSECT 69u
 #define LS_SECT 4096u
-#define LS_SMAGIC 0x4C533453u          /* "S4SL": a sector in use */
+#define LS_SMAGIC 0x4C535847u          /* "GXSL": a sector in use (SEQ-4 is "S4SL") */
 #define LS_RMAGIC 0x5334u              /* "4S": a record */
 #define LS_HDR 16u
 #define LS_MAXPART (LS_SECT - LS_HDR - LS_HDR)

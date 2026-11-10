@@ -33,7 +33,7 @@ def r35(b, i):
 
 class Dev:
     def __init__(self):
-        name = next((n for n in mido.get_output_names() if "FM-1" in n or "SEQ-4" in n), None)
+        name = next((n for n in mido.get_output_names() if "FM-1" in n or "SEQ-4" in n or "GX-1" in n), None)
         if not name:
             sys.exit(f"fm1_status: no FM-1 MIDI port (ports: {mido.get_output_names()})")
         self.i = mido.open_input(name)

@@ -471,7 +471,7 @@ static void play_poly_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t
         for (i = 0; i < q->d.poly.n && n < maxn; i++) {
             s4_pnote_t *pn = &q->d.poly.note[i];
             rp_t rp;
-            int locked, vel, gate, rep, note;
+            int locked, vel, gate, rep, note, nch = ch;
             int32_t o;
             if (pn->step != pos || !pn->vel || (pn->rtg & S4_MUTED))
                 continue;
@@ -486,6 +486,11 @@ static void play_poly_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t
                 rp.vel = rp.oct = rp.rep = 0;
             vel = clampi(pn->vel + (locked ? 0 : m[S4_D_VEL] + rp.vel), 1, 127);
             note = s4_note_of(s, pn->deg + (locked ? 0 : m[S4_D_PITCH]), pn->oct + (locked ? 0 : m[S4_D_OCT] + rp.oct)) + rt[s].tpose;
+            if (q->rsv[0] & S4_RSV_DRUMMAP) {  /* GX-1: the degree is a drum sound; the drum map gives its note
+                                                 * and channel (kicks on one Tonverk track, the kit on another) */
+                note = s4_dm_note[pn->deg & 15];
+                nch = s4_dm_ch[pn->deg & 15];
+            }
             gate = pn->gate >= S4_TIE ? pn->gate : clampi(pn->gate + (locked ? 0 : m[S4_D_GATE]), 1, 100);
             rep = clampi((pn->rtg & S4_RTG_N) + 1 + (locked ? 0 : m[S4_D_RTG] + rp.rep), 1, 5);
             o = step_ofs(s, c, L, pn->ofs);
@@ -494,7 +499,7 @@ static void play_poly_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t
             n++;
             any = 1;
             if (!q->arp.mode)
-                note_sched(s, t, port, ch, note, vel, (uint32_t)((int32_t)T + o), L / (uint32_t)rep, gate, rep, 1);
+                note_sched(s, t, port, nch, note, vel, (uint32_t)((int32_t)T + o), L / (uint32_t)rep, gate, rep, 1);
         }
     if (n) {                                   /* what the harmonizer follows */
         int k;

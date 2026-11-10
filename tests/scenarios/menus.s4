@@ -1,4 +1,5 @@
 # every menu on screen, and its knobs
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 tap SEL
 shot m_div.png

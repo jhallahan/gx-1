@@ -1,0 +1,53 @@
+# GX-1: a controller on channel 16 (docs/GX1_MIDI.md). CCs lock, mute and set the macros; notes act; program
+# changes pick the part. Channel 1 stays SEQ-4's.
+wait 400
+tap FX
+wait 300
+expect gx_locks 0
+midi BF 38 7F
+wait 60
+expect gx_locks 1
+midi BF 38 00
+wait 60
+expect gx_locks 0
+midi BF 3B 7F
+wait 60
+expect gx_locks 8
+midi BF 14 5A
+wait 400
+expect gx_macro0 90
+midi BF 15 10
+wait 400
+expect gx_macro1 16
+midi CF 03 00
+wait 60
+expect gx_part 3
+midi 9F 31 7F
+wait 60
+expect gx_part 1
+midi 9F 37 7F
+wait 60
+expect gx_pg 1
+midi BF 5A 7F
+wait 60
+expect gx_pg 2
+midi 9F 37 7F
+wait 60
+expect gx_pg 0
+expect sel 0
+midi BF 34 7F
+wait 60
+expect mute 1
+midi 9F 2C 7F
+wait 60
+expect mute 0
+midi 9F 29 7F
+wait 60
+expect sel 1
+midi BF 3C 7F
+wait 60
+expect sel 0
+# channel 1 is SEQ-4's: CC 20 there does not move a macro
+midi B0 14 05
+wait 400
+expect gx_macro0 90

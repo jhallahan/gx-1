@@ -1,4 +1,5 @@
 # boot (the demo), the grid of each sequencer, play
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 300
 shot grid1.png
 expect sel 0

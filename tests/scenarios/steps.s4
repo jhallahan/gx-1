@@ -1,4 +1,5 @@
 # Mono: the steps on the grid (sequencer 1, cleared first)
+bootview grid                # SEQ-4's grid at start (GX-1 opens on its GEN page)
 wait 200
 press EDIT
 tap REC

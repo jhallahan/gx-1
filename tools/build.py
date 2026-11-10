@@ -5,8 +5,8 @@
 
   tools/build.py [--release X.Y[-suffix]]
 
-Outputs in build/: seq4.bin (app), loader/ota.bin (update loader, Felucca's, unchanged),
-seq4.fwsc (package). See BUILDING.md for the toolchain and the SDK.
+Outputs in build/: gx1.bin (app), loader/ota.bin (update loader, Felucca's, unchanged),
+gx1.fwsc (package). See BUILDING.md for the toolchain and the SDK.
 
 The JieLi toolchain is Linux x86-64 only. JIELI_TOOLCHAIN points at it; on
 macOS (or with JIELI_DOCKER=1) each tool runs in a linux/amd64 container.
@@ -40,8 +40,10 @@ CFLAGS = ["-Os", "-ffunction-sections", "-fno-builtin", "-Wall", "-Wno-unused-fu
 # the AC79's single-precision FPU (the SDK's own flags); no fused multiply-add, so the host
 # build (-ffp-contract=off) computes the same samples
 FPU = ["-mcpu=r3", "-mfprev1", "-ffp-contract=off"]
-# the sequencer: a separate unit at -O2
-O2_UNITS = ["seq/seq4.c"]
+# the sequencer: a separate unit at -O2; and the GX genre engine (firmware/src/gx, tools/sync_gx.sh), each
+# file its own unit
+O2_UNITS = ["seq/seq4.c", "gx/gx_rng.c", "gx/gx_engine.c", "gx/gx_drums.c", "gx/gx_pitched.c", "gx/gx_mutate.c",
+            "gx/gx_profiles_gen.c"]
 LINE = re.compile(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2} )+)\s*\t(.*)$")
 
 # SDK files of AC79NN_SDK_V1.2.1_2023-12-13 (the tested version)
@@ -51,7 +53,7 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_100"                # package identity; release builds are FM-1_1XXYYZZ (see main)
+PRODUCT = "FM-1_770"                # package identity; release builds are FM-1_77XXYYZZ (see main)
 BENCH = False                        # --bench: the development build that takes the heavy test patterns over SysEx
 VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
 
@@ -200,7 +202,7 @@ def build_loader():
 # ---- app
 
 def build_app():
-    flags = [*CFLAGS, *FPU, "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
+    flags = [*CFLAGS, *FPU, "-Ifirmware/hal", "-Ifirmware/src", "-Ifirmware/src/gx", "-Ibuild/gen", "-DGX_HIST=16"]
     for flag in ("EN_CDC",):
         v = os.environ.get(flag)    # unset: the default in firmware/src/main.c
         if v in ("0", "1"):
@@ -222,7 +224,7 @@ def build_app():
         units.append(("cc", *o2, "-c", FW / "src" / u, "-o", o))
         objs.append(o)
     tc_all(*units)
-    elf = OUT / "seq4.elf"
+    elf = OUT / "gx1.elf"
     # unreferenced functions (each in its own section: -ffunction-sections) are dropped: the DSP keeps
     # mono reference paths for the host tests that the firmware no longer calls
     tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", FW / "app.ld", *objs, "-o", elf)
@@ -234,7 +236,7 @@ def build_app():
                                ("common/bin/objdump", "-t", elf),
                                ("common/bin/objdump", "-d", elf),
                                ("common/bin/objdump", "-d", "-j", ".ram_text", elf))
-    (OUT / "seq4.dis").write_text(dis)
+    (OUT / "gx1.dis").write_text(dis)
 
     def symv(name):
         return int(re.search(r"^([0-9a-f]+) .*\s" + name + r"$", syms, re.M).group(1), 16)
@@ -251,7 +253,7 @@ def build_app():
             img += b"\xff" * (load - APP_XIP - len(img))
             img += blob
     img += b"\xff" * (-len(img) % 4)
-    (OUT / "seq4.bin").write_bytes(img)
+    (OUT / "gx1.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
 
@@ -349,7 +351,7 @@ def main():
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
     BENCH = a.bench
-    name = "seq4-bench.fwsc" if BENCH else "seq4.fwsc"
+    name = "gx1-bench.fwsc" if BENCH else "gx1.fwsc"
     if a.release:
         # identity FM-1_1 + major, minor, patch as two digits each (0.1 -> FM-1_1000100): FM-1 is the
         # model the update tools match on; the number is ours (X0X is FM-1_9..., FiMba FM-1_8..., AMB-1
@@ -358,9 +360,9 @@ def main():
         m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
         if not m:
             raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = "FM-1_1%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
+        PRODUCT = "FM-1_77%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))   # GX-1: prefix 77 (1..9 are taken)
         VERSION = a.release.upper()
-        name = f"seq4-{a.release}.fwsc"
+        name = f"gx1-{a.release}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:
@@ -384,7 +386,7 @@ def main():
         raise SystemExit("build: checks failed")
     pkg = fm1pkg_make.ufw(fm1pkg_make.flash_image(img, fm1pkg_make.KEY), ota, PRODUCT)
     (OUT / name).write_bytes(pkg)
-    print(f"app      {OUT / 'seq4.bin'}  {len(img)} B")
+    print(f"app      {OUT / 'gx1.bin'}  {len(img)} B")
     print(f"loader   {LDR / 'ota.bin'}  {len(ota)} B")
     print(f"package  {OUT / name}  {len(pkg)} B, identity {PRODUCT}")
     return 0

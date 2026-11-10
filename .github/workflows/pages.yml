@@ -33,11 +33,11 @@ jobs:
           ref: ${{ env.TAG }}
       - uses: ./.github/actions/setup
       - name: Its package
-        run: mkdir -p build && gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "seq4-$VERSION.fwsc" --dir build
+        run: mkdir -p build && gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "gx1-$VERSION.fwsc" --dir build
       - name: The browser emulator
         run: EN_VERSION="$VERSION" sh web/emu/build.sh
       - name: The site
-        run: SEQ4_REPO="https://github.com/$GITHUB_REPOSITORY" python3 tools/make_pages.py "build/seq4-$VERSION.fwsc" "$VERSION" site
+        run: SEQ4_REPO="https://github.com/$GITHUB_REPOSITORY" python3 tools/make_pages.py "build/gx1-$VERSION.fwsc" "$VERSION" site
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

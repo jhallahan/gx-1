@@ -31,6 +31,8 @@ s4_seq_t s4[S4_NSEQ] S4_POOL;
 /* pattern_swap and snapshot_restore copy sequencers by words: s4[1] and s4[3] must be word aligned too */
 _Static_assert(sizeof(s4_seq_t) % 4u == 0 && _Alignof(s4_seq_t) >= 4, "s4_seq_t must be word aligned");
 s4_seq_t s4_stage[S4_NSEQ] S4_POOL;
+uint8_t s4_dm_note[16] = { 36, 35, 38, 37, 39, 42, 46, 51, 75, 70, 60, 61, 62, 63, 64, 65 };   /* GX-1 drum map */
+uint8_t s4_dm_ch[16] = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
 s4_seq_t s4_snapbuf[S4_NSEQ] S4_POOL;
 s4_glob_t s4g;
 s4_song_t s4song[S4_NSONG] S4_POOL;
@@ -92,6 +94,7 @@ void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2) { cmd(C_L
 void s4_panic(void) { cmd(C_PANIC, 0, 0, 0, 0); }
 void s4_load_now(int s) { cmd(C_LOADNOW, s, 0, 0, 0); }
 void s4_queue_pattern(int s, int pat) { cmd(C_QPAT, s, pat, 0, 0); }
+void s4_queue_pattern_bar(int s, int pat) { cmd(C_QPAT, s, pat, 1, 0); }
 void s4_mute(int s, int on) { cmd(C_MUTE, s, on, 0, 0); }
 void s4_tap(void) { cmd(C_TAP, 0, 0, 0, 0); }
 void s4_restart(int s) { cmd(C_RESTART, s < 0 ? 0xFF : s, 0, 0, 0); }
@@ -229,6 +232,7 @@ static uint8_t counting;
 static uint32_t count_left;
 static uint8_t snap_release;   /* a snapshot goes back at the next bar */
 static uint8_t qpat[S4_NSEQ];  /* a staged pattern waits for its boundary (pattern + 1) */
+static uint8_t qbar[S4_NSEQ];  /* GX-1: ... the next bar line instead (a new idea: in from its start) */
 
 void s4_select(int s) { s4_sel = (uint8_t)(s & 3); }
 
@@ -473,6 +477,8 @@ static int clock_from(int cable)
 static void midi_note_in(int cable, int st, int note, int vel);
 static void midi_cc_in(int cable, int st, int d1, int d2);
 
+volatile uint32_t s4_gxq[S4_GXQ], s4_gxq_r, s4_gxq_w;
+uint8_t s4_gx_ch;                                /* 0: off (SEQ-4 alone); GX-1 sets 16 */
 void s4_midi_in(uint32_t pkt)
 {
     int cable = (int)(pkt >> 4 & 15u), st = (int)(pkt >> 8 & 0xFFu), d1 = (int)(pkt >> 16 & 0x7Fu), d2 = (int)(pkt >> 24 & 0x7Fu);
@@ -511,6 +517,15 @@ void s4_midi_in(uint32_t pkt)
     }
     if (st < 0x80 || st >= 0xF0)
         return;
+    if (s4_gx_ch && (st & 15) == s4_gx_ch - 1 && (st & 0xF0) != 0xA0 && (st & 0xF0) != 0xD0 && (st & 0xF0) != 0xE0 &&
+        !((st & 0xF0) == 0xB0 && s4g.tcc_ch == s4_gx_ch && d1 >= 105 && d1 <= 107)) {   /* (the transport CCs stay SEQ-4's) */
+        uint32_t w = s4_gxq_w;                   /* GX-1's channel: to the GEN pages (a full queue drops it) */
+        if (w - s4_gxq_r < S4_GXQ) {
+            s4_gxq[w % S4_GXQ] = (uint32_t)st | (uint32_t)d1 << 8 | (uint32_t)d2 << 16;
+            s4_gxq_w = w + 1u;
+        }
+        return;
+    }
     if (cable == 14 && s4g.thru)               /* the TRS jack's, on to a USB port */
         out3(s4g.thru - 1, st, d1, d2);
     else if (cable < 4 && s4g.usb_thru)
@@ -580,6 +595,7 @@ static void do_cmd(const cmd_t *c)
         break;
     case C_QPAT:
         qpat[s] = (uint8_t)(c->b + 1);
+        qbar[s] = c->d;
         s4p.next[s] = c->b;
         if (!playing) {
             pattern_swap(s);
@@ -662,8 +678,10 @@ static void boundaries(uint32_t prev)
     }
     for (s = 0; s < S4_NSEQ; s++) {
         uint32_t bars = q_bars(s4[s].punch == 0 ? s4g.loadq : s4[s].punch);
-        if (qpat[s] && at_boundary(prev, gpos, bars ? bars : q_bars(s4g.loadq)))
+        if (qpat[s] && at_boundary(prev, gpos, qbar[s] ? 1u : bars ? bars : q_bars(s4g.loadq))) {
+            qbar[s] = 0;
             pattern_swap(s);
+        }
         if (rt[s].waiting && at_boundary(prev, gpos, bars)) {
             rt[s].waiting = 0;
             rt[s].active = 1;

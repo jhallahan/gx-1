@@ -18,6 +18,7 @@ wait 300
 shot screen-step.png
 key w4 up
 tap HOME
+tap HOME
 wait 300
 shot screen-patterns.png
 tap HOME

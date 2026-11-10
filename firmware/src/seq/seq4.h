@@ -320,6 +320,7 @@ void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2);
 void s4_panic(void);
 void s4_load_now(int s);                   /* s4[s] was replaced (a pattern loaded): restart its state */
 void s4_queue_pattern(int s, int pat);     /* the staged pattern goes in at the next boundary */
+void s4_queue_pattern_bar(int s, int pat); /* GX-1: ... at the next bar line, from its start */
 void s4_mute(int s, int on);
 void s4_tap(void);
 void s4_restart(int s);                    /* -1 all */
@@ -336,7 +337,17 @@ void s4_rec_track(int t);                  /* Multitrack: the track recording go
 void s4_lock(int on);                      /* the app's: the engine's interrupt held off (1) / let go (0) */
 extern s4_cstep_t s4_kchord;               /* the chord the chord keyboard plays (recorded as it is) */
 extern volatile uint8_t s4_pc_req;         /* a program change came for pattern n - 1 (the UI loads it) */
+/* GX-1's MIDI control: on channel s4_gx_ch (1-16, 0 off) notes, CCs and program changes go to this queue for the
+   GEN pages (docs/GX1_MIDI.md), not to the sequencers. Written in the audio interrupt, read in the main loop. */
+#define S4_GXQ 32u
+extern volatile uint32_t s4_gxq[S4_GXQ], s4_gxq_r, s4_gxq_w;
+extern uint8_t s4_gx_ch;
 extern volatile uint32_t s4_cap_count;     /* notes waiting to be captured */
+
+/* GX-1: a Poly sequencer with rsv[0] & S4_RSV_DRUMMAP plays its degrees 0..15 as drum sounds, each sent as
+ * s4_dm_note[deg] on channel s4_dm_ch[deg] (the drum map: ADR-024 in the engine repository) */
+#define S4_RSV_DRUMMAP 0x01u
+extern uint8_t s4_dm_note[16], s4_dm_ch[16];
 
 /* the staging buffers (filled by the app, loaded by the engine at the boundary) */
 extern s4_seq_t s4_stage[S4_NSEQ];
