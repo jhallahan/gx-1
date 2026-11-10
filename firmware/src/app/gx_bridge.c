@@ -238,8 +238,13 @@ static int gxb_apply(void)
 
 static void gxb_push(void) { gx_hist_push(&gxb_hist, &gxb_comp); }
 
+/* per role: the macros it has taken from SONG (a bit each); SONG's macros leave those alone */
+static uint8_t gxb_own[GX_NROLE];
 static int gxb_new(int genre, uint32_t seed)
 {
+    int r;
+    for (r = 0; r < (int)GX_NROLE; r++)
+        gxb_own[r] = 0;
     if (genre < 1 || genre >= (int)GX_NGENRE)
         return -1;
     gx_comp_init(&gxb_comp, (gx_genre_t)genre, seed, gx_genre_tempo((gx_genre_t)genre), (uint8_t)GXB_BARS);
@@ -274,7 +279,18 @@ static int gxb_macro(int m, int v)
     if (gxb_ready() || m < 0 || m >= (int)GX_NMACRO)
         return -1;
     for (r = 0; r < (int)GX_NROLE; r++)
-        gxb_comp.r[r].macro[m] = (uint8_t)clampb(v, 0, 127);
+        if (!(gxb_own[r] >> m & 1u))
+            gxb_comp.r[r].macro[m] = (uint8_t)clampb(v, 0, 127);
+    gxb_push();
+    return gxb_apply();
+}
+/* one track's own macro (TRACK's K1-K4): it stops following SONG's */
+static int gxb_macro_role(int role, int m, int v)
+{
+    if (gxb_ready() || role < 0 || role >= (int)GX_NROLE || m < 0 || m >= (int)GX_NMACRO)
+        return -1;
+    gxb_comp.r[role].macro[m] = (uint8_t)clampb(v, 0, 127);
+    gxb_own[role] |= (uint8_t)(1u << m);
     gxb_push();
     return gxb_apply();
 }

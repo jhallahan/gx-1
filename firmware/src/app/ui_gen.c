@@ -1,33 +1,41 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* GX-1: the GEN page (part of ui.c, after ui_draw.c). The design's "Direction E": near-black, outlines first,
- * every track in its own colour, the one selected at full strength and the rest dimmed but readable.
+/* GX-1: the GEN pages (part of ui.c, after ui_draw.c): SONG, TRACK and ARRANGE, as the phone player. HOME steps
+ * through them; the tabs at the top say which is on. Sections are blocked out by tone (chrome, grey where you
+ * edit, near-black for the controls), the selected thing in the app's colour.
  *
- *   y   0 ..  19  the genre, key and tempo; the part playing and the bar
- *   y  20 .. 99   the four tracks: their colour, name, this bar's hits (height = velocity), lock, mutations
- *   y 100 .. 171  K1-K4: the macros as small pictures (GLO held: the second four)
- *   y 172 .. 239  the selected track's 16 steps (the white keys): playhead dot, velocity fill, length bar
+ *   y   0 ..  15  the pages: SONG / TRACK / ARRANGE
+ *   y  16 ..  31  the song line: the style, the key, the part; the tempo and the loop's 8 bars
+ *   SONG     32..83 the four tracks (this bar) · 84..99 GEN: the idea · 100..171 the macros (K1-K4) ·
+ *            172..239 the selected track's 16 steps (the white keys)
+ *   TRACK    32..47 the track tabs (black keys 1-4) · 48..99 the editor: the drum lanes, or the steps ·
+ *            100..171 this track's own macros (K1-K4; grey: still following SONG) · 172..239 MUTATE
+ *   ARRANGE  32..99 the energy of the six parts · 100..171 the parts (W1-W6) · 172..239 the loop
  *
- * Keys and controls on this page:
- *   white keys        the selected track's steps (as on the grid: tap on / off, hold for its values)
+ * Keys and controls:
+ *   HOME              the next page (twice: the patterns)
+ *   white keys        the selected track's steps (tap on / off, hold for its values); ARRANGE: W1-W6 queue a part
  *   GLO + W1-W4, W5   mutate the selected track: rhythm, pitch, velocity, length; all
  *   GLO + W9-W14      the six parts (each genre names its own)
  *   black 1-4 · 5-8   select drums, sub, chords, upper · mute them
  *   black 9, 10       the page (bar) back and on
- *   K1-K4             density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution)
+ *   K1-K4             SONG: density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution);
+ *                     TRACK: the same four for the selected track only
  *   ALGORITHM         the genre (a new idea in it when the knob rests)
  *   PRESETS           the idea number (a new idea from it when the knob rests; locked tracks stay)
  *   SELECT            the tempo (the genre's range is marked, not enforced: ADR-028)
  *   OCT- / OCT+       the key, a semitone (everything pitched moves; the drums stay)
  *   FX new idea (GLO: re-roll the selected track) · SEL mutate · ENV lock · EDIT undo (GLO: redo)
- *   HOME the grid (and back) */
+ *   SEQ the grid (HOME comes back) */
 
-#define GN_BG RGB(17, 17, 20)
+#define GN_BG RGB(11, 11, 13)
 #define GN_PANEL RGB(30, 30, 35)
 #define GN_LINE RGB(46, 46, 52)
 #define GN_OFF RGB(58, 58, 66)
 #define GN_MUTED RGB(139, 139, 147)
 #define GN_INK RGB(236, 236, 240)
-static const uint16_t GN_TRACK[4] = {RGB(242, 180, 78), RGB(255, 111, 97), RGB(95, 214, 160), RGB(160, 140, 255)};
+#define GN_ACC RGB(167, 139, 250)              /* the app's colour (the phone's): the selected thing */
+#define GN_CHROME RGB(30, 30, 34)             /* the tabs, the song line */
+#define GN_EDIT RGB(23, 23, 27)               /* where you edit: the tracks, the editor, the parts */
 
 static struct {
     uint8_t genre;                     /* the genre picked (gx_genre_t) */
@@ -41,9 +49,12 @@ static struct {
     uint16_t wshift;                   /* white keys pressed with GLO (their release is theirs) */
     uint32_t sig[3];
     uint8_t drawn;                     /* the page is on screen (else everything is drawn again) */
+    uint8_t pg;                        /* 0 SONG, 1 TRACK, 2 ARRANGE */
+    uint8_t tmac[4], tmpend, trole;    /* TRACK's K1-K4 as turned, not applied yet; the track they are for */
+    uint32_t tmpend_t;
 } gen;
 
-static uint16_t gn_c(int r) { return GN_TRACK[r & 3]; }
+static uint16_t gn_c(int r) { (void)r; return GN_ACC; }
 static uint16_t gn_dim(int r) { (void)r; return RGB(104, 104, 114); }   /* an unselected track: grey (colour is for the selected one) */
 
 static const char *gn_genre_label(int g)
@@ -84,12 +95,26 @@ static const char *gn_track_label(int r)
         return N[r];
     return !p ? "Upper" : p->upper.mode == GX_UPPER_MID ? "Mid" : p->upper.mode == GX_UPPER_MOTIF ? "Motif" : "Arp";
 }
-static int gn_macro(int m)
+static int gn_macro(int m)                       /* SONG's: the value of the tracks that follow it */
 {
+    int r;
     if (gen.mpend >> m & 1u)
         return gen.mac[m];
-    return gxb_ok ? gxb_comp.r[0].macro[m] : 64;
+    if (!gxb_ok)
+        return 64;
+    for (r = 0; r < 4; r++)
+        if (!(gxb_own[r] >> m & 1u))
+            return gxb_comp.r[r].macro[m];
+    return gxb_comp.r[0].macro[m];
 }
+static int gn_owned(int r, int m) { return gxb_ok && (gxb_own[r] >> m & 1u); }
+static int gn_tmacro(int m)                      /* the selected track's own */
+{
+    if ((gen.tmpend >> m & 1u) && gen.trole == sel())
+        return gen.tmac[m];
+    return gxb_ok ? gxb_comp.r[sel()].macro[m] : 64;
+}
+static void gn_seed_text(char *t);
 static int gn_locked(int r) { return gxb_ok && (gxb_comp.lock >> r & 1u); }
 
 /* ---- the key, the chords, the tempo range (ADR-028) ---- */
@@ -201,75 +226,6 @@ static void gn_lock_icon(int32_t x, int32_t y, uint16_t c)     /* 7 x 9 */
 {
     frame(x + 1, y, 5, 5, c);
     cv_rect(x, y + 4, 7, 5, c);
-}
-
-static void gn_header(void)
-{
-    char t[24], n[8];
-    int32_t x;
-    int bar = (gn_playing_step(0) >= 0 ? gn_playing_step(0) : page() * 16) / 16;
-    x = cv_text(4, 2, &FONT_B, gn_genre_label(gen.gpend ? gen.genre : (gxb_ok ? gxb_comp.r[0].genre : gen.genre)),
-                gen.gpend ? GN_MUTED : GN_INK);
-    gn_key_text(t, 0);
-    x = cv_text(x + 6, 3, &FONT_XS, t, GN_MUTED);
-    itoa_u(s4g.tempo / 10u, n);
-    {
-        int32_t x1 = cv_text(x + 5, 3, &FONT_XS, n, gn_tempo_out() ? GN_INK : GN_MUTED);
-        if (gn_tempo_out())                       /* outside the genre's range: underlined */
-            for (; x1 > x + 5; x1 -= 3)
-                cv_rect(x1 - 2, 17, 2, 1, GN_INK);
-    }
-    if (gxb_ok) {
-        const char *pn = gx_part_name((gx_genre_t)gxb_comp.r[0].genre, gxb_comp.part);
-        int32_t w = text_w(&FONT_XS, pn) + 8, bx = 236 - 30 - w;
-        frame(bx, 2, w, 16, GN_INK);
-        cv_text(bx + 4, 2, &FONT_XS, pn, GN_INK);
-    } else {
-        text_r(206, 3, &FONT_XS, "FX: new idea", GN_MUTED);
-    }
-    t[0] = 0;
-    itoa_u((uint32_t)bar + 1u, n);
-    scat(t, n, 24);
-    scat(t, "/8", 24);
-    text_r(236, 3, &FONT_XS, t, GN_MUTED);
-}
-
-static void gn_rows(void)
-{
-    int r, i;
-    for (r = 0; r < 4; r++) {
-        int32_t y = 20 + r * 20;
-        int on = r == sel(), muted = s4[r].mute;
-        uint16_t c = muted ? GN_OFF : on ? gn_c(r) : gn_dim(r);
-        uint8_t vel[16], len[16];
-        int ps = gn_playing_step(r), bar = (ps >= 0 ? ps : page() * 16) / 16;
-        if (on)
-            pad(1, y + 1, 238, 18, GN_PANEL);
-        if (on)
-            cv_rect(4, y + 5, 10, 10, c);
-        else
-            frame(4, y + 5, 10, 10, c);
-        cv_text(19, y + 2, &FONT_S, gn_track_label(r), muted ? GN_OFF : on ? GN_INK : GN_MUTED);
-        gn_bar(r, bar, vel, len);
-        cv_rect(70, y + 16, 128, 1, on ? c : mix(c, GN_BG, 140));
-        for (i = 0; i < 16; i++) {
-            int32_t x = 70 + i * 8, h;
-            if (!vel[i])
-                continue;
-            h = 3 + vel[i] * 11 / 127;
-            cv_rect(x + 2, y + 16 - h, 3, h, c);
-        }
-        if (muted)
-            text_r(236, y + 3, &FONT_XS, "MUTE", GN_MUTED);
-        else {
-            if (gn_locked(r))
-                gn_lock_icon(206, y + 5, GN_INK);
-            if (gxb_ok && gxb_comp.r[r].mut_n) {
-                char t[4] = {'M', (char)('0' + gxb_comp.r[r].mut_n), 0, 0};
-                text_r(236, y + 3, &FONT_XS, t, c);
-            }
-        }
-    }
 }
 
 /* the macros as pictures (52 x 30), drawn like a synth's panel: grey guides for where things start (the beat, the
@@ -411,21 +367,23 @@ static void gn_macro_pic(int m, int v, int32_t x, int32_t y, uint16_t acc)
     }
 }
 
-static void gn_macros(void)
+static void gn_macros_at(int32_t y0, int track)    /* SONG's, or (track) the selected track's own */
 {
     static const char *const N[GX_NMACRO] = {"Density", "Sync", "Space", "Groove", "Human", "Tension", "Complex",
                                              "Evolve"};
     int i, hi = shift() ? 4 : 0;
-    uint16_t acc = GN_INK;                       /* the macros change every track: neutral, not the track's colour */
-    cv_rect(4, 101, 232, 1, GN_LINE);
+    if (track)
+        hi = 0;
     for (i = 0; i < 4; i++) {
-        int m = hi + i, v = gn_macro(m);
+        int m = hi + i, v = track ? gn_tmacro(m) : gn_macro(m);
+        int own = track && (gn_owned(sel(), m) || ((gen.tmpend >> m & 1u) && gen.trole == sel()));
+        int pend = track ? (gen.tmpend >> m & 1u) && gen.trole == sel() : gen.mpend >> m & 1u;
         int32_t x = 6 + i * 59;
         char t[6];
-        cv_text(x, 103, &FONT_XS, N[m], GN_INK);
-        gn_macro_pic(m, v, x, 120, acc);
-        cv_text(x, 154, &FONT_XS, itoa_u((uint32_t)v, t), (gen.mpend >> m & 1u) ? GN_INK : GN_MUTED);
-        cv_text(x + 22, 154, &FONT_XS, i == 0 ? "K1" : i == 1 ? "K2" : i == 2 ? "K3" : "K4", GN_OFF);
+        cv_text(x, y0, &FONT_XS, N[m], GN_INK);
+        gn_macro_pic(m, v, x, y0 + 17, track && !own ? GN_GUIDE : GN_INK);
+        cv_text(x, y0 + 49, &FONT_XS, itoa_u((uint32_t)v, t), pend ? GN_INK : own ? GN_ACC : GN_MUTED);
+        cv_text(x + 22, y0 + 49, &FONT_XS, i == 0 ? "K1" : i == 1 ? "K2" : i == 2 ? "K3" : "K4", GN_OFF);
     }
 }
 
@@ -456,12 +414,12 @@ static void gn_glo_layer(void)
     cv_text(7, 221, &FONT_XS, "W1 rhythm W2 pitch W3 vel W4 len W5 all", GN_MUTED);
 }
 
+static void gn_info(void);
 static void gn_strip(void)
 {
     int s = sel(), i, ps = gn_playing_step(s), p = page();
     uint8_t vel[16], len[16];
     uint16_t acc = gn_c(s);
-    char t[28], n[8];
     if (shift()) {
         gn_glo_layer();
         return;
@@ -485,6 +443,14 @@ static void gn_strip(void)
             cv_rect(x, 213, len[i] > 1 ? 12 + (len[i] - 1) * 14 > 222 - x ? 222 - x : 12 + (len[i] - 1) * 14 : 6, 2, GN_INK);
         }
     }
+    gn_info();
+}
+
+static void gn_info(void)                        /* the bottom line: the last message, or the chords */
+{
+    int s = sel(), p = page();
+    uint16_t acc = gn_c(s);
+    char t[28], n[8];
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0) {
         t[0] = 0;
         scat(t, ui.msg[0], 28);
@@ -531,6 +497,257 @@ static void gn_strip(void)
     text_r(232, 219, &FONT_XS, t, GN_INK);
 }
 
+
+/* ---- the pages: the tabs and the song line (every page), then each page's own ---- */
+static void gn_tabs(void)
+{
+    static const char *const T[3] = {"SONG", "TRACK", "ARRANGE"};
+    char t[24], n[8];
+    int i, bar = (gn_playing_step(0) >= 0 ? gn_playing_step(0) : page() * 16) / 16;
+    int32_t x;
+    cv_rect(0, 0, 240, 32, GN_CHROME);
+    for (i = 0; i < 3; i++) {                    /* equal cells; the open one sits darker, in the app's colour */
+        if (i == gen.pg)
+            cv_rect(i * 80, 0, 80, 16, GN_BG);
+        if (i)
+            cv_rect(i * 80, 0, 1, 16, GN_BG);
+        text_c(i * 80 + 40, 0, &FONT_XS, T[i], i == gen.pg ? GN_ACC : GN_MUTED);
+    }
+    cv_rect(0, 16, 240, 1, GN_BG);
+    scopy(t, gn_genre_label(gen.gpend ? gen.genre : (gxb_ok ? gxb_comp.r[0].genre : gen.genre)), 24);
+    fit(&FONT_XS, t, 92);
+    x = cv_text(4, 17, &FONT_XS, t, gen.gpend ? GN_MUTED : GN_INK);
+    gn_key_text(t, 0);
+    x = cv_text(x + 8, 17, &FONT_XS, t, GN_INK);
+    if (gxb_ok) {
+        scopy(t, gx_part_name((gx_genre_t)gxb_comp.r[0].genre, gxb_comp.part), 24);
+        fit(&FONT_XS, t, 184 - (x + 8));
+        cv_text(x + 8, 17, &FONT_XS, t, s4p.on && s4p.next[0] != 0xFF ? GN_ACC : GN_INK);
+    }
+    itoa_u(s4g.tempo / 10u, n);
+    text_r(210, 17, &FONT_XS, n, gn_tempo_out() ? GN_INK : GN_MUTED);
+    for (i = 0; i < 8; i++) {                    /* the loop's bars, the one shown filled */
+        int32_t bx = 213 + (i & 3) * 6, by = 19 + (i >> 2) * 6;
+        if (i == bar)
+            cv_rect(bx, by, 5, 5, GN_ACC);
+        else
+            frame(bx, by, 5, 5, GN_GUIDE);
+    }
+}
+
+static int32_t gn_col(int i) { return 18 + i * 13 + (i >> 2); }   /* a step's column: 16 across, a gap a beat */
+
+/* SONG: the four tracks, this bar: a square for the track (filled: selected), a bar a hit (taller: louder) */
+static void gn_song_rows(void)
+{
+    int r, i;
+    cv_rect(0, 32, 240, 52, GN_EDIT);
+    for (r = 0; r < 4; r++) {
+        int32_t y = 32 + r * 13;
+        int on = r == sel(), muted = s4[r].mute;
+        uint16_t c = muted ? GN_OFF : on ? GN_ACC : gn_dim(r);
+        uint8_t vel[16], len[16];
+        int ps = gn_playing_step(r), bar = (ps >= 0 ? ps : page() * 16) / 16;
+        if (on)
+            cv_rect(4, y + 3, 7, 7, c);
+        else
+            frame(4, y + 3, 7, 7, c);
+        gn_bar(r, bar, vel, len);
+        for (i = 0; i < 16; i++) {
+            int32_t x = gn_col(i), h;
+            if (!vel[i]) {
+                cv_rect(x + 5, y + 6, 2, 2, i % 4 ? GN_LINE : GN_OFF);
+                continue;
+            }
+            h = 3 + vel[i] * 7 / 127;
+            cv_rect(x, y + 11 - h, 11, h, c);
+            if (len[i] > 1) {
+                int32_t w = (int32_t)(len[i] - 1) * 13;
+                if (x + 11 + w > 230)
+                    w = 230 - x - 11;
+                if (w > 0)
+                    cv_rect(x + 11, y + 10, w, 1, c);
+            }
+        }
+        if (gn_locked(r))
+            gn_lock_icon(232, y + 2, on ? GN_INK : GN_MUTED);
+    }
+}
+static void gn_gen_line(void)                    /* GEN: the idea; FX rolls a new one */
+{
+    char t[12];
+    cv_text(4, 84, &FONT_XS, "GEN", GN_MUTED);
+    gn_seed_text(t);
+    cv_text(36, 84, &FONT_XS, gxb_ok || gen.spend ? t : "-", gen.spend ? GN_INK : GN_ACC);
+    text_r(236, 84, &FONT_XS, "FX new idea", GN_MUTED);
+}
+
+/* TRACK: the track tabs (black keys 1-4), then the editor */
+static void gn_track_tabs(void)
+{
+    int r;
+    cv_rect(0, 32, 240, 16, GN_CHROME);
+    for (r = 0; r < 4; r++) {
+        int32_t x = r * 60;
+        int on = r == sel();
+        char t[10];
+        cv_rect(x + (r ? 1 : 0), 32, r ? 59 : 60, 16, GN_BG);
+        scopy(t, gn_track_label(r), 10);
+        fit(&FONT_XS, t, 54);
+        text_c(x + 30, 32, &FONT_XS, t, s4[r].mute ? GN_OFF : on ? GN_ACC : GN_MUTED);
+        if (on)
+            cv_rect(x, 46, 60, 2, GN_ACC);
+    }
+}
+static void gn_lanes(int bar, uint16_t *hit)     /* the drums' lanes this bar: a bit a step */
+{
+    const s4_seq_t *q = &s4[GX_ROLE_DRUMS];
+    int k, l;
+    for (l = 0; l < (int)GX_NLANE; l++)
+        hit[l] = 0;
+    if (q->mode != M_POLY)
+        return;
+    for (k = 0; k < q->d.poly.n; k++) {
+        const s4_pnote_t *n = &q->d.poly.note[k];
+        int st = n->step - bar * 16;
+        if (st >= 0 && st < 16 && n->deg >= 0 && n->deg < (int)GX_NLANE)
+            hit[n->deg] |= (uint16_t)(1u << st);
+    }
+}
+static void gn_editor(void)
+{
+    int s = sel(), i, p = page();
+    cv_rect(0, 48, 240, 52, GN_EDIT);
+    if (s == GX_ROLE_DRUMS && s4[s].mode == M_POLY) {   /* a row a drum sound: kick at the top */
+        uint16_t hit[GX_NLANE];
+        int l;
+        gn_lanes(p, hit);
+        for (l = 0; l < (int)GX_NLANE; l++)
+            for (i = 0; i < 16; i++) {
+                int32_t x = gn_col(i), y = 50 + l * 5;
+                if (hit[l] >> i & 1u)
+                    cv_rect(x, y, 11, 4, GN_ACC);
+                else
+                    cv_rect(x + 5, y + 1, 1, 2, i % 4 ? GN_LINE : GN_OFF);
+            }
+        return;
+    }
+    {                                            /* a pitched track: its steps, velocity as height */
+        uint8_t vel[16], len[16];
+        gn_bar(s, p, vel, len);
+        for (i = 0; i < 16; i++) {
+            int32_t x = gn_col(i), h;
+            frame(x, 51, 11, 42, vel[i] ? GN_ACC : i % 4 ? GN_LINE : GN_OFF);
+            if (vel[i]) {
+                h = 3 + vel[i] * 38 / 127;
+                cv_rect(x + 1, 92 - h, 9, h, GN_ACC);
+                cv_rect(x, 95, len[i] > 1 ? (gn_col(i + len[i] - 1 > 15 ? 15 : i + len[i] - 1) + 11 - x) : 5, 2, GN_INK);
+            }
+        }
+    }
+}
+static void gn_track_strip(void)                 /* MUTATE: how many used, the keys; then the bottom line */
+{
+    int s = sel(), n = gxb_ok ? gxb_comp.r[s].mut_n : 0, i;
+    int32_t x;
+    if (shift()) {
+        gn_glo_layer();
+        return;
+    }
+    pad(2, 174, 236, 64, GN_PANEL);
+    x = cv_text(7, 176, &FONT_XS, "MUTATE", GN_MUTED) + 8;
+    for (i = 0; i < 4; i++)
+        if (i < n)
+            cv_rect(x + i * 9, 181, 6, 6, GN_ACC);
+        else
+            frame(x + i * 9, 181, 6, 6, GN_OFF);
+    text_r(232, 176, &FONT_XS, s4[s].mute ? "MUTED" : gn_locked(s) ? "LOCKED" : "", GN_ACC);
+    cv_text(7, 196, &FONT_XS, "SEL all  GLO+FX re-roll", GN_MUTED);
+    gn_info();
+}
+
+/* ARRANGE: the energy of the six parts, the parts (W1-W6 queue one), the loop */
+static const uint8_t GN_ENERGY[6] = {30, 70, 75, 35, 60, 100};
+static int32_t gn_ex(int k) { return 24 + k * 38; }
+static int32_t gn_ey(int k) { return 93 - GN_ENERGY[k] * 42 / 100; }
+static void gn_energy(void)
+{
+    int k, p = gxb_ok ? gxb_comp.part : 1, waiting = s4p.on && s4p.next[0] != 0xFF;
+    cv_rect(0, 32, 240, 68, GN_EDIT);
+    cv_text(4, 33, &FONT_XS, "ENERGY", GN_MUTED);
+    cv_rect(4, 97, 232, 1, GN_LINE);
+    for (k = 0; k < 5; k++)
+        gn_ln(gn_ex(k), gn_ey(k), gn_ex(k + 1), gn_ey(k + 1), GN_OFF);
+    for (k = 0; k < 6; k++) {
+        int32_t x = gn_ex(k) - 3, y = gn_ey(k) - 3;
+        if (k == p && waiting) {
+            cv_rect(x, y, 7, 7, GN_EDIT);
+            frame(x, y, 7, 7, GN_ACC);
+        } else
+            cv_rect(x, y, 7, 7, k == p ? GN_ACC : GN_GUIDE);
+    }
+}
+static void gn_part_tiles(void)
+{
+    static const char *const K[6] = {"W1", "W2", "W3", "W4", "W5", "W6"};
+    int k, waiting = s4p.on && s4p.next[0] != 0xFF;
+    cv_rect(0, 100, 240, 72, GN_EDIT);
+    for (k = 0; k < (int)GX_NPART; k++) {
+        int32_t x = 4 + (k % 3) * 78, y = 104 + (k / 3) * 32;
+        int on = gxb_ok && gxb_comp.part == k, full = on && !waiting;
+        char t[12];
+        cv_rect(x, y, 76, 30, full ? GN_ACC : GN_BG);
+        if (on && waiting)
+            frame(x, y, 76, 30, GN_ACC);
+        scopy(t, gx_part_name((gx_genre_t)(gxb_ok ? gxb_comp.r[0].genre : gen.genre), (uint32_t)k), 12);
+        fit(&FONT_XS, t, 50);
+        cv_text(x + 4, y + 7, &FONT_XS, t, full ? GN_BG : GN_INK);
+        text_r(x + 72, y + 7, &FONT_XS, K[k], full ? GN_PANEL : GN_MUTED);
+    }
+}
+static void gn_arr_strip(void)
+{
+    int b, bar = gn_playing_step(0) >= 0 ? gn_playing_step(0) / 16 : -1;
+    if (shift()) {
+        gn_glo_layer();
+        return;
+    }
+    pad(2, 174, 236, 64, GN_PANEL);
+    cv_text(7, 176, &FONT_XS, "W1-W6: queue a part", GN_MUTED);
+    for (b = 0; b < 8; b++)                      /* the loop: the bars played, the one playing */
+        cv_rect(7 + b * 29, 199, 26, 6, bar < 0 ? GN_LINE : b < bar ? GN_ACC : b == bar ? GN_INK : GN_LINE);
+    gn_info();
+}
+
+static void gn_band_a(void)
+{
+    gn_tabs();
+    if (gen.pg == 0) {
+        gn_song_rows();
+        gn_gen_line();
+    } else if (gen.pg == 1) {
+        gn_track_tabs();
+        gn_editor();
+    } else
+        gn_energy();
+}
+static void gn_band_b(void)
+{
+    if (gen.pg == 2)
+        gn_part_tiles();
+    else
+        gn_macros_at(104, gen.pg == 1 && !shift());
+}
+static void gn_band_c(void)
+{
+    if (gen.pg == 0)
+        gn_strip();
+    else if (gen.pg == 1)
+        gn_track_strip();
+    else
+        gn_arr_strip();
+}
+
 static uint32_t gn_sig_bar(uint32_t h, int s, int bar)
 {
     uint8_t vel[16], len[16];
@@ -548,47 +765,56 @@ static void gn_band(int32_t y0, int32_t h, void (*paint)(void))
     paint();
     cv_blit(0, (uint32_t)y0);
 }
-static void gn_top(void)
-{
-    gn_header();
-    gn_rows();
-}
 
 static void draw_gen(void)
 {
     uint32_t h;
-    int r, msg = ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0;
+    int r, m, msg = ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0;
     if (!gen.drawn) {
         gen.sig[0] = gen.sig[1] = gen.sig[2] = 0;
         gen.drawn = 1;
     }
-    /* the top: the header and the tracks */
+    /* the top: the tabs, the song line, and the page's own (the tracks; the editor; the energy) */
     h = hash(hash(hash(1u, sel()), s4g.tempo), (uint32_t)(gn_playing_step(0) / 16) + 7u * (uint32_t)page());
     h = hash(hash(h, gen.gpend ? gen.genre : 0xFFu), gxb_ok ? (uint32_t)gxb_comp.part << 8 | gxb_comp.lock : 0x1234u);
-    h = hash(h, (uint32_t)gn_key() << 8 | (uint32_t)gn_tempo_out());
+    h = hash(hash(h, (uint32_t)gn_key() << 8 | (uint32_t)gn_tempo_out()), (uint32_t)gen.pg << 4 | (uint32_t)(s4p.on && s4p.next[0] != 0xFF));
+    h = hash(hash(h, gen.seed), gen.spend | (uint32_t)gxb_ok << 1);
     for (r = 0; r < 4; r++) {
         int ps = gn_playing_step(r);
         h = hash(hash(h, s4[r].mute), gxb_ok ? gxb_comp.r[r].mut_n | (uint32_t)gxb_comp.r[r].genre << 4 : 0u);
         h = gn_sig_bar(h, r, (ps >= 0 ? ps : page() * 16) / 16);
     }
+    if (gen.pg == 1) {                            /* the editor: the bar shown, the drums' lanes */
+        uint16_t hit[GX_NLANE];
+        h = gn_sig_bar(h, sel(), page());
+        gn_lanes(page(), hit);
+        for (r = 0; r < (int)GX_NLANE; r++)
+            h = hash(h, hit[r]);
+    }
     if (h != gen.sig[0]) {
         gen.sig[0] = h;
-        gn_band(0, 100, gn_top);
+        gn_band(0, 100, gn_band_a);
     }
-    /* the macros */
-    h = hash(hash(2u, sel()), (uint32_t)shift() << 8 | gen.mpend);
-    for (r = 0; r < (int)GX_NMACRO; r++)
-        h = hash(h, (uint32_t)gn_macro(r));
+    /* the middle: the macros (SONG's, or the track's own); the parts */
+    h = hash(hash(hash(2u, sel()), (uint32_t)shift() << 8 | gen.mpend), (uint32_t)gen.pg << 8 | gen.tmpend);
+    for (m = 0; m < (int)GX_NMACRO; m++)
+        h = hash(h, (uint32_t)gn_macro(m) | (uint32_t)(m < 4 ? gn_tmacro(m) : 0) << 8 | (uint32_t)gn_owned(sel(), m) << 16);
+    h = hash(hash(h, gxb_ok ? gxb_comp.part : 9u), (uint32_t)(s4p.on && s4p.next[0] != 0xFF) | (uint32_t)gen.trole << 1);
+    if (gen.pg == 2)
+        h = hash(h, gxb_ok ? gxb_comp.r[0].genre : gen.genre);
     if (h != gen.sig[1]) {
         gen.sig[1] = h;
-        gn_band(100, 72, gn_macros);
+        gn_band(100, 72, gn_band_b);
     }
-    /* the steps */
+    /* the bottom: the steps; MUTATE; the loop. And the last message */
     h = hash(hash(hash(3u, sel()), page()), (uint32_t)(gn_playing_step(sel()) + 1));
     h = gn_sig_bar(h, sel(), page());
     h = hash(h, msg ? hash_s(hash_s(5u, ui.msg[0]), ui.msg[1]) : 0u);
-    h = hash(h, s4[sel()].ch);
+    h = hash(hash(h, s4[sel()].ch), (uint32_t)gen.pg << 4 | (uint32_t)s4[sel()].mute << 2 | (uint32_t)gn_locked(sel()));
     h = hash(h, (uint32_t)shift() << 9 | (uint32_t)(gxb_ok ? gxb_comp.part : 7u) << 1 | (uint32_t)(s4p.on && s4p.next[0] != 0xFF));
+    h = hash(h, gxb_ok ? gxb_comp.r[sel()].mut_n : 0u);
+    if (gen.pg == 2)
+        h = hash(h, (uint32_t)(gn_playing_step(0) / 16 + 2));
     if (gxb_ok && gxb_harm_ok) {                  /* the chords shown: the key, the progression, the bar playing */
         int b;
         h = hash(hash(h, gxb_comp.key), (uint32_t)(gn_playing_step(GX_ROLE_CHORDS) / 16 + 2));
@@ -597,7 +823,7 @@ static void draw_gen(void)
     }
     if (h != gen.sig[2]) {
         gen.sig[2] = h;
-        gn_band(172, 68, gn_strip);
+        gn_band(172, 68, gn_band_c);
     }
 }
 
@@ -660,6 +886,12 @@ static void gen_key_down(int k)
 {
     int w = white_of(k), b = black_of(k);
     if (w >= 0) {
+        if (gen.pg == 2 && !shift()) {           /* ARRANGE: W1-W6 queue a part; the other keys rest */
+            if (w < (int)GX_NPART && !gn_ensure() && gn_result(gxb_part(w), "PART") >= 0)
+                say(gx_part_name((gx_genre_t)gxb_comp.r[0].genre, (uint32_t)w), s4p.on ? "NEXT" : "");
+            gen.wshift |= (uint16_t)(1u << w);   /* (its release is ours) */
+            return;
+        }
         if (shift()) {
             ui.btn_used |= 1u << B_GLO;
             gen.wshift |= (uint16_t)(1u << w);
@@ -742,9 +974,14 @@ static int gen_btn_tap(int b)
         return 1;
     case B_EDIT: say(gxb_undo() >= 0 ? "UNDO" : "NOTHING TO UNDO", 0); return 1;
     case B_SEQ: set_view(V_GRID); return 1;      /* the grid, to edit by hand (HOME comes back) */
-    case B_HOME:                                 /* (SEQ opens the grid) twice: the patterns */
-        if (plat_ms() - ui.up_t[B_HOME] < DTAP_MS)
+    case B_HOME:                                 /* the next page; twice: the patterns */
+        if (plat_ms() - ui.up_t[B_HOME] < DTAP_MS) {
+            gen.pg = (uint8_t)((gen.pg + 2) % 3);    /* (the first tap's step undone) */
             set_view(V_PATS);
+        } else {
+            gen.pg = (uint8_t)((gen.pg + 1) % 3);
+            gen.drawn = 0;
+        }
         return 1;
     default: return 0;
     }
@@ -807,6 +1044,22 @@ static void gen_enc(int role, int32_t e)
 static void gen_knob(int k, int32_t e)
 {
     int m = k + (shift() ? 4 : 0), v = gn_macro(m);
+    if (gen.pg == 1 && !shift()) {               /* TRACK: the selected track's own */
+        if (gen.tmpend && gen.trole != sel()) {  /* another track's still waiting: it lands first */
+            int i;
+            if (!gn_ensure())
+                for (i = 0; i < 4; i++)
+                    if (gen.tmpend >> i & 1u)
+                        gn_result(gxb_macro_role(gen.trole, i, gen.tmac[i]), "MACRO");
+            gen.tmpend = 0;
+        }
+        v = gn_tmacro(k);
+        gen.trole = (uint8_t)sel();
+        gen.tmac[k] = (uint8_t)clampi(v + (int)accel(EN_K1 + k, e, 127), 0, 127);
+        gen.tmpend |= (uint8_t)(1u << k);
+        gen.tmpend_t = plat_ms();
+        return;
+    }
     if (shift())
         ui.btn_used |= 1u << B_GLO;
     gen.mac[m] = (uint8_t)clampi(v + (int)accel(EN_K1 + k, e, 127), 0, 127);
@@ -835,6 +1088,13 @@ static void gen_service(void)
         gn_seed_text(t);
         say("IDEA", t);
     }
+    if (gen.tmpend && now - gen.tmpend_t > 250u) {
+        if (!gn_ensure())
+            for (m = 0; m < 4; m++)
+                if (gen.tmpend >> m & 1u)
+                    gn_result(gxb_macro_role(gen.trole, m, gen.tmac[m]), "MACRO");
+        gen.tmpend = 0;
+    }
     if (gen.mpend && now - gen.mpend_t > 250u) {
         if (!gn_ensure())
             for (m = 0; m < (int)GX_NMACRO; m++)
@@ -856,6 +1116,13 @@ static void gen_leds(uint32_t *bp, uint32_t *kp)
     for (i = 0; i < 4; i++)
         if (s4[i].mute)
             k |= 1u << BLACK_KEY[4 + i];
+    if (gen.pg == 2 && !shift()) {               /* ARRANGE: W1-W6 the parts, the one chosen blinking */
+        for (i = 0; i < 16; i++)
+            k &= ~(1u << WHITE_KEY[i]);
+        for (i = 0; i < (int)GX_NPART; i++)
+            if (!(gxb_ok && i == gxb_comp.part) || blink())
+                k |= 1u << WHITE_KEY[i];
+    }
     if (shift()) {                               /* the second layer: mutate, the parts */
         for (i = 0; i < 16; i++)
             k &= ~(1u << WHITE_KEY[i]);
