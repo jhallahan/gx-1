@@ -36,7 +36,7 @@ typedef struct {
 
 /* ---- harmony and pitched parts (M3) ---- */
 
-typedef enum { GX_SCALE_AEOLIAN = 0, GX_SCALE_DORIAN, GX_SCALE_PHRYGIAN, GX_NSCALE } gx_scale_t;
+typedef enum { GX_SCALE_AEOLIAN = 0, GX_SCALE_DORIAN, GX_SCALE_PHRYGIAN, GX_SCALE_IONIAN, GX_NSCALE } gx_scale_t;
 typedef enum { GX_COL_TRIAD = 0, GX_COL_SEVENTH, GX_COL_ADD9, GX_COL_SUS2, GX_COL_ELEVENTH, GX_NCOL } gx_colour_t;
 typedef enum { GX_UPPER_NONE = 0, GX_UPPER_ARP, GX_UPPER_MID, GX_UPPER_MOTIF } gx_upper_mode_t;
 typedef enum { GX_ARP_UP = 0, GX_ARP_UPDOWN, GX_ARP_CYCLE5, GX_ARP_WALK } gx_arp_t;

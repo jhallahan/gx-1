@@ -51,7 +51,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 4. Black keys **1–4** select a track: **SEL** mutates it, **ENV** locks it, **GLO + FX** re-rolls it.
 5. **GLO + W9–W14**: the six song parts, at the next bar. **EDIT** undoes.
 
-## Twenty styles in five families
+## Twenty-five styles in six families
 
 | Family | Styles |
 |---|---|
@@ -59,7 +59,8 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 | **BREAKS & BASS** | Breaks · UK garage · Electro · Dubstep |
 | **TECHNO** | Minimal · Dub techno · Acid · Detroit · Hard |
 | **HOUSE** | Deep house · Lo-fi house |
-| **LEFTFIELD** | IDM · Downtempo · Ambient |
+| **LEFTFIELD** | IDM · Downtempo · Ambient · Psybient · Glitch ambient |
+| **POP & R&B** | Pop · R&B · Synth-pop |
 
 The music engine is [fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator): integer-only C, deterministic
 (the same style and idea number always give the same music), with the styles written as profiles.

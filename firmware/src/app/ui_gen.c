@@ -119,13 +119,13 @@ static int gn_locked(int r) { return gxb_ok && (gxb_comp.lock >> r & 1u); }
 
 /* ---- the key, the chords, the tempo range (ADR-028) ---- */
 static const char *const GN_NOTE[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
-static const uint8_t GN_SCALE[3][7] = {{0, 2, 3, 5, 7, 8, 10}, {0, 2, 3, 5, 7, 9, 10}, {0, 1, 3, 5, 7, 8, 10}};
+static const uint8_t GN_SCALE[4][7] = {{0, 2, 3, 5, 7, 8, 10}, {0, 2, 3, 5, 7, 9, 10}, {0, 1, 3, 5, 7, 8, 10}, {0, 2, 4, 5, 7, 9, 11}};
 static const gx_genre_prof_t *gn_prof(void) { return gx_profile((gx_genre_t)(gxb_ok ? gxb_comp.r[GX_ROLE_CHORDS].genre : gen.genre)); }
-static int gn_scale(void) { const gx_genre_prof_t *p = gn_prof(); return p && p->harm.scale < 3 ? p->harm.scale : 0; }
+static int gn_scale(void) { const gx_genre_prof_t *p = gn_prof(); return p && p->harm.scale < 4 ? p->harm.scale : 0; }
 static int gn_key(void) { const gx_genre_prof_t *p = gn_prof(); return gxb_ok ? gxb_comp.key : p ? p->harm.key : 0; }
 static void gn_key_text(char *t, int full)        /* "F#m" / "F# minor" */
 {
-    static const char *const S[3] = {"m", "dor", "phr"}, *const F[3] = {" minor", " dorian", " phrygian"};
+    static const char *const S[4] = {"m", "dor", "phr", ""}, *const F[4] = {" minor", " dorian", " phrygian", " major"};
     scopy(t, GN_NOTE[gn_key() % 12], 16);
     scat(t, full ? F[gn_scale()] : S[gn_scale()], 16);
 }

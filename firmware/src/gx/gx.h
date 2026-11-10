@@ -73,6 +73,9 @@ typedef enum {
     GX_GENRE_AMBIENT,
     GX_GENRE_PSYBIENT,
     GX_GENRE_GLITCH_AMBIENT,
+    GX_GENRE_POP,
+    GX_GENRE_RNB,
+    GX_GENRE_SYNTHPOP,
     GX_NGENRE
 } gx_genre_t;
 

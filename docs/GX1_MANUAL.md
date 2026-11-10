@@ -143,9 +143,10 @@ the style you last used.
 | **BREAKS & BASS** | Breaks (122–135) · UK garage (128–136) · Electro (125–138) · Dubstep (136–144) |
 | **TECHNO** | Minimal (120–128) · Dub techno (116–128) · Acid (124–135) · Detroit (126–136) · Hard (135–150) |
 | **HOUSE** | Deep house (118–126) · Lo-fi house (115–124) |
-| **LEFTFIELD** | IDM (110–150) · Downtempo (80–100) · Ambient (60–100) |
+| **LEFTFIELD** | IDM (110–150) · Downtempo (80–100) · Ambient (60–100) · Psybient (85–110) · Glitch ambient (88–115) |
+| **POP & R&B** | Pop (100–128) · R&B (70–100) · Synth-pop (100–126) |
 
-Each style has its own drum language, scale (minor, Dorian or Phrygian), chord progressions, bass behaviour and
+Each style has its own drum language, scale (minor, Dorian, Phrygian or major), chord progressions, bass behaviour and
 upper part, and its own six song parts. The same style and idea number always give the same music.
 
 ## 6. New ideas, mutate, lock, re-roll, undo

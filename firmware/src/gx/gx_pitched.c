@@ -15,6 +15,7 @@ static const uint8_t SCALE[GX_NSCALE][7] = {
     { 0, 2, 3, 5, 7, 8, 10 },  /* aeolian */
     { 0, 2, 3, 5, 7, 9, 10 },  /* dorian */
     { 0, 1, 3, 5, 7, 8, 10 },  /* phrygian */
+    { 0, 2, 4, 5, 7, 9, 11 },  /* ionian (major: pop, R&B) */
 };
 
 static int32_t clampi(int32_t v, int32_t lo, int32_t hi) { return v < lo ? lo : v > hi ? hi : v; }
