@@ -238,7 +238,7 @@ static int gxb_apply(void)
 
 static void gxb_push(void) { gx_hist_push(&gxb_hist, &gxb_comp); }
 
-/* per role: the macros it has taken from SONG (a bit each); SONG's macros leave those alone */
+/* per role: the macros it has taken from GEN (a bit each); GEN's macros leave those alone */
 static uint8_t gxb_own[GX_NROLE];
 static int gxb_new(int genre, uint32_t seed)
 {
@@ -284,7 +284,7 @@ static int gxb_macro(int m, int v)
     gxb_push();
     return gxb_apply();
 }
-/* one track's own macro (TRACK's K1-K4): it stops following SONG's */
+/* one track's own macro (TRACK's K1-K4): it stops following GEN's */
 static int gxb_macro_role(int role, int m, int v)
 {
     if (gxb_ready() || role < 0 || role >= (int)GX_NROLE || m < 0 || m >= (int)GX_NMACRO)

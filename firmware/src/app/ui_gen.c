@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* GX-1: the GEN pages (part of ui.c, after ui_draw.c): SONG, TRACK and ARRANGE, as the phone player. HOME steps
+/* GX-1: the GEN pages (part of ui.c, after ui_draw.c): GEN, TRACK and ARRANGE, as the phone player. HOME steps
  * through them; the tabs at the top say which is on. Sections are blocked out by tone (chrome, grey where you
  * edit, near-black for the controls), the selected thing in the app's colour.
  *
  *   y   0 ..  15  the song line: the style, the key, the part; the tempo and the loop's 8 bars
- *   y  16 ..  31  the pages: SONG / TRACK / ARRANGE (the open one the colour of what it opens)
- *   SONG     32..83 the four tracks (this bar) · 84..99 GEN: the idea · 100..171 the macros (K1-K4) ·
+ *   y  16 ..  31  the pages: GEN / TRACK / ARRANGE (the open one the colour of what it opens)
+ *   GEN      32..83 the four tracks (this bar) · 84..99 GEN: the idea · 100..171 the macros (K1-K4) ·
  *            172..239 the selected track's 16 steps (the white keys)
  *   TRACK    32..47 the track tabs (black keys 1-4) · 48..99 the editor: the drum lanes, or the steps ·
- *            100..171 this track's own macros (K1-K4; grey: still following SONG) · 172..239 MUTATE
+ *            100..171 this track's own macros (K1-K4; grey: still following GEN) · 172..239 MUTATE
  *   ARRANGE  32..99 the energy of the six parts · 100..171 the parts (W1-W6) · 172..239 the loop
  *
  * Keys and controls:
@@ -18,7 +18,7 @@
  *   GLO + W9-W14      the six parts (each genre names its own)
  *   black 1-4 · 5-8   select drums, sub, chords, upper · mute them
  *   black 9, 10       the page (bar) back and on
- *   K1-K4             SONG: density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution);
+ *   K1-K4             GEN: density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution);
  *                     TRACK: the same four for the selected track only
  *   ALGORITHM         the genre (a new idea in it when the knob rests)
  *   PRESETS           the idea number (a new idea from it when the knob rests; locked tracks stay)
@@ -49,7 +49,7 @@ static struct {
     uint16_t wshift;                   /* white keys pressed with GLO (their release is theirs) */
     uint32_t sig[3];
     uint8_t drawn;                     /* the page is on screen (else everything is drawn again) */
-    uint8_t pg;                        /* 0 SONG, 1 TRACK, 2 ARRANGE */
+    uint8_t pg;                        /* 0 GEN, 1 TRACK, 2 ARRANGE */
     uint8_t tmac[4], tmpend, trole;    /* TRACK's K1-K4 as turned, not applied yet; the track they are for */
     uint32_t tmpend_t;
 } gen;
@@ -95,7 +95,7 @@ static const char *gn_track_label(int r)
         return N[r];
     return !p ? "Upper" : p->upper.mode == GX_UPPER_MID ? "Mid" : p->upper.mode == GX_UPPER_MOTIF ? "Motif" : "Arp";
 }
-static int gn_macro(int m)                       /* SONG's: the value of the tracks that follow it */
+static int gn_macro(int m)                       /* GEN's: the value of the tracks that follow it */
 {
     int r;
     if (gen.mpend >> m & 1u)
@@ -367,7 +367,7 @@ static void gn_macro_pic(int m, int v, int32_t x, int32_t y, uint16_t acc)
     }
 }
 
-static void gn_macros_at(int32_t y0, int track)    /* SONG's, or (track) the selected track's own */
+static void gn_macros_at(int32_t y0, int track)    /* GEN's, or (track) the selected track's own */
 {
     static const char *const N[GX_NMACRO] = {"Density", "Sync", "Space", "Groove", "Human", "Tension", "Complex",
                                              "Evolve"};
@@ -501,7 +501,7 @@ static void gn_info(void)                        /* the bottom line: the last me
 /* ---- the pages: the tabs and the song line (every page), then each page's own ---- */
 static void gn_tabs(void)
 {
-    static const char *const T[3] = {"SONG", "TRACK", "ARRANGE"};
+    static const char *const T[3] = {"GEN", "TRACK", "ARRANGE"};
     char t[24], n[8];
     int i, bar = (gn_playing_step(0) >= 0 ? gn_playing_step(0) : page() * 16) / 16;
     int32_t x;
@@ -537,7 +537,7 @@ static void gn_tabs(void)
 
 static int32_t gn_col(int i) { return 18 + i * 13 + (i >> 2); }   /* a step's column: 16 across, a gap a beat */
 
-/* SONG: the four tracks, this bar: a square for the track (filled: selected), a bar a hit (taller: louder) */
+/* GEN: the four tracks, this bar: a square for the track (filled: selected), a bar a hit (taller: louder) */
 static void gn_song_rows(void)
 {
     int r, i;
@@ -793,7 +793,7 @@ static void draw_gen(void)
         gen.sig[0] = h;
         gn_band(0, 100, gn_band_a);
     }
-    /* the middle: the macros (SONG's, or the track's own); the parts */
+    /* the middle: the macros (GEN's, or the track's own); the parts */
     h = hash(hash(hash(2u, sel()), (uint32_t)shift() << 8 | gen.mpend), (uint32_t)gen.pg << 8 | gen.tmpend);
     for (m = 0; m < (int)GX_NMACRO; m++)
         h = hash(h, (uint32_t)gn_macro(m) | (uint32_t)(m < 4 ? gn_tmacro(m) : 0) << 8 | (uint32_t)gn_owned(sel(), m) << 16);

@@ -211,7 +211,7 @@ and the loop drifting from its original for Evolve.
 
 ## 10. Every control on the GEN page
 
-The GEN screen has three pages, as the phone player: **SONG** (the four tracks, the idea, the macros),
+The GEN screen has three pages, as the phone player: **GEN** (the four tracks, the idea, the macros),
 **TRACK** (one track: its tabs on black keys 1–4, its steps or drum lanes, MUTATE, its own macros) and
 **ARRANGE** (the energy of the six parts, the parts on W1–W6, the loop). HOME steps through them.
 
@@ -223,7 +223,7 @@ The GEN screen has three pages, as the phone player: **SONG** (the four tracks, 
 | ENV | Lock / unlock the selected track |
 | EDIT · GLO + EDIT | Undo · redo |
 | SEQ | The grid (SEQ-4), to edit by hand. HOME comes back |
-| HOME · HOME twice | The next page: SONG → TRACK → ARRANGE (the tabs at the top) · the patterns |
+| HOME · HOME twice | The next page: GEN → TRACK → ARRANGE (the tabs at the top) · the patterns |
 | GLO held | The second layer: parts, mutate, the second four macros |
 | Black keys 1–4 | Select drums, sub, chords, upper |
 | Black keys 5–8 | Mute / unmute drums, sub, chords, upper |
@@ -231,7 +231,7 @@ The GEN screen has three pages, as the phone player: **SONG** (the four tracks, 
 | White keys | The selected track's steps: tap one on or off; hold one for its values. On ARRANGE, W1–W6 queue a part |
 | GLO + W1–W4 · W5 | Mutate rhythm, pitch, velocity, length · all four |
 | GLO + W9–W14 | The six song parts (at the next bar) |
-| K1–K4 · GLO + K1–K4 | The macros. On TRACK, K1–K4 are the selected track's own (grey until turned: it follows SONG) |
+| K1–K4 · GLO + K1–K4 | The macros. On TRACK, K1–K4 are the selected track's own (grey until turned: it follows GEN) |
 | ALGORITHM · GLO + ALGORITHM | The family · the style in it |
 | PRESETS | The idea number |
 | SELECT | The tempo |
