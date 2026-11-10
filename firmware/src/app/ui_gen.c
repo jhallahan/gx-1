@@ -880,6 +880,99 @@ static void gn_mutate(int mask)
         say("MUTATE", mask == (int)GX_MUT_ALL ? "ALL" : mask == 1 ? A[0] : mask == 2 ? A[1] : mask == 4 ? A[2] : A[3]);
 }
 
+static void gn_reroll(void)                      /* the selected track, afresh (GLO + FX) */
+{
+    int r = sel();
+    if (gn_ensure())
+        return;
+    if (gn_locked(r))
+        say(gn_track_label(r), "LOCKED");
+    else if (gn_result(gxb_reseed(r, s4_rand()), "RE-ROLL") >= 0)
+        say("RE-ROLL", gn_track_label(r));
+}
+static void gn_part(int k)
+{
+    if (k >= 0 && k < (int)GX_NPART && !gn_ensure() && gn_result(gxb_part(k), "PART") >= 0)
+        say(gx_part_name((gx_genre_t)gxb_comp.r[0].genre, (uint32_t)k), s4p.on ? "NEXT" : "");
+}
+static void gn_set_mute(int r, int on)
+{
+    if (!!s4[r].mute != !!on)
+        mute_seq(r, 0);
+    say(gn_track_label(r), on ? "MUTED" : "ON");
+}
+static void gn_set_lock(int r, int on)
+{
+    if (!gn_ensure() && gn_locked(r) != !!on && gn_result(gxb_lock(r, on), "LOCK") >= 0)
+        say(gn_track_label(r), on ? "LOCKED" : "UNLOCKED");
+}
+/* MIDI on GX-1's channel (16): the panel from a controller. docs/GX1_MIDI.md has the map; the player uses the same.
+ *   CC 20-27   the eight macros (Density, Sync, Space, Groove, Human, Tension, Complex, Evolve), applied as K1-K4 are
+ *   CC 52-55   mute drums, sub, chords, upper (64 and up: muted)   CC 56-59 lock them (64 and up: locked)
+ *   CC 60-63   select a track   CC 85 new idea   86 mutate   87 re-roll   88 undo   89 redo   90 the next page
+ *              (these on a press: 64 and up; SEQ-4's transport CCs 105-107 are left alone)
+ *   notes      36 new idea  37 mutate  38 re-roll  39 undo  40-43 select  44-47 mute (toggle)  48-53 the six parts
+ *              54 redo  55 the next page
+ *   program change 0-5: the six parts */
+static void gn_act(int a)                        /* the actions the CCs and the notes share */
+{
+    switch (a) {
+    case 0: gn_new_idea(); break;
+    case 1: gn_mutate((int)GX_MUT_ALL); break;
+    case 2: gn_reroll(); break;
+    case 3: say(gxb_undo() >= 0 ? "UNDO" : "NOTHING TO UNDO", 0); break;
+    case 4: say(gxb_redo() >= 0 ? "REDO" : "NOTHING TO REDO", 0); break;
+    case 5: gen.pg = (uint8_t)((gen.pg + 1) % 3); gen.drawn = 0; break;
+    default: break;
+    }
+}
+static void gn_midi(int st, int d1, int d2)
+{
+    int kind = st & 0xF0, on = d2 >= 64;
+    if (kind == 0x90 && d2 == 0)
+        kind = 0x80;
+    if (kind == 0xB0) {
+        if (d1 >= 20 && d1 <= 27) {              /* a macro: as the knob, applied when it rests */
+            int m = d1 - 20;
+            gen.mac[m] = (uint8_t)d2;
+            gen.mpend |= (uint8_t)(1u << m);
+            gen.mpend_t = plat_ms();
+        } else if (d1 >= 52 && d1 <= 55)
+            gn_set_mute(d1 - 52, on);
+        else if (d1 >= 56 && d1 <= 59)
+            gn_set_lock(d1 - 56, on);
+        else if (on && d1 >= 60 && d1 <= 63) {
+            set_sel(d1 - 60);
+            say(gn_track_label(d1 - 60), gn_locked(d1 - 60) ? "LOCKED" : "");
+        } else if (on && d1 >= 85 && d1 <= 90)
+            gn_act(d1 - 85);
+    } else if (kind == 0x90) {
+        if (d1 >= 36 && d1 <= 39)
+            gn_act(d1 - 36);
+        else if (d1 >= 40 && d1 <= 43) {
+            set_sel(d1 - 40);
+            say(gn_track_label(d1 - 40), gn_locked(d1 - 40) ? "LOCKED" : "");
+        } else if (d1 >= 44 && d1 <= 47)
+            gn_set_mute(d1 - 44, !s4[d1 - 44].mute);
+        else if (d1 >= 48 && d1 <= 53)
+            gn_part(d1 - 48);
+        else if (d1 == 54)
+            gn_act(4);
+        else if (d1 == 55)
+            gn_act(5);
+    } else if (kind == 0xC0)
+        gn_part(d1);
+}
+static void gn_midi_service(void)
+{
+    int n = 0;
+    while (s4_gxq_r != s4_gxq_w && n++ < 16) {
+        uint32_t x = s4_gxq[s4_gxq_r % S4_GXQ];
+        s4_gxq_r++;
+        gn_midi((int)(x & 0xFFu), (int)(x >> 8 & 0x7Fu), (int)(x >> 16 & 0x7Fu));
+    }
+}
+
 static void gen_key_down(int k)
 {
     int w = white_of(k), b = black_of(k);
@@ -943,14 +1036,8 @@ static int gen_btn_down(int b)
         return 1;
     }
     if (b == B_FX && shift()) {                  /* GLO + FX: re-roll the selected track */
-        int r = sel();
         ui.btn_used |= 1u << b | 1u << B_GLO;
-        if (gn_ensure())
-            return 1;
-        if (gn_locked(r))
-            say(gn_track_label(r), "LOCKED");
-        else if (gn_result(gxb_reseed(r, s4_rand()), "RE-ROLL") >= 0)
-            say("RE-ROLL", gn_track_label(r));
+        gn_reroll();
         return 1;
     }
     if (b == B_EDIT && shift()) {
@@ -1069,6 +1156,7 @@ static void gen_service(void)
 {
     uint32_t now = plat_ms();
     int m;
+    gn_midi_service();                           /* a controller on channel 16 */
     if (gen.gpend && now - gen.gpend_t > 700u) {
         gen.gpend = 0;
         gen.spend = 0;
@@ -1139,6 +1227,7 @@ static void gen_leds(uint32_t *bp, uint32_t *kp)
 static void gen_init(void)
 {
     gen.genre = GX_GENRE_BREAKS;
+    s4_gx_ch = 16;                               /* GX-1 listens on channel 16 (docs/GX1_MIDI.md) */
     gen.seed = 1;
 }
 

@@ -630,6 +630,14 @@ static int expect(const char *what, const char *val)
         got = last_ch;
     else if (IS("last_port"))
         got = last_port;
+    else if (IS("gx_locks"))                   /* GX-1: the locks (a bit a track), the part, the page, a macro */
+        got = gxb_ok ? (int)gxb_comp.lock : -1;
+    else if (IS("gx_part"))
+        got = gxb_ok ? gxb_comp.part : -1;
+    else if (IS("gx_pg"))
+        got = gen.pg;
+    else if (PRE("gx_macro"))
+        got = gxb_ok ? gxb_comp.r[0].macro[num_after(what, 8) & 7] : -1;
     else if (IS("polyn"))
         got = q->mode == M_POLY ? q->d.poly.n : 0;
     else if (PRE("poly")) {

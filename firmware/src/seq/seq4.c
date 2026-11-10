@@ -477,6 +477,8 @@ static int clock_from(int cable)
 static void midi_note_in(int cable, int st, int note, int vel);
 static void midi_cc_in(int cable, int st, int d1, int d2);
 
+volatile uint32_t s4_gxq[S4_GXQ], s4_gxq_r, s4_gxq_w;
+uint8_t s4_gx_ch;                                /* 0: off (SEQ-4 alone); GX-1 sets 16 */
 void s4_midi_in(uint32_t pkt)
 {
     int cable = (int)(pkt >> 4 & 15u), st = (int)(pkt >> 8 & 0xFFu), d1 = (int)(pkt >> 16 & 0x7Fu), d2 = (int)(pkt >> 24 & 0x7Fu);
@@ -515,6 +517,15 @@ void s4_midi_in(uint32_t pkt)
     }
     if (st < 0x80 || st >= 0xF0)
         return;
+    if (s4_gx_ch && (st & 15) == s4_gx_ch - 1 && (st & 0xF0) != 0xA0 && (st & 0xF0) != 0xD0 && (st & 0xF0) != 0xE0 &&
+        !((st & 0xF0) == 0xB0 && s4g.tcc_ch == s4_gx_ch && d1 >= 105 && d1 <= 107)) {   /* (the transport CCs stay SEQ-4's) */
+        uint32_t w = s4_gxq_w;                   /* GX-1's channel: to the GEN pages (a full queue drops it) */
+        if (w - s4_gxq_r < S4_GXQ) {
+            s4_gxq[w % S4_GXQ] = (uint32_t)st | (uint32_t)d1 << 8 | (uint32_t)d2 << 16;
+            s4_gxq_w = w + 1u;
+        }
+        return;
+    }
     if (cable == 14 && s4g.thru)               /* the TRS jack's, on to a USB port */
         out3(s4g.thru - 1, st, d1, d2);
     else if (cable < 4 && s4g.usb_thru)

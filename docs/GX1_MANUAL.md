@@ -239,6 +239,9 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 | OCT− · OCT+ | The key down · up |
 | REC, SAVE, ARP, LFO | As in SEQ-4 |
 
+A MIDI controller on **channel 16** drives these too: the macros on CC 20–27, mutes, locks, new ideas, mutate,
+undo and the parts. [GX1_MIDI.md](GX1_MIDI.md) has the whole map and the controllers that suit it.
+
 ## 11. The grid underneath (SEQ-4)
 
 GX-1 writes its music into SEQ-4's four sequencers, so **SEQ** opens SEQ-4's grid with every note GX-1 wrote, and

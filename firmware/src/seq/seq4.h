@@ -337,6 +337,11 @@ void s4_rec_track(int t);                  /* Multitrack: the track recording go
 void s4_lock(int on);                      /* the app's: the engine's interrupt held off (1) / let go (0) */
 extern s4_cstep_t s4_kchord;               /* the chord the chord keyboard plays (recorded as it is) */
 extern volatile uint8_t s4_pc_req;         /* a program change came for pattern n - 1 (the UI loads it) */
+/* GX-1's MIDI control: on channel s4_gx_ch (1-16, 0 off) notes, CCs and program changes go to this queue for the
+   GEN pages (docs/GX1_MIDI.md), not to the sequencers. Written in the audio interrupt, read in the main loop. */
+#define S4_GXQ 32u
+extern volatile uint32_t s4_gxq[S4_GXQ], s4_gxq_r, s4_gxq_w;
+extern uint8_t s4_gx_ch;
 extern volatile uint32_t s4_cap_count;     /* notes waiting to be captured */
 
 /* GX-1: a Poly sequencer with rsv[0] & S4_RSV_DRUMMAP plays its degrees 0..15 as drum sounds, each sent as
