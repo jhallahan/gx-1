@@ -52,7 +52,7 @@ The FM-1 has a battery, so charge it first or keep it on USB power during the in
 
 ### From the browser (easiest)
 
-1. Open the **[web installer](https://jhallahan.github.io/seq-4-genre-ator/install/)** in **Chrome or Edge**
+1. Open the **[web installer](https://jhallahan.github.io/gx-1/install/)** in **Chrome or Edge**
    (Safari and Firefox don't have Web MIDI with SysEx).
 2. Connect the FM-1 with a USB **data** cable (some charging cables carry no data) and switch it on.
 3. Press **Connect**, allow MIDI access, then **Install**. It takes about a minute. The FM-1 restarts into GX-1.
@@ -62,8 +62,8 @@ It works from M-VAVE's stock firmware and from any other Felucca-based FM-1 firm
 ### From the command line (macOS, Linux, Windows)
 
 1. Download `gx1-X.Y.Z.fwsc` from the
-   **[latest release](https://github.com/jhallahan/seq-4-genre-ator/releases/latest)**, and
-   [`tools/fm1_install.py`](https://github.com/jhallahan/seq-4-genre-ator/blob/main/tools/fm1_install.py)
+   **[latest release](https://github.com/jhallahan/gx-1/releases/latest)**, and
+   [`tools/fm1_install.py`](https://github.com/jhallahan/gx-1/blob/main/tools/fm1_install.py)
    (on GitHub: **Download raw file**).
 2. Install the two Python libraries, once:
 

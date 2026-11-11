@@ -241,7 +241,7 @@ static const uint8_t STR0[4] = {4, 3, 0x09, 0x04};
 static const uint8_t STR1[] = {42, 3, 'H', 0, 0xFC, 0, 'g', 0, 'e', 0, 'l', 0, 't', 0, 'o', 0, 'n', 0, ' ', 0, 'I', 0,
                                'n', 0, 's', 0, 't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0};
 #else
-static const uint8_t STR1[] = {10, 3, 'G', 0, 'X', 0, '-', 0, '1', 0};   /* GX-1 (fm1-genre-ator): manufacturer */
+static const uint8_t STR1[] = {10, 3, 'G', 0, 'X', 0, '-', 0, '1', 0};   /* GX-1 (gx-1-engine): manufacturer */
 #endif
 #ifdef FELUCCA_LOADER
 static const uint8_t STR2[] = {30, 3, 'F', 0, 'e', 0, 'l', 0, 'u', 0, 'c', 0, 'c', 0, 'a', 0, ' ', 0, 'U', 0, 'p', 0,

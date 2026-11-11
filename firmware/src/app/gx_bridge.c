@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* GX-1: the genre engine's compositions as SEQ-4 patterns.
  *
- * The engine (firmware/src/gx/, from jhallahan/fm1-genre-ator) renders a composition (drums, chords, a sub,
+ * The engine (firmware/src/gx/, from jhallahan/gx-1-engine) renders a composition (drums, chords, a sub,
  * an upper part, a CC lane) into events. This bridge writes them into the staging buffers of the four
  * sequencers and queues them, so SEQ-4 plays them, edits them and saves them like any pattern, and swaps
  * them in at its next boundary (at once when stopped):
