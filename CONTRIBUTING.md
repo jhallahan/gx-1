@@ -1,7 +1,12 @@
 # Make it yours
 
-SEQ-4 is free software (GPL-3.0). You're welcome to fork it, change it, rename it and release your own
-version; no need to ask. You can also send changes back here. Both are described below.
+GX-1 is free software (GPL-3.0), built on SEQ-4. You're welcome to fork it, change it, rename it and release
+your own version; no need to ask.
+
+**GX-1 doesn't take outside contributions.** Pull requests aren't accepted, however small, so please don't
+send one: it will be closed unread. Bug reports and ideas are welcome as
+[issues](https://github.com/jhallahan/gx-1/issues/new/choose). For a conventional sequencer, or to send
+changes to the sequencer underneath, go to [SEQ-4](https://github.com/devrvega/SEQ-4) itself.
 
 ## What the licence asks
 
@@ -62,14 +67,7 @@ To release it under your own name, so that it and SEQ-4 can live side by side (a
    **Settings → Pages → Source** to **GitHub Actions**; the Pages workflow then publishes it after each
    release.
 
-## Sending changes back
-
-Pull requests are welcome, small or large; there's no form to fill in. It helps if:
-
-- `tests/run_tests.sh` passes (the pull request's checks run it for you);
-- new behaviour has a test or a line in a scenario script, and the manual (`docs/MANUAL.md`) says how to use it;
-- you say whether you tried it on an FM-1, and what `tools/fm1_status.py load` showed for anything that
-  plays.
+## Notes on the code
 
 A new mode: its steps in the union at the end of `s4_seq_t` (`seq4.h`), its playing in `s4_play.c`
 (`trk_run`), its packing in `s4_edit.c`, its grid in `ui_draw.c` (`grid_state`) and its keys in `ui.c`

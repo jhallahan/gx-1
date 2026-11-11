@@ -106,7 +106,7 @@ GX-1 is a fork of SEQ-4, and everything in the [SEQ-4 manual](docs/MANUAL.md) is
 ## Make it your own
 
 Fork it, change it, release your own: [CONTRIBUTING.md](CONTRIBUTING.md) says where things are, how to give
-your version its own name and identity, and how to send changes back. Every push is built and tested on
+your version its own name and identity. GX-1 itself doesn't take pull requests; issues are welcome. Every push is built and tested on
 GitHub; a tag `vX.Y.Z` makes a release, and the site (emulator, installer, manual) follows it.
 
 ```
