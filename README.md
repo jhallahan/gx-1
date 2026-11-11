@@ -1,7 +1,7 @@
 # GX-1 for the M-VAVE FM-1
 
-[![Build and test](https://github.com/jhallahan/seq-4-genre-ator/actions/workflows/build.yml/badge.svg)](https://github.com/jhallahan/seq-4-genre-ator/actions/workflows/build.yml)
-[![Latest release](https://img.shields.io/github/v/release/jhallahan/seq-4-genre-ator?label=release)](https://github.com/jhallahan/seq-4-genre-ator/releases/latest)
+[![Build and test](https://github.com/jhallahan/gx-1/actions/workflows/build.yml/badge.svg)](https://github.com/jhallahan/gx-1/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/jhallahan/gx-1?label=release)](https://github.com/jhallahan/gx-1/releases/latest)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
 GX-1 turns the M-VAVE FM-1 into a genre-aware generative MIDI instrument. Pick a style (Liquid, Jungle, Dub techno,
@@ -13,7 +13,7 @@ over USB MIDI, and [SEQ-4](https://github.com/devrvega/SEQ-4)'s full sequencer i
 ![GEN: the four tracks, the idea, the macros](docs/img/gx1-gen.png) ![TRACK: one track, its own macros, MUTATE](docs/img/gx1-track.png) ![ARRANGE: the energy and the six parts](docs/img/gx1-arrange.png)
 
 There's a player for the phone and the computer too, the same engine in the browser:
-[fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator).
+[gx-1-engine](https://github.com/jhallahan/gx-1-engine).
 
 > ### Built on SEQ-4
 >
@@ -28,16 +28,16 @@ There's a player for the phone and the computer too, the same engine in the brow
 | | |
 |---|---|
 | **[Read the manual](docs/GX1_MANUAL.md)** | Five minutes to your first track, then every control, style and part |
-| **[Install it](https://jhallahan.github.io/seq-4-genre-ator/install/)** | From Chrome or Edge, with the FM-1 on USB. Nothing to install on the computer |
-| **[Download](https://github.com/jhallahan/seq-4-genre-ator/releases/latest)** | The firmware file (`gx1-X.Y.Z.fwsc`) of every release, for the command-line installer |
+| **[Install it](https://jhallahan.github.io/gx-1/install/)** | From Chrome or Edge, with the FM-1 on USB. Nothing to install on the computer |
+| **[Download](https://github.com/jhallahan/gx-1/releases/latest)** | The firmware file (`gx1-X.Y.Z.fwsc`) of every release, for the command-line installer |
 | **[What's new](CHANGELOG.md)** | Each release's changes |
 
 ## Install the latest
 
-- **From the browser:** the [web installer](https://jhallahan.github.io/seq-4-genre-ator/install/) in Chrome or
+- **From the browser:** the [web installer](https://jhallahan.github.io/gx-1/install/) in Chrome or
   Edge, with a USB data cable.
 - **From the command line** (macOS, Linux, Windows): download `gx1-X.Y.Z.fwsc` from the
-  [latest release](https://github.com/jhallahan/seq-4-genre-ator/releases/latest) and
+  [latest release](https://github.com/jhallahan/gx-1/releases/latest) and
   [`tools/fm1_install.py`](tools/fm1_install.py), then:
 
   ```
@@ -46,7 +46,7 @@ There's a player for the phone and the computer too, the same engine in the brow
   python3 fm1_install.py gx1-X.Y.Z.fwsc         # installs (add --port FM-1 if other MIDI gear is plugged in)
   ```
 
-- **A development build:** the newest green run under [Actions](https://github.com/jhallahan/seq-4-genre-ator/actions/workflows/build.yml)
+- **A development build:** the newest green run under [Actions](https://github.com/jhallahan/gx-1/actions/workflows/build.yml)
   has a `gx1-firmware-…` artifact; install its `gx1.fwsc` the same way.
 - **Going back:** the installer's "Back to the stock firmware", or M-VAVE's updater, M-UPGRADE. Any other FM-1
   firmware installs over GX-1 as it would over the stock one.
@@ -76,7 +76,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 | **LEFTFIELD** | IDM · Downtempo · Ambient · Psybient · Glitch ambient |
 | **POP & R&B** | Pop · R&B · Synth-pop |
 
-The music engine is [fm1-genre-ator](https://github.com/jhallahan/fm1-genre-ator): integer-only C, deterministic
+The music engine is [gx-1-engine](https://github.com/jhallahan/gx-1-engine): integer-only C, deterministic
 (the same style and idea number always give the same music), with the styles written as profiles.
 
 ## The controls in short
@@ -99,8 +99,8 @@ GX-1 is a fork of SEQ-4, and everything in the [SEQ-4 manual](docs/MANUAL.md) is
 
 ## Ideas and problems
 
-- **Something you'd like:** a [feature request](https://github.com/jhallahan/seq-4-genre-ator/issues/new?template=feature_request.yml).
-- **Something wrong:** a [bug report](https://github.com/jhallahan/seq-4-genre-ator/issues/new?template=bug_report.yml)
+- **Something you'd like:** a [feature request](https://github.com/jhallahan/gx-1/issues/new?template=feature_request.yml).
+- **Something wrong:** a [bug report](https://github.com/jhallahan/gx-1/issues/new?template=bug_report.yml)
   (the version is on the screen when the FM-1 starts).
 
 ## Make it your own
