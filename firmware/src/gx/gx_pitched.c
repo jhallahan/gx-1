@@ -113,15 +113,15 @@ void gx_ctx_build(const gx_render_t *drums, uint32_t bars, gx_ctx_t *ctx)
     for (i = 0; i < drums->n; i++) {
         const gx_event_t *e = &drums->ev[i];
         uint32_t st = (e->t + GX_STEP / 2u) / GX_STEP;
-        if (e->role != GX_ROLE_DRUMS || st >= n)
-            continue;
+        if (e->role != GX_ROLE_DRUMS || st >= n || e->cond == GX_COND_FILL)
+            continue;                          /* (a fill on demand plays only while it is held) */
         if (e->lane == GX_LANE_KICK_A || e->lane == GX_LANE_KICK_B) {
             if (e->vel > ctx->kick[st])
                 ctx->kick[st] = e->vel;
         } else if (e->lane == GX_LANE_SNARE) {
             ctx->snare[st] = e->vel;
         }
-        if (ctx->act[st] < 255u && !e->cond)
+        if (ctx->act[st] < 255u && (!e->cond || e->cond == GX_COND_NFILL))
             ctx->act[st]++;
     }
 }

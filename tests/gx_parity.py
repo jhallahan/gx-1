@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """GX-1 parity: what the firmware plays (the host simulator's MIDI log) against what the genre engine rendered.
 
-    python3 tests/gx_parity.py DIR      (DIR holds expected.txt from `gx dump` and midi_out.txt)
+    python3 tests/gx_parity.py DIR [fill]   (DIR holds expected.txt from `gx dump` and midi_out.txt;
+                                             fill: PLAY was held for the fill through the phrase)
 
 Every note the engine rendered (ratchets expanded; live chances excepted) must start on the device on the
 same channel and note, within the device's timing resolution (a tick is 0.73 ms; offsets are 1 % of a 16th),
 with the same velocity; pitched notes must also end where the engine said (tied steps, last gate). No other
-note may start, except the live chances, which the device rolls itself.
+note may start, except the live chances, which the device rolls itself. The fills on demand: a note for the
+fill (chance 101) plays only with the fill held, one the fill takes out (102) only without it.
 """
 import pathlib
 import sys
@@ -26,6 +28,8 @@ def main():
     bpm = float(exp[0].split()[1])
     ms_per_unit = 60000.0 / (3840.0 * bpm)
     events = [tuple(int(x) for x in line.split()) for line in exp[1:] if line.strip() and not line.startswith("#")]
+    fill = len(sys.argv) > 2 and sys.argv[2] == "fill"
+    events = [e[:7] + (0 if e[7] in (101, 102) else e[7],) for e in events if e[7] != (102 if fill else 101)]
 
     t0, ons, offs = None, [], []
     for line in (d / "midi_out.txt").read_text().splitlines():

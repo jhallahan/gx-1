@@ -65,7 +65,7 @@ const char *s4_div_name(int dv) { return DIV_NAME[clampi(dv, 0, DV_N - 1)]; }
 
 /* --------------------------------------------------------------------------------- commands --- */
 enum { C_PLAY, C_STOPRESET, C_FILL, C_REC, C_LIVE, C_LIVECC, C_PANIC, C_LOADNOW, C_QPAT, C_MUTE, C_TAP,
-       C_RESTART, C_SNAP, C_SONG, C_ROLL, C_CAPTURE };
+       C_RESTART, C_SNAP, C_SONG, C_ROLL, C_CAPTURE, C_PERF };
 typedef struct {
     uint8_t c, a, b, d;
     uint32_t x;
@@ -88,6 +88,7 @@ static void cmd(int c, int a, int b, int d, uint32_t x)
 void s4_play(int on) { cmd(C_PLAY, on, 0, 0, 0); }
 void s4_stop_reset(void) { cmd(C_STOPRESET, 0, 0, 0, 0); }
 void s4_fill(int on) { cmd(C_FILL, on, 0, 0, 0); }
+void s4_perf(int rpt, int oct, int mute) { cmd(C_PERF, rpt & 0x7F, (oct + 4) & 7, mute & 15, 0); }
 void s4_rec(int on) { cmd(C_REC, on, 0, 0, 0); }
 void s4_live(int s, int trk, int note, int vel) { cmd(C_LIVE, s, trk, note, (uint32_t)vel); }
 void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2) { cmd(C_LIVECC, s, trk, 0, st | d1 << 8 | d2 << 16); }
@@ -156,6 +157,9 @@ typedef struct {
     uint8_t pulse;             /* Matriceal: pulses left on this step */
     uint16_t loops;            /* times round (A:B, FIRST) */
     uint16_t count;            /* steps since the start (swing's parity, Matriceal's reset) */
+    uint8_t rp_on;             /* perform's beat repeat: on for this clock */
+    uint8_t rp_from, rp_i, rp_w;   /* ... the steps it repeats from, where in them, how many */
+    uint8_t rp_real;           /* ... the step the song is at meanwhile (it carries on from there) */
 } clk_t;
 
 typedef struct {               /* an event at a time */
@@ -228,6 +232,9 @@ static uint32_t tap_t[8];
 static uint8_t tap_n;
 static uint8_t s4_sel;         /* the sequencer the UI shows (for MIDI in when not filtered) */
 static uint8_t fill_on;
+static uint8_t perf_rpt;       /* GX-1's perform (s4_perf) */
+static int8_t perf_oct;
+static uint8_t perf_mute;
 static uint8_t counting;
 static uint32_t count_left;
 static uint8_t snap_release;   /* a snapshot goes back at the next bar */
@@ -564,6 +571,14 @@ static void do_cmd(const cmd_t *c)
     case C_FILL:
         fill_on = c->a;
         s4p.fill = c->a;
+        break;
+    case C_PERF:
+        perf_rpt = c->a;
+        perf_oct = (int8_t)(c->b - 4);
+        perf_mute = c->d;
+        s4p.perf_rpt = perf_rpt;
+        s4p.perf_oct = perf_oct;
+        s4p.perf_mute = perf_mute;
         break;
     case C_REC:
         rec_set(c->a);

@@ -1,0 +1,72 @@
+# GX-1: perform. FX held, the white keys: a beat repeat (the steps stay in their beat; let go, back where the
+# song is), drops and solos (sequencers held silent), octaves, the fill; FX let go ends it all, and an FX
+# used to perform rolls no new idea
+wait 400
+expect view 5
+gx new breaks 2 1
+tap PLAY
+wait 1200
+expect playing 1
+expect step_lag 0
+# W4 (a 16th): the drums sequencer stays on one step
+press FX
+key w3 down
+wait 60
+expect perf_rpt 1
+wait 400
+expect step_lag >1
+key w3 up
+wait 20
+expect perf_rpt 0
+wait 300
+# back with the song
+expect step_lag 0
+# W2 (a beat) then W1 (half a bar): the last pressed wins; let go of it, the other is back
+key w1 down
+wait 30
+key w0 down
+wait 30
+expect perf_rpt 8
+key w0 up
+wait 30
+expect perf_rpt 4
+key w1 up
+# W5 drums only, W6 no drums, W10 an octave up, W9 + W10 two up, W11 the fill
+key w4 down
+wait 30
+expect perf_mute 14
+key w5 down
+wait 30
+expect perf_mute 15
+key w4 up
+key w5 up
+key w9 down
+wait 30
+expect perf_oct 1
+key w8 down
+wait 30
+expect perf_oct 2
+key w10 down
+wait 30
+expect fill 1
+expect playing 1
+# FX let go with the keys still down: everything back, and no new idea
+release FX
+wait 100
+expect perf_oct 0
+expect perf_mute 0
+expect perf_rpt 0
+expect fill 0
+key w8 up
+key w9 up
+key w10 up
+wait 300
+expect step_lag 0
+expect playing 1
+# FX tapped on its own is still a new idea (it comes in at the next bar, from bar 1)
+tap FX
+wait 2500
+expect playing 1
+tap PLAY
+wait 300
+expect playing 0

@@ -630,6 +630,18 @@ static int expect(const char *what, const char *val)
         got = last_ch;
     else if (IS("last_port"))
         got = last_port;
+    else if (IS("step"))                       /* the selected sequencer's step playing */
+        got = s4p.step[sel()][0];
+    else if (IS("step_lag"))                   /* how far it is behind the song's 16ths (a GX-1 phrase: 128) */
+        got = (int)(((s4p.pos / 960u) + 128u - s4p.step[sel()][0]) % 128u);
+    else if (IS("perf_rpt"))                   /* GX-1's perform: the repeat, the octave, the mutes; the fill */
+        got = s4p.perf_rpt;
+    else if (IS("perf_oct"))
+        got = s4p.perf_oct;
+    else if (IS("perf_mute"))
+        got = s4p.perf_mute;
+    else if (IS("fill"))
+        got = s4p.fill;
     else if (IS("gx_locks"))                   /* GX-1: the locks (a bit a track), the part, the page, a macro */
         got = gxb_ok ? (int)gxb_comp.lock : -1;
     else if (IS("gx_part"))

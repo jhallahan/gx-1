@@ -153,6 +153,38 @@ static int next_pos(int s, int t, clk_t *c)
     }
     return p;
 }
+/* the next step with perform's beat repeat: the `perf_rpt` steps the playing one is in, again and again,
+ * while the song's own position runs on underneath (and is where it carries on from when let go) */
+static int next_pos_perf(int s, int t, clk_t *c)
+{
+    int w = perf_rpt, lo, hi, p;
+    if (!w || s4[s].mode == M_STOCH) {
+        if (c->rp_on) {                        /* let go: on from where the song is */
+            c->rp_on = 0;
+            c->pos = c->rp_real;
+        }
+        return next_pos(s, t, c);
+    }
+    trk_range(s, t, &lo, &hi);
+    if (w > hi - lo + 1)
+        w = hi - lo + 1;
+    if (!c->rp_on || c->rp_w != w) {           /* from the start of the beat (half bar, 8th...) it is in */
+        if (!c->rp_on)
+            c->rp_real = c->pos;
+        c->rp_on = 1;
+        c->rp_w = (uint8_t)w;
+        c->rp_from = (uint8_t)(c->pos - (c->pos - lo) % w);
+        c->rp_i = (uint8_t)(c->pos - c->rp_from);
+    }
+    p = c->pos;                                /* the song's position, on a step */
+    c->pos = c->rp_real;
+    c->rp_real = (uint8_t)next_pos(s, t, c);
+    c->pos = (uint8_t)p;
+    c->rp_i = (uint8_t)((c->rp_i + 1) % w);
+    p = c->rp_from + c->rp_i;
+    return p > hi ? hi : p;
+}
+
 static uint32_t step_units(int s, int t)
 {
     uint32_t u = s4_div_units(trk_div(s, t));
@@ -172,6 +204,7 @@ static void clk_start(int s, int t, clk_t *c, uint32_t at)
     c->count = 0;
     c->prev = 0;
     c->pend_rep = 0;
+    c->rp_on = 0;
     c->dirv = (int8_t)(trk_dir(s, t) == D_BACK ? -1 : 1);
     c->npos = (uint8_t)(trk_dir(s, t) == D_BACK ? hi : trk_dir(s, t) == D_RAND ? lo + rnd_n(hi - lo + 1) : lo);
     c->pos = c->npos;
@@ -333,7 +366,7 @@ static void rand_perform(int s, int t, rp_t *o)
 static int trk_muted(int s, int t)
 {
     s4_seq_t *q = &s4[s];
-    if (q->mute)
+    if (q->mute || (perf_mute >> s & 1u))
         return 1;
     if (q->mode == M_MULTI) {
         int k, solo = 0;
@@ -344,6 +377,12 @@ static int trk_muted(int s, int t)
         return q->d.multi.t[t & 7].mute;
     }
     return 0;
+}
+
+/* a sequencer's transposition now: by notes coming in, and perform's octaves (not a drum map's sounds) */
+static int tpose_of(int s)
+{
+    return rt[s].tpose + ((s4[s].rsv[0] & S4_RSV_DRUMMAP) ? 0 : 12 * perf_oct);
 }
 
 /* the offset (and swing) of a step's notes, in units from the step's start */
@@ -444,7 +483,7 @@ static void play_note_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t
         int vel = clampi(st.vel + (locked ? 0 : m[S4_D_VEL] + rp.vel), 1, 127);
         int oct = st.oct + (locked ? 0 : m[S4_D_OCT] + rp.oct);
         int deg = st.deg + (locked ? 0 : m[S4_D_PITCH]);
-        int note = (multi ? trk_note(s, t, deg) + 12 * oct : s4_note_of(s, deg, oct)) + rt[s].tpose;
+        int note = (multi ? trk_note(s, t, deg) + 12 * oct : s4_note_of(s, deg, oct)) + tpose_of(s);
         int gate = st.gate >= S4_TIE ? st.gate : clampi(st.gate + (locked ? 0 : m[S4_D_GATE] + rp.gate), 1, 100);
         int rep = clampi((st.rtg & S4_RTG_N) + 1 + (locked ? 0 : m[S4_D_RTG] + rp.rep), 1, 5);
         int32_t o = step_ofs(s, c, L, st.ofs);
@@ -485,7 +524,7 @@ static void play_poly_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t
             } else
                 rp.vel = rp.oct = rp.rep = 0;
             vel = clampi(pn->vel + (locked ? 0 : m[S4_D_VEL] + rp.vel), 1, 127);
-            note = s4_note_of(s, pn->deg + (locked ? 0 : m[S4_D_PITCH]), pn->oct + (locked ? 0 : m[S4_D_OCT] + rp.oct)) + rt[s].tpose;
+            note = s4_note_of(s, pn->deg + (locked ? 0 : m[S4_D_PITCH]), pn->oct + (locked ? 0 : m[S4_D_OCT] + rp.oct)) + tpose_of(s);
             if (q->rsv[0] & S4_RSV_DRUMMAP) {  /* GX-1: the degree is a drum sound; the drum map gives its note
                                                  * and channel (kicks on one Tonverk track, the kit on another) */
                 note = s4_dm_note[pn->deg & 15];
@@ -554,7 +593,7 @@ static void play_chord_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_
         if (q->ch_auto)
             voice_lead(notes, n, rt[s].prev, rt[s].pn);
         for (k = 0; k < n; k++) {
-            notes[k] = (uint8_t)clampi(notes[k] + rt[s].tpose, 0, 127);
+            notes[k] = (uint8_t)clampi(notes[k] + tpose_of(s), 0, 127);
             vels[k] = (uint8_t)vel;
             rt[s].prev[k] = notes[k];
             s4p.chord[s][k] = notes[k];
@@ -618,7 +657,7 @@ static void play_stoch_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_
     if (b->vel && !trk_muted(s, t)) {
         rand_perform(s, t, &rp);
         if (rp.trig) {
-            int note = (q->scale >= S4_HARMO ? s4_note_of(s, b->deg, 0) : seq_base(s) + b->deg) + 12 * (b->oct + rp.oct + m[S4_D_OCT]) + rt[s].tpose;
+            int note = (q->scale >= S4_HARMO ? s4_note_of(s, b->deg, 0) : seq_base(s) + b->deg) + 12 * (b->oct + rp.oct + m[S4_D_OCT]) + tpose_of(s);
             int vel = clampi(b->vel + m[S4_D_VEL] + rp.vel, 1, 127);
             int gate = clampi(b->gate + m[S4_D_GATE], 1, 100), rep = clampi(1 + rp.rep + m[S4_D_RTG], 1, 5);
             glide_send(s, port, ch, gate > 50 ? (gate - 50) * 2 : 0);
@@ -670,7 +709,7 @@ static void trk_run(int s, int t)
         c->started = 1;
         s4p.step[s][t] = c->pos;
         rec_commit(s, t, c->pos);
-        c->npos = (uint8_t)next_pos(s, t, c);
+        c->npos = (uint8_t)next_pos_perf(s, t, c);
         c->nlen = step_units(s, t);
         if (s4[s].mode == M_STOCH)
             c->nlen = stoch_units(s, c->nlen);
@@ -831,7 +870,7 @@ static void mx_step(int s, int t, clk_t *c, int pos, uint32_t T, uint32_t L)
             c->pulse = (uint8_t)clampi(puls, 1, 8);
         if (c->pulse > 1 && x->p[L_PULS][rt[s].lc[t][L_PULS].pos & 15] == 2)
             gate = S4_TIE;
-        note = s4_note_of(s, x->note + nv + r->acc[t] + m[S4_D_PITCH], oct + m[S4_D_OCT]) + r->tpose;
+        note = s4_note_of(s, x->note + nv + r->acc[t] + m[S4_D_PITCH], oct + m[S4_D_OCT]) + tpose_of(s);
         vel = clampi((vel ? vel : 100) + m[S4_D_VEL], 1, 127);
         gate = gate >= S4_TIE ? gate : clampi((gate ? gate : 50) + m[S4_D_GATE], 5, 100);
         rep = rep < 0 ? 1 : clampi(rep + m[S4_D_RTG], 1, 5);
