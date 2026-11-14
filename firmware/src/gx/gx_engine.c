@@ -183,18 +183,37 @@ static const gx_part_prof_t *part_of(const gx_genre_prof_t *p, const gx_comp_t *
     return &p->part[c->part < GX_NPART ? c->part : GX_PART_MAIN];
 }
 
-/* a part's built-in variation (the "B" part): one extra mutation from a fixed seed, after the recipe's own */
+/* Main B's contrast (gx_set_contrast): 0 leaves the genre's own variation */
+static uint8_t contrast;
+void gx_set_contrast(uint8_t v) { contrast = v > 127u ? 127u : v; }
+uint8_t gx_get_contrast(void) { return contrast; }
+
+/* fills on demand (gx_set_live_fills): read by the drums */
+static int live_fills;
+void gx_set_live_fills(int on) { live_fills = on != 0; }
+int gx_get_live_fills(void) { return live_fills; }
+
+/* a part's built-in variation (the "B" part): one extra mutation from a fixed seed, after the recipe's own;
+ * in Main B, contrast takes it further (stronger, and note lengths too) */
 static void vary_into(const gx_recipe_t *r, gx_role_t role, const gx_comp_t *c, const gx_genre_prof_t *p,
                       const gx_harmony_t *h, gx_render_t *o, uint32_t s)
 {
     const gx_part_prof_t *pt = part_of(p, c);
     gx_recipe_t v;
-    if (!pt->vary)
+    uint32_t amount = pt->vary;
+    int more = contrast && c->part == GX_PART_VARIED;
+    if (more)
+        amount = amount + contrast * 3u / 4u + 8u;
+    if (!amount)
         return;
+    if (amount > 127u)
+        amount = 127u;
     v = *r;
     v.mut_n = 1;
     v.mut_mask[0] = (uint8_t)(role == GX_ROLE_DRUMS ? (GX_MUT_RHYTHM | GX_MUT_VEL) : (GX_MUT_RHYTHM | GX_MUT_PITCH | GX_MUT_VEL));
-    v.mut_int[0] = pt->vary;
+    if (more && role != GX_ROLE_DRUMS)
+        v.mut_mask[0] |= GX_MUT_LEN;
+    v.mut_int[0] = (uint8_t)amount;
     v.mut_seed[0] = r->seed ^ 0x5bd1e995u;
     gx_mutate_apply(&v, role, c, p, h, o, s);
 }
@@ -287,12 +306,22 @@ static void harmony_from(const gx_recipe_t *chords, const gx_comp_t *c, gx_harmo
         gx_harmony_build(chords, c, p, h);
 }
 
+static gx_comp_t comp_b;   /* Main B with contrast: the composition with its B seeds */
 int gx_render(const gx_comp_t *c, const gx_outmap_t *map, gx_render_t *out)
 {
     const gx_genre_prof_t *pr[GX_NROLE];
     int r;
     if (!c || !map || !out || c->bars < 1 || c->bars > GX_MAXBARS || c->key > 11)
         return -1;
+    /* Main B with contrast: from 64 a motif of its own, from 96 chords of its own (unlocked roles only) */
+    if (contrast >= 64u && c->part == GX_PART_VARIED) {
+        comp_b = *c;
+        if (!((c->lock >> GX_ROLE_UPPER) & 1u))
+            comp_b.r[GX_ROLE_UPPER].seed ^= 0x9e3779b9u;
+        if (contrast >= 96u && !((c->lock >> GX_ROLE_CHORDS) & 1u))
+            comp_b.r[GX_ROLE_CHORDS].seed ^= 0x85ebca6bu;
+        c = &comp_b;
+    }
     out->n = 0;
     out->dropped = 0;
     for (r = 0; r < (int)GX_NROLE; r++) {
@@ -402,6 +431,8 @@ int gx_render_expand(const gx_render_t *in, gx_render_t *out, uint32_t seed)
     for (i = 0; i < in->n; i++) {
         const gx_event_t *e = &in->ev[i];
         uint32_t r = e->rep > 1 ? e->rep : 1u, sub = e->len / r;
+        if (e->cond == GX_COND_FILL)               /* this performance: the fill not held */
+            continue;
         if (e->cond && e->cond <= 100u) {          /* this performance: does the live chance fire? */
             uint32_t st = e->t / GX_STEP;
             if (!gx_chance(gx_hash(seed, (uint32_t)e->role * 16u + e->lane, st / 16u, st % 16u, GX_P_COND),

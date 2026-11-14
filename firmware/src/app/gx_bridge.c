@@ -14,7 +14,8 @@
  *
  * One 16th is one step (SEQ-4's division 1/16 is 960 units, the engine's step). An event's offset from its
  * step becomes the step's timing offset (% of a step); a note longer than a step becomes tied steps; a
- * ratchet becomes the step's repeats; a live chance becomes the step's chance. Pitched parts use the
+ * ratchet becomes the step's repeats; a live chance becomes the step's chance, and the fills on demand the
+ * steps that play only with the fill held (PLAY held) or only without it. Pitched parts use the
  * chromatic scale from C0 (24), so a degree is a MIDI note minus 24. Phrases are 8 bars: 128 steps. */
 #include "gx.h"
 #include "gx_profile.h"
@@ -35,6 +36,12 @@ static int gxb_set_tempo;                      /* the next render sets the tempo
 static int gxb_now;                            /* the next render comes in at the next bar, from its start (a new idea) */
 
 static int clampb(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+/* an event's condition as a step's: always (100), its chance, or by the fill held */
+static uint8_t s4_cond_of(uint8_t c)
+{
+    return c == GX_COND_FILL ? (uint8_t)S4_C_FILL : c == GX_COND_NFILL ? (uint8_t)S4_C_NFILL : c ? c : 100u;
+}
 
 /* a sequencer made ready for generated material: its settings kept, its steps and lanes cleared */
 static void stage_base(int s, int mode, int ch)
@@ -121,7 +128,7 @@ static void poly_note(s4_seq_t *q, const gx_event_t *e, int deg)
         pn.vel = e->vel;
         pn.gate = (uint8_t)(k < n - 1 ? S4_TIE : last);
         pn.oct = 0;
-        pn.cond = (uint8_t)(k == 0 && e->cond ? e->cond : 100);
+        pn.cond = k == 0 ? s4_cond_of(e->cond) : 100u;
         pn.rtg = (uint8_t)(k == 0 && e->rep > 1 ? (e->rep - 1u) & S4_RTG_N : 0);
         pn.ofs = (int8_t)(k == 0 ? ofs : 0);
         if (poly_put(q, &pn))
@@ -144,7 +151,7 @@ static void mono_note(s4_seq_t *q, const gx_event_t *e)
         x->vel = e->vel;
         x->gate = (uint8_t)(k < n - 1 ? S4_TIE : last);
         x->oct = 0;
-        x->cond = (uint8_t)(k == 0 && e->cond ? e->cond : 100);
+        x->cond = k == 0 ? s4_cond_of(e->cond) : 100u;
         x->rtg = (uint8_t)(k == 0 && e->rep > 1 ? (e->rep - 1u) & S4_RTG_N : 0);
         x->ofs = (int8_t)(k == 0 ? ofs : 0);
         x->glide = (uint8_t)(k == 0 && (e->flags & GX_EF_GLIDE) ? 40 : 0);
@@ -163,6 +170,7 @@ static int gxb_apply(void)
     r.cap = GXB_MAXEV;
     r.n = 0;
     r.dropped = 0;
+    gx_set_live_fills(1);                      /* the style's fill on every bar, for PLAY held */
     if (!map || gx_render(&gxb_comp, map, &r) != 0 || r.dropped)
         return -1;
     gxb_last_n = r.n;
@@ -316,7 +324,7 @@ static int gxb_set_map(int id)
 #ifdef EN_HOST
 /* the host simulator's `gx dump FILE`: the last render as the device should play it (tests/gx_parity.py):
  * bpm, then per event: time (units, 3840 a quarter), length, role, MIDI channel (1..16), note, velocity,
- * repeats, chance (0 = always) */
+ * repeats, chance (0 = always; 101 only with the fill held, 102 only without) */
 static int gxb_dump(const char *path)
 {
     const gx_outmap_t *map = gx_outmap(gxb_map);
@@ -329,6 +337,7 @@ static int gxb_dump(const char *path)
     r.cap = GXB_MAXEV;
     r.n = 0;
     r.dropped = 0;
+    gx_set_live_fills(1);
     gx_render(&gxb_comp, map, &r);             /* the same render the patterns were staged from */
     fprintf(f, "bpm %u.%u\n", gxb_comp.bpm_x10 / 10u, gxb_comp.bpm_x10 % 10u);
     for (i = 0; i < r.n; i++) {

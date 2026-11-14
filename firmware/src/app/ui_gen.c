@@ -47,6 +47,8 @@ static struct {
     uint8_t mpend;                     /* bit per macro: turned, not applied yet */
     uint32_t mpend_t;
     uint16_t wshift;                   /* white keys pressed with GLO (their release is theirs) */
+    uint16_t perf;                     /* white keys held for perform (FX held): a bit each */
+    uint8_t perf_last;                 /* the repeat key pressed last (+1), which wins while several are held */
     uint32_t sig[3];
     uint8_t drawn;                     /* the page is on screen (else everything is drawn again) */
     uint8_t pg;                        /* 0 GEN, 1 TRACK, 2 ARRANGE */
@@ -973,9 +975,71 @@ static void gn_midi_service(void)
     }
 }
 
+/* ---- perform: FX held, the white keys for as long as they are held ----
+ *   W1-W4  beat repeat: half a bar, a beat, an 8th, a 16th (the last pressed wins)
+ *   W5     drums only        W6  no drums        W7  drums and sub only        W8  no sub
+ *   W9     an octave down    W10 an octave up    (the pitched tracks; both: two up)
+ *   W11    the fill (as PLAY held) */
+#define GN_PERF_KEYS 11
+static const uint8_t GN_RPT[4] = {8, 4, 2, 1};
+static const char *const GN_RPT_NAME[4] = {"1/2", "1/4", "1/8", "1/16"};
+static const uint8_t GN_PERF_MUTE[4] = {0xE, 0x1, 0xC, 0x2};    /* W5-W8: the sequencers held silent */
+static const char *const GN_PERF_NAME[GN_PERF_KEYS] = {"REPEAT", "REPEAT", "REPEAT", "REPEAT", "DRUMS ONLY",
+                                                       "NO DRUMS", "DRUMS + SUB", "NO SUB", "OCT DOWN", "OCT UP", "FILL"};
+static int gn_perf_rpt(void)                     /* the repeat held (its index), or -1 */
+{
+    int i;
+    if (gen.perf_last && (gen.perf >> (gen.perf_last - 1) & 1u))
+        return gen.perf_last - 1;
+    for (i = 3; i >= 0; i--)
+        if (gen.perf >> i & 1u)
+            return i;
+    return -1;
+}
+static void gn_perf_apply(void)
+{
+    int i, rpt = gn_perf_rpt(), mute = 0, oct = 0;
+    for (i = 0; i < 4; i++)
+        if (gen.perf >> (4 + i) & 1u)
+            mute |= GN_PERF_MUTE[i];
+    oct = (int)(gen.perf >> 9 & 1u) - (int)(gen.perf >> 8 & 1u);
+    if ((gen.perf >> 8 & 3u) == 3u)
+        oct = 2;
+    s4_perf(rpt >= 0 ? GN_RPT[rpt] : 0, oct, mute);
+    if ((gen.perf >> 10 & 1u) != s4p.fill && !ui.fill)
+        s4_fill((int)(gen.perf >> 10 & 1u));
+}
+static void gn_perf_down(int w)
+{
+    gen.perf |= (uint16_t)(1u << w);
+    if (w < 4)
+        gen.perf_last = (uint8_t)(w + 1);
+    gn_perf_apply();
+    say(GN_PERF_NAME[w], w < 4 ? GN_RPT_NAME[w] : "");
+}
+static void gn_perf_up(int w)
+{
+    gen.perf &= (uint16_t)~(1u << w);
+    gn_perf_apply();
+}
+static void gn_perf_off(void)                    /* FX let go: everything back */
+{
+    if (!gen.perf)
+        return;
+    gen.perf = 0;
+    gn_perf_apply();
+}
+
 static void gen_key_down(int k)
 {
     int w = white_of(k), b = black_of(k);
+    if (w >= 0 && btn_held(B_FX) && !shift()) {  /* FX held: perform (FX then does not roll a new idea) */
+        ui.btn_used |= 1u << B_FX;
+        gen.wshift |= (uint16_t)(1u << w);
+        if (w < GN_PERF_KEYS)
+            gn_perf_down(w);
+        return;
+    }
     if (w >= 0) {
         if (gen.pg == 2 && !shift()) {           /* ARRANGE: W1-W6 queue a part; the other keys rest */
             if (w < (int)GX_NPART && !gn_ensure() && gn_result(gxb_part(w), "PART") >= 0)
@@ -1019,6 +1083,8 @@ static void gen_key_up(int k)
         return;
     if (gen.wshift >> w & 1u) {
         gen.wshift &= (uint16_t)~(1u << w);
+        if (gen.perf >> w & 1u)
+            gn_perf_up(w);
         return;
     }
     grid_white_up(w);
@@ -1157,6 +1223,8 @@ static void gen_service(void)
     uint32_t now = plat_ms();
     int m;
     gn_midi_service();                           /* a controller on channel 16 */
+    if (gen.perf && !btn_held(B_FX))             /* FX let go: perform ends, whatever is still held */
+        gn_perf_off();
     if (gen.gpend && now - gen.gpend_t > 700u) {
         gen.gpend = 0;
         gen.spend = 0;
@@ -1217,6 +1285,13 @@ static void gen_leds(uint32_t *bp, uint32_t *kp)
         for (i = 0; i < (int)GX_NPART; i++)      /* W9-W14: the six parts lit, the one chosen blinking */
             if (!(gxb_ok && i == gxb_comp.part) || blink())
                 k |= 1u << WHITE_KEY[8 + i];
+    }
+    if (btn_held(B_FX) && !shift()) {            /* perform: its keys lit, the ones held blinking */
+        for (i = 0; i < 16; i++)
+            k &= ~(1u << WHITE_KEY[i]);
+        for (i = 0; i < GN_PERF_KEYS; i++)
+            if (!(gen.perf >> i & 1u) || blink())
+                k |= 1u << WHITE_KEY[i];
     }
     if (gn_locked(sel()))
         b |= 1u << B_ENV;

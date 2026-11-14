@@ -5,7 +5,9 @@
  *   weight  = the profile's 2-bar-cycle weight, shaped by Density (how much) and Syncopation (where)
  *   onset   = anchor, or a hashed chance of the weight
  *   Space   = shared silence windows that remove non-anchor hits (where silence lives)
- *   fills   = the last N steps of a fill bar use the fill weights (or mute the lane), maybe ratcheted
+ *   fills   = the last N steps of a fill bar use the fill weights (or mute the lane), maybe ratcheted;
+ *             with fills on demand (gx_set_live_fills) every other bar works its fill out too, and the
+ *             difference goes out as hits that play only with the fill held, or only without it
  * then exclusions (kick B never with kick A, a closed hat choked by the open hat) and a per-bar cap,
  * then velocity (accent contour + Humanise) and time (swing from Groove, per-lane microtiming, jitter).
  * Live lanes keep their non-anchor steps as chances (cond) that the FM-1 rolls every time round;
@@ -91,14 +93,18 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
     const int32_t tj = (int32_t)p->tjit * (64 + dh) / 64;
     const uint32_t space_p = (uint32_t)clampi((int32_t)p->space_base + 2 * dsp, 0, 255);
     const uint32_t end = (uint32_t)c->bars * GX_BAR;
+    const int live = gx_get_live_fills() && p->fill_every && p->fill_steps;
     uint32_t bar;
 
     for (bar = 0; bar < c->bars; bar++) {
-        uint8_t hit[GX_NLANE][16];
-        uint8_t wt[GX_NLANE][16];
+        /* [0] the bar as it plays; [1] the same bar with its fill (fills on demand, a bar without one) */
+        uint8_t hits[2][GX_NLANE][16];
+        uint8_t wts[2][GX_NLANE][16];
+        uint8_t (*hit)[16], (*wt)[16];
         uint32_t cb = bar & 1u, step, l;
         int fill = p->fill_every && (bar % p->fill_every) == (uint32_t)p->fill_every - 1u;
         uint32_t fill_from = 16u - p->fill_steps;
+        int pass, npass = live && !fill ? 2 : 1;
         uint32_t ws = 0, we = 0;               /* the Space window, [ws, we) */
         const int32_t ddb = clampi(dd + pt->drum_density +
                                    (c->bars > 1u ? (int32_t)pt->ramp * (int32_t)bar / (int32_t)(c->bars - 1u) : 0), -64, 63);
@@ -117,89 +123,96 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
             }
         }
 
-        /* onsets */
-        for (l = 0; l < GX_NLANE; l++) {
-            const gx_lane_prof_t *L = &p->lane[l];
-            int ab_off = L->ab_b && (bar / 2u) % L->ab_b != (uint32_t)L->ab_a - 1u;
-            int lane_on = (int)((lane_ok >> l) & 1u), anchors_only = (int)((aonly >> l) & 1u);
-            for (step = 0; step < 16u; step++) {
-                uint32_t cs = cb * 16u + step, w = L->w[cs], db;
-                int anchor = (int)((L->anchor >> cs) & 1u);
-                int in_fill = fill && step >= fill_from;
-                hit[l][step] = 0;
-                if (!lane_on) {
-                    wt[l][step] = 0;
-                    continue;
-                }
-                if (in_fill && L->fill_mute) {
-                    wt[l][step] = 0;
-                    continue;
-                }
-                if (in_fill && L->fill_set)
-                    w = L->fill_w[step - fill_from];
-                w = shape_weight(w, step, L, ddb, ds);
-                if (L->ghost)
-                    w = (uint32_t)clampi((int32_t)w * (64 + dc) / 64, 0, 255);
-                wt[l][step] = (uint8_t)w;
-                if (ab_off)
-                    continue;
-                db = dbar(seed, LANE_ID(l), bar, step, var);
-                if (anchor || (!anchors_only && ((L->live && w) ||
-                               gx_chance(gx_hash(seed, LANE_ID(l), db, step, GX_P_ONSET), w)))) {
-                    hit[l][step] = 1;
-                    if (!anchor && step >= ws && step < we &&
-                        gx_chance(gx_hash(seed, LANE_ID(l), db, step, GX_P_SPACE), L->space))
-                        hit[l][step] = 0;
-                }
-                if (anchor && hit[l][step])
-                    hit[l][step] = 2;          /* 2 = an anchor: immune to exclusion and the cap */
-            }
-        }
-
-        /* exclusions: a lane gives way on any step where an excluding lane plays */
-        for (l = 0; l < GX_NLANE; l++) {
-            const gx_lane_prof_t *L = &p->lane[l];
-            uint32_t m;
-            if (!L->exclude)
-                continue;
-            for (step = 0; step < 16u; step++) {
-                if (hit[l][step] != 1)
-                    continue;
-                for (m = 0; m < GX_NLANE; m++)
-                    if (((L->exclude >> m) & 1u) && hit[m][step]) {
-                        hit[l][step] = 0;
-                        break;
-                    }
-            }
-        }
-
-        /* the per-bar cap: drop the weakest non-anchor hits (ties broken by hash) */
-        for (l = 0; l < GX_NLANE; l++) {
-            const gx_lane_prof_t *L = &p->lane[l];
-            uint32_t n = 0;
-            if (!L->max)
-                continue;
-            for (step = 0; step < 16u; step++)
-                n += hit[l][step] ? 1u : 0u;
-            while (n > L->max) {
-                uint32_t best = 16, best_key = 0xffffffffu;
+        for (pass = 0; pass < npass; pass++) {
+            const int fillp = fill || pass;        /* this pass works the fill region out as a fill */
+            hit = hits[pass];
+            wt = wts[pass];
+            /* onsets */
+            for (l = 0; l < GX_NLANE; l++) {
+                const gx_lane_prof_t *L = &p->lane[l];
+                int ab_off = L->ab_b && (bar / 2u) % L->ab_b != (uint32_t)L->ab_a - 1u;
+                int lane_on = (int)((lane_ok >> l) & 1u), anchors_only = (int)((aonly >> l) & 1u);
                 for (step = 0; step < 16u; step++) {
-                    uint32_t key;
+                    uint32_t cs = cb * 16u + step, w = L->w[cs], db;
+                    int anchor = (int)((L->anchor >> cs) & 1u);
+                    int in_fill = fillp && step >= fill_from;
+                    hit[l][step] = 0;
+                    if (!lane_on) {
+                        wt[l][step] = 0;
+                        continue;
+                    }
+                    if (in_fill && L->fill_mute) {
+                        wt[l][step] = 0;
+                        continue;
+                    }
+                    if (in_fill && L->fill_set)
+                        w = L->fill_w[step - fill_from];
+                    w = shape_weight(w, step, L, ddb, ds);
+                    if (L->ghost)
+                        w = (uint32_t)clampi((int32_t)w * (64 + dc) / 64, 0, 255);
+                    wt[l][step] = (uint8_t)w;
+                    if (ab_off)
+                        continue;
+                    db = dbar(seed, LANE_ID(l), bar, step, var);
+                    if (anchor || (!anchors_only && ((L->live && w) ||
+                                   gx_chance(gx_hash(seed, LANE_ID(l), db, step, GX_P_ONSET), w)))) {
+                        hit[l][step] = 1;
+                        if (!anchor && step >= ws && step < we &&
+                            gx_chance(gx_hash(seed, LANE_ID(l), db, step, GX_P_SPACE), L->space))
+                            hit[l][step] = 0;
+                    }
+                    if (anchor && hit[l][step])
+                        hit[l][step] = 2;          /* 2 = an anchor: immune to exclusion and the cap */
+                }
+            }
+
+            /* exclusions: a lane gives way on any step where an excluding lane plays */
+            for (l = 0; l < GX_NLANE; l++) {
+                const gx_lane_prof_t *L = &p->lane[l];
+                uint32_t m;
+                if (!L->exclude)
+                    continue;
+                for (step = 0; step < 16u; step++) {
                     if (hit[l][step] != 1)
                         continue;
-                    key = ((uint32_t)wt[l][step] << 24) |
-                          (gx_hash(seed, LANE_ID(l), bar, step, GX_P_PICK) >> 8);
-                    if (key < best_key) {
-                        best_key = key;
-                        best = step;
-                    }
+                    for (m = 0; m < GX_NLANE; m++)
+                        if (((L->exclude >> m) & 1u) && hit[m][step]) {
+                            hit[l][step] = 0;
+                            break;
+                        }
                 }
-                if (best == 16)
-                    break;                     /* only anchors left */
-                hit[l][best] = 0;
-                n--;
+            }
+
+            /* the per-bar cap: drop the weakest non-anchor hits (ties broken by hash) */
+            for (l = 0; l < GX_NLANE; l++) {
+                const gx_lane_prof_t *L = &p->lane[l];
+                uint32_t n = 0;
+                if (!L->max)
+                    continue;
+                for (step = 0; step < 16u; step++)
+                    n += hit[l][step] ? 1u : 0u;
+                while (n > L->max) {
+                    uint32_t best = 16, best_key = 0xffffffffu;
+                    for (step = 0; step < 16u; step++) {
+                        uint32_t key;
+                        if (hit[l][step] != 1)
+                            continue;
+                        key = ((uint32_t)wt[l][step] << 24) |
+                              (gx_hash(seed, LANE_ID(l), bar, step, GX_P_PICK) >> 8);
+                        if (key < best_key) {
+                            best_key = key;
+                            best = step;
+                        }
+                    }
+                    if (best == 16)
+                        break;                     /* only anchors left */
+                    hit[l][best] = 0;
+                    n--;
+                }
             }
         }
+        hit = hits[0];
+        wt = wts[0];
 
         /* emit */
         for (l = 0; l < GX_NLANE; l++) {
@@ -207,9 +220,14 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
             for (step = 0; step < 16u; step++) {
                 uint32_t db = dbar(seed, LANE_ID(l), bar, step, var);
                 int32_t t, vel, level;
-                uint8_t flags = 0, rep = 1;
+                uint8_t flags = 0, rep = 1, fcond = 0, h = hit[l][step];
                 gx_event_t *e;
-                if (!hit[l][step])
+                if (npass == 2 && step >= fill_from && !h != !hits[1][l][step]) {
+                    fcond = h ? (uint8_t)GX_COND_NFILL : (uint8_t)GX_COND_FILL;
+                    if (!h)
+                        h = hits[1][l][step];  /* a hit of the fill only */
+                }
+                if (!h)
                     continue;
                 level = L->acc[step];
                 vel = (int32_t)L->vel_lo + ((int32_t)L->vel_hi - (int32_t)L->vel_lo) * level / 9;
@@ -226,7 +244,7 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 t += jitter(gx_hash(seed, LANE_ID(l), db, step, GX_P_TIME), tj) * (int32_t)GX_STEP / 100;
                 t = clampi(t, 0, (int32_t)end - 1);
 
-                if (fill && step >= fill_from) {
+                if ((fill || fcond == GX_COND_FILL) && step >= fill_from) {
                     /* break edits ratchet as the genre says (more or less with Complex); any genre's
                        non-kick lanes may ratchet once Complex is high */
                     uint32_t rp = p->break_edits && L->rep_p ? (uint32_t)clampi((int32_t)L->rep_p * (64 + dc) / 64, 0, 255)
@@ -247,11 +265,13 @@ void gx_drums_render(const gx_recipe_t *r, const gx_comp_t *c, const gx_genre_pr
                 e->lane = (uint8_t)l;
                 e->note = (uint8_t)(map->lane_note[l] & 0x7f);
                 e->vel = (uint8_t)clampi(vel, 1, 127);
-                e->flags = (uint8_t)(flags | (hit[l][step] == 2 ? GX_EF_ANCHOR : 0u));
+                e->flags = (uint8_t)(flags | (h == 2 ? GX_EF_ANCHOR : 0u));
                 e->rep = rep;
-                /* live: a non-anchor step keeps its weight as a chance, rolled on every pass */
-                e->cond = (uint8_t)(L->live && hit[l][step] == 1
-                                    ? clampi((int32_t)wt[l][step] * 100 / 255, 1, 99) : 0);
+                /* live: a non-anchor step keeps its weight as a chance, rolled on every pass; a step of the
+                   fill, or one the fill takes out, plays by the fill instead */
+                e->cond = (uint8_t)(L->live && h == 1 ? clampi((int32_t)wt[l][step] * 100 / 255, 1, 99) : 0);
+                if (fcond == GX_COND_FILL || (fcond && !e->cond))
+                    e->cond = fcond;           /* (a live chance the fill takes out keeps its chance) */
             }
         }
     }

@@ -2,6 +2,16 @@
 
 Each release's notes come from its section here (`tools/release_notes.py`). The newest is first.
 
+## Unreleased
+
+Ideas from playing it live, and from other FM-1 firmwares.
+
+- **Fills on demand.** Hold PLAY while it plays: every style has its own fill over the end of each bar (rolls and
+  ratchets, extra percussion, or drop-outs), and the hits it replaces drop out while you hold it.
+- **Perform** (hold FX): white keys for as long as they're held. W1–W4 repeat half a bar, a beat, an 8th or a
+  16th, and on release it lands where the song would have been. W5–W8 drop or solo the drums and sub.
+  W9–W10 move the pitched tracks an octave down or up. W11 is the fill. A tap of FX is still a new idea.
+
 ## 0.2.0 — GX-1
 
 The first GX-1 release: SEQ-4 with a generative, genre-aware composer on top.

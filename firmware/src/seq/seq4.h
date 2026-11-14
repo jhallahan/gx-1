@@ -294,6 +294,9 @@ typedef struct {
     uint8_t reps[S4_NSEQ];
     uint8_t snap;              /* a snapshot taken */
     uint8_t count;             /* count-in: beats left */
+    uint8_t perf_rpt;          /* GX-1's perform (FX held): the beat repeat's length in steps (0 off) */
+    int8_t perf_oct;           /* ... the pitched sequencers an octave or two up or down */
+    uint8_t perf_mute;         /* ... the sequencers it holds silent (a bit each) */
 } s4_play_t;
 
 extern s4_seq_t s4[S4_NSEQ];
@@ -314,6 +317,10 @@ void s4_click(int accent);                 /* the app's: the metronome's click *
 void s4_play(int on);
 void s4_stop_reset(void);
 void s4_fill(int on);
+/* GX-1's perform (FX held), for as long as it is held: a beat repeat (the last `rpt` steps of each sequencer
+ * again and again, 0 off: back where the song would be on release), the pitched sequencers `oct` octaves
+ * up or down (the drum map's stay), the sequencers in `mute` silent. All at once; (0, 0, 0) lets go. */
+void s4_perf(int rpt, int oct, int mute);
 void s4_rec(int on);
 void s4_live(int s, int trk, int note, int vel);   /* a key: note on (vel > 0) / off, sequencer s */
 void s4_live_cc(int s, int trk, uint32_t st, uint32_t d1, uint32_t d2);

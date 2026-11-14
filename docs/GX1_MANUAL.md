@@ -178,6 +178,27 @@ the keys **W9–W14**; the part playing is lit. Press a key to queue that part. 
 While GLO is held the white keys light up to match: W1–W5 for mutate, W9–W14 for the parts, with the part
 playing blinking.
 
+### Fills and perform
+
+**Hold PLAY** while it plays for a **fill**. Every style writes its own fill over the end of each bar: snare rolls
+and ratchets in jungle and breaks, extra percussion in house, drop-outs in techno. Those hits play only while
+PLAY is held, and the hits a fill replaces drop out for as long. Let go and the groove is back. The style's own
+fills at the end of a phrase play as before.
+
+**Hold FX** and the white keys perform, for as long as you hold them. Let go of FX and everything snaps back.
+A tap of FX on its own is still a new idea.
+
+| Key (FX held) | Perform |
+|---|---|
+| W1–W4 | **Repeat** half a bar, a beat, an 8th or a 16th: every track loops the beat it's in. The song carries on underneath, so letting go lands where it would have been. With several held, the last pressed wins |
+| W5 · W6 | **Drums only** · **no drums** |
+| W7 · W8 | **Drums and sub only** · **no sub** |
+| W9 · W10 | An **octave down** · **up** on the pitched tracks (both: two up). The drums stay |
+| W11 | The **fill**, as PLAY held |
+
+The keys light while FX is held, and the ones you're holding blink. They combine: a 16th repeat with no
+drums and an octave up is a build in itself.
+
 ## 8. The macros
 
 | Knob | Macro | What it does |
@@ -219,8 +240,9 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 
 | Control | On the GEN page |
 |---|---|
-| PLAY | Play / stop |
+| PLAY · PLAY held | Play / stop · the fill, while it plays |
 | FX · GLO + FX | A new idea · re-roll the selected track |
+| FX held + W1–W11 | Perform: repeat, drops, octaves, the fill ([Fills and perform](#fills-and-perform)) |
 | SEL | Mutate the selected track |
 | ENV | Lock / unlock the selected track |
 | EDIT · GLO + EDIT | Undo · redo |

@@ -140,8 +140,11 @@ typedef struct {
     uint8_t flags;             /* GX_EF_* */
     uint8_t rep;               /* ratchet: 1 = a single hit, 2..5 = that many hits spread over len */
     uint8_t cond;              /* live chance: 0 = always plays; 1..100 = plays with that % chance each
-                                * time it comes round (the FM-1 rolls it live: SEQ-4's step chance) */
+                                * time it comes round (the FM-1 rolls it live: SEQ-4's step chance);
+                                * GX_COND_FILL / GX_COND_NFILL: only with / without the fill held */
 } gx_event_t;
+#define GX_COND_FILL 101u      /* plays only while the player holds the fill (gx_set_live_fills) */
+#define GX_COND_NFILL 102u     /* plays except while the fill is held (the hits a fill replaces) */
 
 /* a render buffer, owned by the caller */
 typedef struct {
@@ -213,6 +216,43 @@ const char *gx_part_name(gx_genre_t g, uint32_t slot);
 
 /* a genre's default tempo (BPM x 10); the test pattern's is 172 */
 uint16_t gx_genre_tempo(gx_genre_t g);
+
+/* Main B's contrast with Main A (0..127, default 0 = as the genre has it). Above 0 the B part's own variation
+ * goes further; from 64 the upper part plays a different motif in B; from 96 B has chords of its own (the sub
+ * and the upper part follow them). Locked roles are left as they are. A setting of the renderer, not of the
+ * composition: the same composition and contrast always render the same. */
+void gx_set_contrast(uint8_t v);
+uint8_t gx_get_contrast(void);
+
+/* Fills on demand (default off): with it on, every bar that is not already a fill bar also carries the style's
+ * fill over its fill region, as hits that play only while the player holds the fill (GX_COND_FILL), and the
+ * normal hits the fill takes out play only while it is not held (GX_COND_NFILL). The FM-1 holds it with PLAY.
+ * Off, the render is exactly as before; gx_render_expand plays the bars without the fill either way. */
+void gx_set_live_fills(int on);
+int gx_get_live_fills(void);
+
+/* ---- layers (gx_layers.c): extra parts made from a finished render, never changing the four ---- */
+#define GX_ROLE_PAD 5u
+#define GX_ROLE_COUNTER 6u
+#define GX_ROLE_ANSWER 7u
+#define GX_ROLE_FX 8u
+#define GX_LAYER_PAD 0x01u
+#define GX_LAYER_COUNTER 0x02u
+#define GX_LAYER_ANSWER 0x04u
+#define GX_LAYER_FX 0x08u
+enum { GX_PAD_HELD = 0, GX_PAD_HIGH, GX_PAD_PULSE, GX_NPADSTYLE };                         /* how the pad plays */
+enum { GX_CTR_SLOW = 0, GX_CTR_THIRDS, GX_CTR_PEDAL, GX_CTR_WALK, GX_NCTRSTYLE };          /* the counter-melody */
+enum { GX_ANS_QA = 0, GX_ANS_ECHO, GX_ANS_SHORT, GX_NANSSTYLE };                          /* call and response */
+/* the transitions' notes (a Drum Rack or a sampler plays them) */
+enum { GX_FX_IMPACT = 36, GX_FX_DOWN = 38, GX_FX_REVERSE = 45, GX_FX_CRASH = 49, GX_FX_RISER = 60 };
+typedef struct {
+    uint8_t mask;              /* GX_LAYER_* */
+    uint8_t pad, counter, answer;
+} gx_layer_opts_t;
+/* the layers for the composition's part, from its render `in` (sorted, as gx_render leaves it, or expanded) */
+int gx_layers_render(const gx_comp_t *c, const gx_render_t *in, const gx_layer_opts_t *opt, gx_render_t *out);
+/* what a style suggests: which layers fit it (mask) and how each plays */
+gx_layer_opts_t gx_layer_defaults(gx_genre_t g);
 
 const gx_outmap_t *gx_outmap(gx_map_id_t id);
 const char *gx_genre_name(gx_genre_t g);
