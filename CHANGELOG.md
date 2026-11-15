@@ -11,6 +11,9 @@ Ideas from playing it live, and from other FM-1 firmwares.
 - **Perform** (hold FX): white keys for as long as they're held. W1–W4 repeat half a bar, a beat, an 8th or a
   16th, and on release it lands where the song would have been. W5–W8 drop or solo the drums and sub.
   W9–W10 move the pitched tracks an octave down or up. W11 is the fill. A tap of FX is still a new idea.
+- **A new style, Deep space** (Leftfield, ~108): cinematic psybient. A soft four-to-the-floor kick under clockwork
+  hats (one every three 16ths, one every five, drifting against the bar), pops, a warm offbeat bass, deep dorian
+  pads and a cascading arp.
 
 ## 0.2.0 — GX-1
 

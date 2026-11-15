@@ -76,6 +76,7 @@ typedef enum {
     GX_GENRE_POP,
     GX_GENRE_RNB,
     GX_GENRE_SYNTHPOP,
+    GX_GENRE_DEEP_SPACE,       /* (added last: the ids above stay as saved ideas have them) */
     GX_NGENRE
 } gx_genre_t;
 

@@ -65,7 +65,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 5. **GLO + W9–W14**: the six song parts, at the next bar. **EDIT** undoes.
 6. **HOME** steps through the pages: **GEN**, **TRACK** (one track up close) and **ARRANGE** (the parts).
 
-## Twenty-five styles in six families
+## Twenty-six styles in six families
 
 | Family | Styles |
 |---|---|
@@ -73,7 +73,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 | **BREAKS & BASS** | Breaks · UK garage · Electro · Dubstep |
 | **TECHNO** | Minimal · Dub techno · Acid · Detroit · Hard |
 | **HOUSE** | Deep house · Lo-fi house |
-| **LEFTFIELD** | IDM · Downtempo · Ambient · Psybient · Glitch ambient |
+| **LEFTFIELD** | IDM · Downtempo · Ambient · Psybient · Glitch ambient · Deep space |
 | **POP & R&B** | Pop · R&B · Synth-pop |
 
 The music engine is [gx-1-engine](https://github.com/jhallahan/gx-1-engine): integer-only C, deterministic
