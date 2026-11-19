@@ -59,7 +59,7 @@ FM1_INLINE void fm1_usb_attach(void *ep0)
  * D+ and D- instead of the D+ pull-up, VBUS valid, and the ID as asked (cid 0 = A / host, 1 = B / device).
  * Bits from the AC79 SDK header (asm/usb.h): CON0 PHY_ON 0, USB_NRST 2, TM1 3, CID 4, VBUS 5; IO_CON0 DPPD 4,
  * DMPD 5, DPPU 6. */
-FM1_INLINE void fm1_usb_host_attach(void *ep0, uint32_t cid)
+FM1_INLINE void fm1_usb_host_attach(void *ep0, uint32_t cid, uint32_t vbus)
 {
     FM1_CLK_CON1 &= ~3u;                                /* USB clock = PLL48M */
     FM1_USB_EP0_ADR = (uint32_t)(uintptr_t)ep0;
@@ -71,7 +71,7 @@ FM1_INLINE void fm1_usb_host_attach(void *ep0, uint32_t cid)
     FM1_USB_CON0 &= ~0x4035u;
     FM1_USB_CON1 = 0;
     FM1_USB_CON0 |= 1u;                                 /* PHY on */
-    FM1_USB_CON0 |= 0x2Cu | ((cid & 1u) << 4);          /* NRST, TM1, VBUS valid; CID */
+    FM1_USB_CON0 |= 0x0Cu | ((cid & 1u) << 4) | ((vbus & 1u) << 5);   /* NRST, TM1; CID; VBUS valid (as asked) */
 }
 /* the line state: bit 1 D+ (DP_SE), bit 0 D- (DM_SE); a full-speed device holds D+ high */
 FM1_INLINE uint32_t fm1_usb_line_state(void) { return ((FM1_USB_CON0 >> 17) & 1u) << 1 | ((FM1_USB_CON0 >> 16) & 1u); }

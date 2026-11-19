@@ -52,7 +52,7 @@ static void uh_show(void)
 {
     int i;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 2, 240, &FONT_S, "GX-1 USB HOST PROBE", C_WHITE, 1);
+    draw_text_box(0, 2, 240, &FONT_S, "GX-1 USB HOST PROBE 2", C_WHITE, 1);
     for (i = 0; i < uh_n; i++)
         draw_text_box(4, 22 + (uint32_t)i * 16u, 232, &FONT_XS, uh_txt[i],
                       uh_col[i] == 1 ? RGB(110, 230, 140) : uh_col[i] == 2 ? RGB(255, 110, 100) : RGB(200, 200, 208), 0);
@@ -120,7 +120,78 @@ static int uh_get_device_desc(uint8_t *out, uint32_t want, uint32_t mps, uint32_
     return (int)got;
 }
 
-static int uh_try(uint32_t cid)
+/* stage 2. The first probe (a photo, 2026-11-19) saw D+ D- 00 both times: no device on the line. CID=0 left
+ * DEVCTL 00 (no session); CID=1 gave 91 (session, B-device: a peripheral), INTRUSB 04 (a bus reset, as a
+ * peripheral sees). So: is the device there at all (the live line, while it's plugged and unplugged), then each
+ * ID and VBUS setting, the session held for half a second, and a descriptor read where it looks most like a host. */
+
+/* the live line: 10 s, refreshed; the states seen, counted */
+static void uh_live(void)
+{
+    uint32_t t0 = fm1_ms, last = 0, seen[4] = {0, 0, 0, 0}, v, k;
+    char t[34];
+    fm1_usb_reset();
+    uh_wait(30);
+    fm1_usb_host_attach(uh_buf, 0, 1);
+    while (fm1_ms - t0 < 10000u) {
+        fm1_wdt_feed();
+        v = fm1_usb_line_state();
+        seen[v & 3u]++;
+        if (fm1_ms - last >= 100u) {
+            last = fm1_ms;
+            lcd_fill(0, 0, 240, 240, C_BLACK);
+            draw_text_box(0, 2, 240, &FONT_S, "GX-1 USB HOST PROBE 2", C_WHITE, 1);
+            draw_text_box(4, 26, 232, &FONT_XS, "1/2 THE LINE: plug and unplug", RGB(200, 200, 208), 0);
+            draw_text_box(4, 42, 232, &FONT_XS, "the device a few times now", RGB(200, 200, 208), 0);
+            t[0] = 'D'; t[1] = '+'; t[2] = ' '; t[3] = 'D'; t[4] = '-'; t[5] = ' ';
+            t[6] = (char)('0' + (v >> 1)); t[7] = (char)('0' + (v & 1u)); t[8] = 0;
+            draw_text_box(0, 80, 240, &FONT_S, t, v == 2u ? RGB(110, 230, 140) : v ? RGB(255, 200, 90) : RGB(255, 110, 100), 1);
+            for (k = 0; k < 4; k++) {               /* how often each state was seen (a hex count, capped) */
+                char *q = t;
+                *q++ = (char)('0' + (k >> 1)); *q++ = (char)('0' + (k & 1u)); *q++ = ':'; *q++ = ' ';
+                uh_hex(q, seen[k] > 0xFFFFu ? 0xFFFFu : seen[k], 4);
+                draw_text_box(60, 120 + k * 16u, 140, &FONT_XS, t, seen[k] ? RGB(200, 200, 208) : RGB(90, 90, 100), 0);
+            }
+            uh_hex(t, (10000u - (fm1_ms - t0)) / 1000u, 1);
+            t[1] = ' '; t[2] = 's'; t[3] = 0;
+            draw_text_box(0, 200, 240, &FONT_XS, t, RGB(120, 120, 130), 1);
+        }
+    }
+    uh_n = 0;
+    uh_line("line 10 (a device):", seen[2] > 0xFFFFu ? 0xFFFFu : seen[2], 4, seen[2] ? 1 : 2);
+    uh_line("line 01 (low speed):", seen[1] > 0xFFFFu ? 0xFFFFu : seen[1], 4, seen[1] ? 1 : 0);
+}
+
+/* one ID / VBUS setting: the session asked for and watched for half a second; returns how host-like it got
+ * (2: connect or host mode, 1: a session, 0: nothing) */
+static int uh_setting(uint32_t cid, uint32_t vbus)
+{
+    uint32_t t0, dev = 0, intr = 0, line = 0, d;
+    char name[8] = "C0 V0:";
+    fm1_usb_reset();
+    uh_wait(30);
+    fm1_usb_host_attach(uh_buf, cid, vbus);
+    uh_wait(50);
+    sie_wr(UH_S_DEVCTL, 0x01u);                          /* Session */
+    t0 = fm1_ms;
+    while (fm1_ms - t0 < 500u) {
+        fm1_wdt_feed();
+        d = sie_rd(UH_S_DEVCTL);
+        dev |= d;
+        if (!(d & 1u))
+            sie_wr(UH_S_DEVCTL, 0x01u);                  /* (asked again while it drops) */
+        intr |= sie_rd(S_INTRUSB);
+        line |= 1u << fm1_usb_line_state();
+    }
+    name[1] = (char)('0' + cid);
+    name[4] = (char)('0' + vbus);
+    /* the line states seen (a bit each: 1 00, 2 01, 4 10), DEVCTL's bits OR'd, INTRUSB's OR'd */
+    uh_line(name, line << 16 | dev << 8 | intr, 6, (dev & 4u) || (intr & 0x10u) ? 1 : (dev & 1u) ? 0 : 2);
+    return (dev & 4u) || (intr & 0x10u) ? 2 : (dev & 1u) ? 1 : 0;
+}
+
+static int uh_try(uint32_t cid, uint32_t vbus)
+
 {
     uint32_t v, dev, t0, intr = 0, err = 0;
     uint8_t d[18];
@@ -128,7 +199,7 @@ static int uh_try(uint32_t cid)
 
     fm1_usb_reset();
     uh_wait(30);
-    fm1_usb_host_attach(uh_buf, cid);
+    fm1_usb_host_attach(uh_buf, cid, vbus);
     uh_wait(50);
 
     v = fm1_usb_line_state();
@@ -172,16 +243,21 @@ static int uh_try(uint32_t cid)
 
 static void usbhost_probe(void)
 {
+    static const uint8_t SET[4][2] = {{0, 1}, {0, 0}, {1, 1}, {1, 0}};
+    int i, r, best = -1, bestr = -1;
     usbh_mode = 1;                                       /* the device driver stops polling */
     uh_wait(20);
-    uh_n = 0;
-    uh_line("plug the device in now", 0, 0, 0);
-    uh_show();
-    uh_wait(3000);                                       /* time to plug the dongle in */
-    uh_n = 0;
-    if (!uh_try(0))
-        uh_try(1);
-    uh_line("photo this; power off to leave", 0, 0, 0);
+    uh_live();                                           /* 1/2: is the device on the line at all */
+    for (i = 0; i < 4; i++) {                            /* 2/2: each setting */
+        r = uh_setting(SET[i][0], SET[i][1]);
+        if (r > bestr) { bestr = r; best = i; }
+    }
+    if (uh_n < 9) {                                      /* a descriptor read on the most host-like */
+        int keep = uh_n;
+        uh_try(SET[best][0], SET[best][1]);
+        if (uh_n - keep > 6) uh_n = keep + 6;
+    }
+    uh_line("photo this; power off", 0, 0, 0);
     uh_show();
     for (;;)
         fm1_wdt_feed();

@@ -306,10 +306,13 @@ M-VAVE wireless dongle for a Tonverk) straight into the FM-1. It doesn't send mu
 the FM-1's USB chip can see a device.
 
 1. You need a **powered** USB-C OTG adapter: the FM-1 can't power the device on its own.
-2. Switch the FM-1 off. Hold **SEQ** and switch it on: it shows **GX-1 USB HOST PROBE**.
-3. Plug the device in through the adapter. The screen shows the line state, whether a device was seen, and its
-   VID/PID if it answered.
-4. Take a photo of the screen and share it in an issue. Switch the FM-1 off and on to go back to GX-1.
+2. Switch the FM-1 off. Hold **SEQ** and switch it on: it shows **GX-1 USB HOST PROBE 2**.
+3. **The line, 10 seconds:** plug the device in and out through the adapter a few times. `D+ D-` turns green
+   (**10**) while a full-speed device is on the line; the counts below say how often each state was seen.
+4. **The settings:** it then tries each ID and VBUS setting (`C0 V1:` and so on) and shows six hex digits: the line
+   states seen (1: 00, 2: 01, 4: 10), the DEVCTL bits and the INTRUSB bits. On the setting most like a host it
+   reads the device's descriptor: `DEVICE!` and its VID and PID if it answers.
+5. Take a photo of the screen and share it in an issue. Switch the FM-1 off and on to go back to GX-1.
 
 ---
 
