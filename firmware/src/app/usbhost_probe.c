@@ -133,16 +133,17 @@ static void uh_live(void)
     fm1_usb_reset();
     uh_wait(30);
     fm1_usb_host_attach(uh_buf, 0, 1);
+    lcd_fill(0, 0, 240, 240, C_BLACK);                   /* (drawn once; then only what changes: no flashing) */
+    draw_text_box(0, 2, 240, &FONT_S, "GX-1 USB HOST PROBE 2", C_WHITE, 1);
+    draw_text_box(4, 26, 232, &FONT_XS, "1/2 THE LINE: plug and unplug", RGB(200, 200, 208), 0);
+    draw_text_box(4, 42, 232, &FONT_XS, "the device a few times now", RGB(200, 200, 208), 0);
     while (fm1_ms - t0 < 10000u) {
         fm1_wdt_feed();
         v = fm1_usb_line_state();
         seen[v & 3u]++;
-        if (fm1_ms - last >= 100u) {
+        if (fm1_ms - last >= 250u) {
             last = fm1_ms;
-            lcd_fill(0, 0, 240, 240, C_BLACK);
-            draw_text_box(0, 2, 240, &FONT_S, "GX-1 USB HOST PROBE 2", C_WHITE, 1);
-            draw_text_box(4, 26, 232, &FONT_XS, "1/2 THE LINE: plug and unplug", RGB(200, 200, 208), 0);
-            draw_text_box(4, 42, 232, &FONT_XS, "the device a few times now", RGB(200, 200, 208), 0);
+            lcd_fill(0, 76, 240, 140, C_BLACK);
             t[0] = 'D'; t[1] = '+'; t[2] = ' '; t[3] = 'D'; t[4] = '-'; t[5] = ' ';
             t[6] = (char)('0' + (v >> 1)); t[7] = (char)('0' + (v & 1u)); t[8] = 0;
             draw_text_box(0, 80, 240, &FONT_S, t, v == 2u ? RGB(110, 230, 140) : v ? RGB(255, 200, 90) : RGB(255, 110, 100), 1);
