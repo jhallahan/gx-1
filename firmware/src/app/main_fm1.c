@@ -349,7 +349,7 @@ void fm1_timer5_irq(void)
             uac_service();
 #endif
     }
-    if (usb_due && !en_dbg.in_audio && !usbh_mode) {   /* (the USB host probe owns the core) */
+    if (usb_due && !en_dbg.in_audio) {
         usb_due = 0;
         usb_poll();
 #if EN_TRS
@@ -555,13 +555,15 @@ static void fm1_main(void)
     fm1_delay_ms(30);
     if ((fm1_in.buttons & 3u) == 3u)
         panel_setup();                              /* OCT- + OCT+ held at power-on */
-    if (fm1_in.buttons & (1u << panel.btn[B_SEQ]))
-        usbhost_probe();                            /* SEQ held at power-on: the USB host probe (never returns) */
     fm1_delay_ms(400);
     ui_init();
 
     for (;;) {
         fm1_wdt_feed();
+#if FELUCCA_USB_HOST
+        usb_host_task(fm1_ms);                      /* the USB host (Setup > USB host): finds and keeps a device */
+        usbh_news();
+#endif
         usb_retry(fm1_ms);
         if (fm1_ms > 30000u && bootguard.pending) {     /* a crash or hang in the first 30 s counts */
             bootguard.pending = 0;

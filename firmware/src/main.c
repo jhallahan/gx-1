@@ -40,6 +40,8 @@ static inline int32_t clamp(int32_t v, int32_t lo, int32_t hi) { return v < lo ?
 #define FELUCCA_ID "FM-1_770"     /* package identity (tools/build.py); GX-1 is FM-1_77... */
 #endif
 #define USB_MIDI_PORTS 4          /* SEQ-4: four MIDI ports, A .. D */
+#define FELUCCA_USB_HOST 1        /* GX-1: Setup > USB host (felucca-bsp's USB MIDI host) */
+#define FELUCCA_USB_HOST_NAME 1
 #define MQ_OUT 1024u              /* ... and room for a bar's worth of notes on all of them */
 #include "usb.c"
 #ifndef EN_TRS
@@ -132,5 +134,4 @@ static void ota_commit(const uint8_t *parm)
 #include "app/project.c"
 #include "app/gx_bridge.c"
 #include "app/ui.c"
-#include "app/usbhost_probe.c"
 #include "app/main_fm1.c"

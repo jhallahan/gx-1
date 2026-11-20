@@ -62,6 +62,10 @@ expect menu 14
 shot m_setup.png
 turn SELECT 3
 shot m_setup4.png
+turn SELECT 5
+turn K1 1
+shot m_setup_usbh.png
+turn K1 -1
 tap HOME
 press GLO
 tapkey b10

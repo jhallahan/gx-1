@@ -127,6 +127,9 @@ int plat_midi_out(uint32_t pkt)
     return 1;
 }
 int plat_usb_up(void) { return 1; }
+static int sim_usbh;
+int plat_usb_host(int on) { if (on >= 0) sim_usbh = on; return sim_usbh ? 1 : 0; }   /* (no USB host here: looking) */
+const char *plat_usb_host_name(void) { return ""; }
 #ifdef EN_WEB
 void web_midi_out(uint32_t port, uint32_t st, uint32_t d1, uint32_t d2);
 #endif

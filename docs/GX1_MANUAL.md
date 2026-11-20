@@ -21,7 +21,7 @@ This manual covers version 0.2.
 11. [The grid underneath (SEQ-4)](#11-the-grid-underneath-seq-4)
 12. [Going back, and recovery](#12-going-back-and-recovery)
 13. [Troubleshooting](#13-troubleshooting)
-14. [Experimental: USB host probe](#14-experimental-usb-host-probe)
+14. [USB host: a synth or keyboard on the FM-1's USB](#14-usb-host-a-synth-or-keyboard-on-the-fm-1s-usb)
 
 ## 1. Getting started in five minutes
 
@@ -115,9 +115,9 @@ Tonverk, and work with any DAW:
 
 ### Straight into the Tonverk
 
-The FM-1's single USB-C port is a USB *device*, like a keyboard, so it needs a computer or a USB MIDI host in
-between. A USB host box (one that has USB-A sockets for MIDI devices) does this without a computer. The TRS jack on the FM-1
-is MIDI **in** only. See [section 14](#14-experimental-usb-host-probe) for the experiment to change this.
+With **USB host** on (section 14), the FM-1 plays the Tonverk over USB with no computer: FM-1 → a USB-C to USB-A
+adapter → a **powered** USB hub → USB-A to USB-C cable → the Tonverk. GX-1's channels already suit it (kicks 1,
+kit 2, sub 5, chords 7, upper 8). The TRS jack on the FM-1 is MIDI **in** only.
 
 ## 4. The GEN page
 
@@ -299,20 +299,26 @@ them.
 - **Stuck notes:** stop. All notes are released.
 - **The tempo is underlined:** it's outside the style's usual range. That's fine; it's only a hint.
 
-## 14. Experimental: USB host probe
+## 14. USB host: a synth or keyboard on the FM-1's USB
 
-This build has a test for USB *host* mode, the first step towards plugging a USB MIDI device (for example, an
-M-VAVE wireless dongle for a Tonverk) straight into the FM-1. It doesn't send music yet. It only checks whether
-the FM-1's USB chip can see a device.
+The FM-1's USB port can be the host of a USB-MIDI synth or keyboard, so it works without a computer.
 
-1. You need a **powered** USB-C OTG adapter: the FM-1 can't power the device on its own.
-2. Switch the FM-1 off. Hold **SEQ** and switch it on: it shows **GX-1 USB HOST PROBE 2**.
-3. **The line, 10 seconds:** plug the device in and out through the adapter a few times. `D+ D-` turns green
-   (**10**) while a full-speed device is on the line; the counts below say how often each state was seen.
-4. **The settings:** it then tries each ID and VBUS setting (`C0 V1:` and so on) and shows six hex digits: the line
-   states seen (1: 00, 2: 01, 4: 10), the DEVCTL bits and the INTRUSB bits. On the setting most like a host it
-   reads the device's descriptor: `DEVICE!` and its VID and PID if it answers.
-5. Take a photo of the screen and share it in an issue. Switch the FM-1 off and on to go back to GX-1.
+1. **Power:** the FM-1 gives the port no power. Connect FM-1 → USB-C to USB-A adapter (a plain one) → a **powered**
+   USB hub (with its own power supply) → the device. Phone-style "OTG + charging" splitters usually don't power the
+   device.
+2. On the grid (SEQ), hold **GLO** a moment for the setup, turn **SELECT** to its last page, **USB host**, and set
+   **USB host** to **On** with knob 1. The screen says USB HOST ON; **Device** reads *Looking*, then the device's name.
+3. **Out:** every track goes to the device on its channel (GX-1's four ports become one). **In:** the device's
+   notes, controllers and clock come in as a computer's would (Setup > MIDI in: USB in).
+4. Set it **Off**, or switch the FM-1 off and on, to give the port back to the computer. It is never kept: every
+   start is the computer's device, so the installer always finds the FM-1.
+
+What works: full-speed USB-MIDI devices, directly or behind one hub (high-speed ones such as Elektron's usually
+drop to full speed). *Not MIDI* means the device has no USB-MIDI interface; *Low speed* means it is too slow a
+device (most mice). No SysEx goes either way while hosting.
+
+The USB host is felucca-bsp's, ported there from Melodee. It is tested against a model of the bus, not yet on a
+Tonverk: tell us how it goes.
 
 ---
 

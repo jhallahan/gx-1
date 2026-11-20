@@ -91,6 +91,49 @@ int plat_midi_out(uint32_t pkt)
     return midi_out_event(pkt);
 }
 int plat_usb_up(void) { return usb.config && !usb.suspended; }
+static uint8_t usbh_note = 1;                    /* what the last try found (1 looking, 3 not MIDI, 4 low speed) */
+int plat_usb_host(int on)
+{
+#if FELUCCA_USB_HOST
+    if (on >= 0)
+        usb_host_switch((uint32_t)on);
+    if (!usb_host_active())
+        return 0;
+    return usb_host_connected() ? 2 : usbh_note;
+#else
+    (void)on;
+    return 0;
+#endif
+}
+const char *plat_usb_host_name(void)
+{
+#if FELUCCA_USB_HOST && FELUCCA_USB_HOST_NAME
+    return usb_host_name();
+#else
+    return "";
+#endif
+}
+/* (main loop) the host's news on screen */
+static void usbh_news(void)
+{
+#if FELUCCA_USB_HOST
+    switch (usb_host_message()) {
+    case UH_MSG_ON: usbh_note = 1; ui_say("USB HOST ON", "Plug in a powered hub"); break;
+    case UH_MSG_OFF: ui_say("USB HOST OFF", "Back to the computer"); break;
+    case UH_MSG_MIDI: {
+        const char *n = plat_usb_host_name();
+        ui_say("USB HOST", *n ? n : "MIDI device connected");
+        break;
+    }
+    case UH_MSG_NOMIDI: usbh_note = 3; ui_say("USB HOST", "Not a MIDI device"); break;
+    case UH_MSG_LOW: usbh_note = 4; ui_say("USB HOST", "Low speed: not usable"); break;
+    case UH_MSG_LOST: usbh_note = 1; ui_say("USB HOST", "Device gone"); break;
+    default: break;
+    }
+    if (midi_usb_lost)
+        midi_usb_lost = 0;                       /* (the device's notes: its own; the queue is already dropped) */
+#endif
+}
 /* the sequencer's MIDI out: a USB-MIDI packet on the port's cable, CIN = the status's high nibble (system
  * real time: CIN F) */
 void s4_out(uint32_t port, uint32_t st, uint32_t d1, uint32_t d2)

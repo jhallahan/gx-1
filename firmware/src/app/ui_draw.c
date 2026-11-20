@@ -882,7 +882,7 @@ static void info_text(void)
     if (ui.menu) {
         scopy(info_l, MENU_NAME[ui.menu], 32);
         if (ui.menu == MN_SETUP)
-            scopy(info_r, SETUP_PAGE[ui.page % 8u], 24);
+            scopy(info_r, SETUP_PAGE[ui.page % 9u], 24);
         else if (ui.menu == MN_SEQ)
             scopy(info_r, SEQ_PAGE[ui.page % 5u], 24);
         else if (ui.menu == MN_LFO)

@@ -19,15 +19,15 @@
 #include <stdint.h>
 #include "fm1_cc.h"
 
-#define FM1_USB_CON0 (*(volatile uint32_t *)0x11800u)
-#define FM1_USB_CON1 (*(volatile uint32_t *)0x11804u)
-#define FM1_USB_EP_CNT(n) (*(volatile uint32_t *)(0x11808u + 4u * (n)))          /* EP0..3 */
-#define FM1_USB_EP0_ADR (*(volatile uint32_t *)0x11818u)
-#define FM1_USB_EP_TADR(n) (*(volatile uint32_t *)(0x1181Cu + 8u * ((n) - 1u)))  /* EP1..3 */
-#define FM1_USB_EP_RADR(n) (*(volatile uint32_t *)(0x11820u + 8u * ((n) - 1u)))  /* EP1..3 */
-#define FM1_USB_EP4_RADR (*(volatile uint32_t *)0x1183Cu)
-#define FM1_USB_IO_CON0 (*(volatile uint32_t *)0x51000u)
-#define FM1_CLK_CON1 (*(volatile uint32_t *)0x10010u)
+#define FM1_USB_CON0 (*(volatile uint32_t *)(uintptr_t)0x11800u)
+#define FM1_USB_CON1 (*(volatile uint32_t *)(uintptr_t)0x11804u)
+#define FM1_USB_EP_CNT(n) (*(volatile uint32_t *)(uintptr_t)(0x11808u + 4u * (n)))          /* EP0..3 */
+#define FM1_USB_EP0_ADR (*(volatile uint32_t *)(uintptr_t)0x11818u)
+#define FM1_USB_EP_TADR(n) (*(volatile uint32_t *)(uintptr_t)(0x1181Cu + 8u * ((n) - 1u)))  /* EP1..3 */
+#define FM1_USB_EP_RADR(n) (*(volatile uint32_t *)(uintptr_t)(0x11820u + 8u * ((n) - 1u)))  /* EP1..3 */
+#define FM1_USB_EP4_RADR (*(volatile uint32_t *)(uintptr_t)0x1183Cu)
+#define FM1_USB_IO_CON0 (*(volatile uint32_t *)(uintptr_t)0x51000u)
+#define FM1_CLK_CON1 (*(volatile uint32_t *)(uintptr_t)0x10010u)
 
 FM1_INLINE void fm1_usb_reset(void)
 {
@@ -55,26 +55,25 @@ FM1_INLINE void fm1_usb_attach(void *ep0)
     FM1_USB_CON0 |= 0x3Cu;
 }
 
-/* GX-1's USB host probe (experimental): the core up as a HOST. As the device attach, but 15k pull-downs on
- * D+ and D- instead of the D+ pull-up, VBUS valid, and the ID as asked (cid 0 = A / host, 1 = B / device).
- * Bits from the AC79 SDK header (asm/usb.h): CON0 PHY_ON 0, USB_NRST 2, TM1 3, CID 4, VBUS 5; IO_CON0 DPPD 4,
- * DMPD 5, DPPU 6. */
-FM1_INLINE void fm1_usb_host_attach(void *ep0, uint32_t cid, uint32_t vbus)
+/* the port as a USB host (felucca-bsp's, for usb_host.c): EP DMA as the device attach, 15k pull-downs on D+ and D-,
+ * PHY on, NRST, VBUS valid (CID 0: the A side, a host). The port gives the device no 5 V: a powered hub or adapter. */
+FM1_INLINE void fm1_usb_host_attach(void *ep0)
 {
+    uint32_t n;
     FM1_CLK_CON1 &= ~3u;                                /* USB clock = PLL48M */
     FM1_USB_EP0_ADR = (uint32_t)(uintptr_t)ep0;
-    FM1_USB_IO_CON0 |= (1u << 10) | (1u << 9);
-    FM1_USB_IO_CON0 &= ~(1u << 11);
-    FM1_USB_IO_CON0 |= 1u << 12;
-    FM1_USB_IO_CON0 &= ~0xF0u;
-    FM1_USB_IO_CON0 |= 0x30u;                           /* D+ and D- pull-downs: a host */
-    FM1_USB_CON0 &= ~0x4035u;
+    for (n = 1; n <= 3u; n++)
+        FM1_USB_EP_RADR(n) = (uint32_t)(uintptr_t)ep0;
+    FM1_USB_EP4_RADR = (uint32_t)(uintptr_t)ep0;
+    FM1_USB_CON0 = 0;
     FM1_USB_CON1 = 0;
-    FM1_USB_CON0 |= 1u;                                 /* PHY on */
-    FM1_USB_CON0 |= 0x0Cu | ((cid & 1u) << 4) | ((vbus & 1u) << 5);   /* NRST, TM1; CID; VBUS valid (as asked) */
+    FM1_USB_IO_CON0 = 0;
+    FM1_USB_IO_CON0 |= (1u << 10) | (1u << 9) | (1u << 5) | (1u << 4);
+    FM1_USB_IO_CON0 &= ~((1u << 11) | (1u << 8));
+    FM1_USB_CON0 |= 0x25u;                              /* PHY_ON | USB_NRST | VBUS */
 }
-/* the line state: bit 1 D+ (DP_SE), bit 0 D- (DM_SE); a full-speed device holds D+ high */
-FM1_INLINE uint32_t fm1_usb_line_state(void) { return ((FM1_USB_CON0 >> 17) & 1u) << 1 | ((FM1_USB_CON0 >> 16) & 1u); }
+/* D+ / D- single-ended levels (CON0 bit 17 / 16): both 0 = nothing attached, else a device pulls one up */
+FM1_INLINE uint32_t fm1_usb_line(void) { return (FM1_USB_CON0 >> 16) & 3u; }
 
 FM1_INLINE void fm1_usb_off(void)
 {
@@ -100,8 +99,8 @@ FM1_INLINE uint32_t fm1_usb_sie_data(void) { return FM1_USB_CON1 & 0xFFu; }
 FM1_INLINE void fm1_usb_ep0_buf(void *p) { FM1_USB_EP0_ADR = (uint32_t)(uintptr_t)p; }
 /* EP4 IN (the USB audio stream, isochronous; Felucca 1.0): its DMA address and count have their
  * own registers (SDK usb_set_dma_taddr / usb_write_ep_cnt, id 0, ep 4) */
-#define FM1_USB_EP4_CNT (*(volatile uint32_t *)0x11834u)
-#define FM1_USB_EP4_TADR (*(volatile uint32_t *)0x11838u)
+#define FM1_USB_EP4_CNT (*(volatile uint32_t *)(uintptr_t)0x11834u)
+#define FM1_USB_EP4_TADR (*(volatile uint32_t *)(uintptr_t)0x11838u)
 FM1_INLINE void fm1_usb_ep4_txbuf(void *p) { FM1_USB_EP4_TADR = (uint32_t)(uintptr_t)p; }
 FM1_INLINE void fm1_usb_ep4_send(void *p, uint32_t n)
 {
