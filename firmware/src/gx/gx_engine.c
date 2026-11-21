@@ -43,7 +43,8 @@ static const char *const genre_names[GX_NGENRE] = { "test", "deep_dnb", "breaks"
                                                      "halftime", "deep_house", "acid", "dubstep",
                                                      "liquid", "rollers", "detroit", "hard_techno", "lofi_house",
                                                      "ambient", "psybient", "glitch_ambient", "pop", "rnb",
-                                                     "synthpop", "deep_space" };
+                                                     "synthpop", "deep_space",
+                                                     "trap", "drill", "footwork", "reggaeton", "afro_house", "amapiano", "progressive_house", "trance", "psytrance", "synthwave", "melodic_techno", "hypnotic_techno", "industrial_techno", "hardgroove", "peak_time" };
 
 const gx_genre_prof_t *gx_profile(gx_genre_t g)
 {

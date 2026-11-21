@@ -65,6 +65,8 @@ static const char *gn_genre_label(int g)
     const gx_genre_prof_t *p = gx_profile((gx_genre_t)g);
     const char *n = p ? p->name : "?";
     int k = 0;
+    if (g == (int)GX_GENRE_PROGRESSIVE_HOUSE)
+        n = "Prog house";                    /* (the screen's 15 characters) */
     for (; n[k] && k < 15; k++)
         t[k] = (char)(n[k] >= 'a' && n[k] <= 'z' ? n[k] - 32 : n[k]);
     t[k] = 0;

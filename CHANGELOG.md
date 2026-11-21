@@ -11,6 +11,10 @@ Ideas from playing it live, and from other FM-1 firmwares.
 - **Perform** (hold FX): white keys for as long as they're held. W1–W4 repeat half a bar, a beat, an 8th or a
   16th, and on release it lands where the song would have been. W5–W8 drop or solo the drums and sub.
   W9–W10 move the pitched tracks an octave down or up. W11 is the fill. A tap of FX is still a new idea.
+- **Fifteen new styles** (41 in eight families): Trap, Drill, Footwork and Reggaeton (a new family, Trap &
+  club); Progressive house, Afro house and Amapiano; Melodic techno, Hypnotic and Peak time; Industrial,
+  Hardgroove, Trance and Psytrance (a new family, Hard & trance, with Acid and Hard); and Synthwave. Saved
+  projects keep their styles.
 - **USB host** (Setup > USB host): the FM-1's USB port becomes the host of a USB-MIDI synth or keyboard, with no
   computer. GX-1's tracks play the device (every port as one, on their channels: straight into a Tonverk), and the
   device's MIDI comes in as a computer's would. It needs a powered USB hub (the FM-1 gives the port no power);
