@@ -39,7 +39,7 @@
 
 static struct {
     uint8_t genre;                     /* the genre picked (gx_genre_t) */
-    uint8_t fam_style[8];              /* the style last used in each family (+1; 0: its first) */
+    uint8_t fam_style[16];             /* the style last used in each family (+1; 0: its first) */
     uint32_t seed;
     uint8_t gpend, spend;              /* ALGORITHM / PRESETS turned: a new idea when it rests */
     uint32_t gpend_t, spend_t;

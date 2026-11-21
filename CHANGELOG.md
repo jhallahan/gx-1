@@ -11,6 +11,8 @@ Ideas from playing it live, and from other FM-1 firmwares.
 - **Perform** (hold FX): white keys for as long as they're held. W1–W4 repeat half a bar, a beat, an 8th or a
   16th, and on release it lands where the song would have been. W5–W8 drop or solo the drums and sub.
   W9–W10 move the pitched tracks an octave down or up. W11 is the fill. A tap of FX is still a new idea.
+- **Hip-hop and 80s pop:** Boom bap, Lo-fi hip-hop, G-funk and Trip hop (a new family, Hip-hop); Pop-funk,
+  Dance-pop, Disco and New jack swing in Pop & R&B. 49 styles in nine families.
 - **Fifteen new styles** (41 in eight families): Trap, Drill, Footwork and Reggaeton (a new family, Trap &
   club); Progressive house, Afro house and Amapiano; Melodic techno, Hypnotic and Peak time; Industrial,
   Hardgroove, Trance and Psytrance (a new family, Hard & trance, with Acid and Hard); and Synthwave. Saved

@@ -65,7 +65,7 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 5. **GLO + W9–W14**: the six song parts, at the next bar. **EDIT** undoes.
 6. **HOME** steps through the pages: **GEN**, **TRACK** (one track up close) and **ARRANGE** (the parts).
 
-## Forty-one styles in eight families
+## Forty-nine styles in nine families
 
 | Family | Styles |
 |---|---|
@@ -74,9 +74,10 @@ mode the installer can reach. See the manual's [recovery section](docs/GX1_MANUA
 | **TECHNO** | Minimal · Dub techno · Detroit · Melodic techno · Hypnotic · Peak time |
 | **HARD & TRANCE** | Acid · Hard · Industrial · Hardgroove · Trance · Psytrance |
 | **HOUSE** | Deep house · Lo-fi house · Progressive house · Afro house · Amapiano |
+| **HIP-HOP** | Boom bap · Lo-fi hip-hop · G-funk · Trip hop |
 | **TRAP & CLUB** | Trap · Drill · Footwork · Reggaeton |
 | **LEFTFIELD** | IDM · Downtempo · Ambient · Psybient · Glitch ambient · Deep space |
-| **POP & R&B** | Pop · R&B · Synth-pop · Synthwave |
+| **POP & R&B** | Pop · Pop-funk · Dance-pop · Disco · New jack swing · R&B · Synth-pop · Synthwave |
 
 The music engine is [gx-1-engine](https://github.com/jhallahan/gx-1-engine): integer-only C, deterministic
 (the same style and idea number always give the same music), with the styles written as profiles.

@@ -145,9 +145,10 @@ the style you last used.
 | **TECHNO** | Minimal (120–128) · Dub techno (116–128) · Detroit (126–136) · Melodic techno (120–128) · Hypnotic (126–134) · Peak time (128–136) |
 | **HARD & TRANCE** | Acid (124–135) · Hard (135–150) · Industrial (130–145) · Hardgroove (136–145) · Trance (132–142) · Psytrance (140–148) |
 | **HOUSE** | Deep house (118–126) · Lo-fi house (115–124) · Progressive house (120–128) · Afro house (118–126) · Amapiano (108–116) |
+| **HIP-HOP** | Boom bap (84–98) · Lo-fi hip-hop (70–90) · G-funk (88–100) · Trip hop (78–96) |
 | **TRAP & CLUB** | Trap (130–150) · Drill (138–146) · Footwork (155–165) · Reggaeton (88–100) |
 | **LEFTFIELD** | IDM (110–150) · Downtempo (80–100) · Ambient (60–100) · Psybient (85–110) · Glitch ambient (88–115) · Deep space (96–122) |
-| **POP & R&B** | Pop (100–128) · R&B (70–100) · Synth-pop (100–126) · Synthwave (85–118) |
+| **POP & R&B** | Pop (100–128) · Pop-funk (106–124) · Dance-pop (112–126) · Disco (110–128) · New jack swing (96–112) · R&B (70–100) · Synth-pop (100–126) · Synthwave (85–118) |
 
 Each style has its own drum language, scale (minor, Dorian, Phrygian or major), chord progressions, bass behaviour and
 upper part, and its own six song parts. The same style and idea number always give the same music.
