@@ -16,7 +16,7 @@
  *   white keys        the selected track's steps (tap on / off, hold for its values); ARRANGE: W1-W6 queue a part
  *   GLO + W1-W4, W5   mutate the selected track: rhythm, pitch, velocity, length; all
  *   GLO + W9-W14      the six parts (each genre names its own)
- *   black 1-4 · 5-8   select drums, sub, chords, upper · mute them
+ *   black 1-4 · 5-8   select drums, sub, chords, upper · mute them (GLO: solo; again: all back)
  *   black 9, 10       the page (bar) back and on
  *   K1-K4             GEN: density, syncopation, space, groove (GLO: humanise, tension, complexity, evolution);
  *                     TRACK: the same four for the selected track only
@@ -905,6 +905,18 @@ static void gn_set_mute(int r, int on)
         mute_seq(r, 0);
     say(gn_track_label(r), on ? "MUTED" : "ON");
 }
+/* GLO + black 5-8: that track alone; on the track already alone, every track back */
+static void gn_solo(int r)
+{
+    int k, alone = !s4[r].mute;
+    for (k = 0; k < S4_NSEQ; k++)
+        if (k != r && !s4[k].mute)
+            alone = 0;
+    for (k = 0; k < S4_NSEQ; k++)
+        if (!!s4[k].mute != (!alone && k != r))
+            mute_seq(k, 0);
+    say(gn_track_label(r), alone ? "ALL ON" : "SOLO");
+}
 static void gn_set_lock(int r, int on)
 {
     if (!gn_ensure() && gn_locked(r) != !!on && gn_result(gxb_lock(r, on), "LOCK") >= 0)
@@ -1068,6 +1080,9 @@ static void gen_key_down(int k)
     if (b >= 0 && b < 4) {
         set_sel(b);
         say(gn_track_label(b), gn_locked(b) ? "LOCKED" : "");
+    } else if (b >= 4 && b < 8 && shift()) {
+        ui.btn_used |= 1u << B_GLO;
+        gn_solo(b - 4);
     } else if (b >= 4 && b < 8) {
         int was = s4[b - 4].mute;                /* (the engine applies it on its next tick) */
         mute_seq(b - 4, 0);

@@ -97,3 +97,33 @@ expect tempo 1220
 tap PLAY
 wait 300
 expect playing 0
+# GLO + black 5-8 solos a track; again on the track alone, every track back
+press GLO
+tapkey b5
+release GLO
+wait 200
+tapkey b1
+expect mute 0
+tapkey b0
+expect mute 1
+tapkey b2
+expect mute 1
+tapkey b3
+expect mute 1
+press GLO
+tapkey b7
+release GLO
+wait 200
+expect mute 0
+tapkey b1
+expect mute 1
+press GLO
+tapkey b7
+release GLO
+wait 200
+expect mute 0
+tapkey b0
+expect mute 0
+tapkey b1
+expect mute 0
+shot gen_solo.png

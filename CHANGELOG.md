@@ -6,6 +6,8 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Solo** (GLO + black keys 5–8 on the GEN pages): that track alone; the same again on the track alone brings
+  every track back.
 - **Fills on demand.** Hold PLAY while it plays: every style has its own fill over the end of each bar (rolls and
   ratchets, extra percussion, or drop-outs), and the hits it replaces drop out while you hold it.
 - **Perform** (hold FX): white keys for as long as they're held. W1–W4 repeat half a bar, a beat, an 8th or a

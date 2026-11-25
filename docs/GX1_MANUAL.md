@@ -253,7 +253,7 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 | HOME · HOME twice | The next page: GEN → TRACK → ARRANGE (the tabs at the top) · the patterns |
 | GLO held | The second layer: parts, mutate, the second four macros |
 | Black keys 1–4 | Select drums, sub, chords, upper |
-| Black keys 5–8 | Mute / unmute drums, sub, chords, upper |
+| Black keys 5–8 · GLO + 5–8 | Mute / unmute drums, sub, chords, upper · solo that track (again: every track back) |
 | Black keys 9, 10 · 11 | The bar back and on · mute the selected track |
 | White keys | The selected track's steps: tap one on or off; hold one for its values. On ARRANGE, W1–W6 queue a part |
 | GLO + W1–W4 · W5 | Mutate rhythm, pitch, velocity, length · all four |
