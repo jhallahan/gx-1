@@ -266,7 +266,7 @@ static void dev_sysex(void)
         case 0x15: res = gxb_undo(); break;
         case 0x16: res = gxb_redo(); break;
         case 0x17: res = n >= 6u ? gxb_macro(p[4], p[5]) : -1; break;
-        case 0x18: res = n >= 5u ? gxb_set_map(p[4] ? GX_MAP_GM : GX_MAP_TONVERK_SPLIT) : -1; break;
+        case 0x18: res = n >= 5u ? gxb_set_map(p[4] ? GX_MAP_GM : GX_MAP_TONVERK) : -1; break;
         }
         dev_put(r + 5, res < 0 ? 0x7FFFFFFFu : (uint32_t)res);
         dev_reply(r, 0x10, 1);

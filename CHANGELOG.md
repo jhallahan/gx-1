@@ -6,6 +6,10 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **The drums are one Tonverk kit** (engine 676ff4d): every drum on channel 1, Subtracks 1–8 on notes 60–67 (kick,
+  snare, clap, closed hat, open hat, ride, perc 1, perc 2). Tonverk OS 1.5 gives each subtrack its own sends, so the
+  kit no longer needs a second track. Kick B plays the kick and the ghost the snare; where two would overlap, the
+  louder plays. The kit was on channel 2: move it to track 1's kit.
 - **Solo** (GLO + black keys 5–8 on the GEN pages): that track alone; the same again on the track alone brings
   every track back.
 - **Fills on demand.** Hold PLAY while it plays: every style has its own fill over the end of each bar (rolls and

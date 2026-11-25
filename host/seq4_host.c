@@ -811,7 +811,7 @@ static int script_line(const char *line, const char *dir, int lineno, int *fails
         else if (!strcmp(a, "macro")) res = gxb_macro(atoi(b), atoi(c));
         else if (!strcmp(a, "undo")) res = gxb_undo();
         else if (!strcmp(a, "redo")) res = gxb_redo();
-        else if (!strcmp(a, "map")) res = gxb_set_map(!strcmp(b, "gm") ? GX_MAP_GM : GX_MAP_TONVERK_SPLIT);
+        else if (!strcmp(a, "map")) res = gxb_set_map(!strcmp(b, "gm") ? GX_MAP_GM : GX_MAP_TONVERK);
         else if (!strcmp(a, "dump")) {
             char path[512];
             snprintf(path, sizeof path, "%s/%s", dir, b);

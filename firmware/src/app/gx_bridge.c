@@ -28,7 +28,7 @@ static gx_event_t gxb_ev[GXB_MAXEV];
 static gx_comp_t gxb_comp;
 static gx_history_t gxb_hist;
 static int gxb_ok;
-static gx_map_id_t gxb_map = GX_MAP_TONVERK_SPLIT;
+static gx_map_id_t gxb_map = GX_MAP_TONVERK;
 static uint32_t gxb_last_n;                    /* events in the last render (status) */
 static gx_harmony_t gxb_harm;                  /* the last render's chords, per bar (the GEN page shows them) */
 static int gxb_harm_ok;
@@ -174,7 +174,7 @@ static int gxb_apply(void)
     if (!map || gx_render(&gxb_comp, map, &r) != 0 || r.dropped)
         return -1;
     gxb_last_n = r.n;
-    for (l = 0; l < (int)GX_NLANE; l++) {      /* the drum map: kicks and kit where the map says */
+    for (l = 0; l < (int)GX_NLANE; l++) {      /* the drum map: each sound where the map says */
         s4_dm_note[l] = map->lane_note[l];
         s4_dm_ch[l] = map->lane_ch[l];
     }

@@ -7,15 +7,16 @@
 
 /* ---- output maps ---- */
 
-/* Tonverk split (ADR-016/018): kicks on channel 1 (T1 Subtracks), kit on channel 2 (T2 Subtracks),
- * sub 5, chords 7, upper 8 (channels are 0-based here).
- * PLACEHOLDER notes: which note plays which Tonverk subtrack is test TV2 (still open);
- * middle C is 60 on the Tonverk (owner-confirmed), so subtracks are assumed at 60.. until measured. */
+/* Tonverk (ADR-016/018): every drum on channel 1, one Subtracks kit on T1 (Tonverk OS 1.5 gives each
+ * subtrack its own sends, so the kit needs no second track); sub 5, chords 7, upper 8 (0-based here).
+ * The 8 subtracks on notes 60-67 (middle C 60, owner-confirmed; subtracks in order, confirmed playing):
+ * kick, snare, clap, closed hat, open hat, ride, perc 1, perc 2. The 10 lanes fit as kick B on the kick
+ * (they almost never meet) and the ghost on the snare (a quiet snare). */
 static const gx_outmap_t map_tonverk = {
     { 0, 4, 6, 7 },
-    { 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
-    { 60, 61, 60, 61, 62, 63, 64, 65, 66, 67 },
-    "tonverk-split"
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 60, 60, 61, 61, 62, 63, 64, 65, 66, 67 },
+    "tonverk"
 };
 
 /* General MIDI / Ableton Drum Rack: all drums on channel 10 */
@@ -30,7 +31,7 @@ static const gx_outmap_t map_gm = {
 const gx_outmap_t *gx_outmap(gx_map_id_t id)
 {
     switch (id) {
-    case GX_MAP_TONVERK_SPLIT: return &map_tonverk;
+    case GX_MAP_TONVERK: return &map_tonverk;
     case GX_MAP_GM: return &map_gm;
     default: return NULL;
     }
@@ -308,6 +309,49 @@ static void harmony_from(const gx_recipe_t *chords, const gx_comp_t *c, gx_harmo
         gx_harmony_build(chords, c, p, h);
 }
 
+/* lanes the map sends to one sound (the Tonverk kit: kick B on the kick, the ghost on the snare): where two of
+ * their hits overlap, only the louder plays (on one subtrack they would retrigger it and cut each other off).
+ * Hits that never play together (the fill's and the ones it takes out) are left. Only drops drums, after the
+ * context is built, so the other roles hear the same drums under every map. */
+static void merge_shared_lanes(const gx_outmap_t *map, gx_render_t *o)
+{
+    uint8_t shared[GX_NLANE];
+    uint32_t i, j, n = 0;
+    int a, b, any = 0;
+    for (a = 0; a < (int)GX_NLANE; a++) {
+        shared[a] = 0;
+        for (b = 0; b < (int)GX_NLANE; b++)
+            if (a != b && map->lane_ch[a] == map->lane_ch[b] && map->lane_note[a] == map->lane_note[b])
+                shared[a] = any = 1;
+    }
+    if (!any)
+        return;
+    for (i = 0; i < o->n; i++) {
+        gx_event_t *x = &o->ev[i];
+        if (x->role != GX_ROLE_DRUMS || x->lane >= GX_NLANE || !shared[x->lane] || !x->vel)
+            continue;
+        for (j = i + 1; j < o->n; j++) {
+            gx_event_t *y = &o->ev[j];
+            if (y->role != GX_ROLE_DRUMS || y->lane >= GX_NLANE || y->lane == x->lane || !y->vel ||
+                map->lane_ch[y->lane] != map->lane_ch[x->lane] || map->lane_note[y->lane] != map->lane_note[x->lane])
+                continue;
+            if (!(x->t < y->t + y->len && y->t < x->t + x->len))
+                continue;
+            if ((x->cond == GX_COND_FILL && y->cond == GX_COND_NFILL) || (x->cond == GX_COND_NFILL && y->cond == GX_COND_FILL))
+                continue;
+            if (y->vel > x->vel) {
+                x->vel = 0;
+                break;
+            }
+            y->vel = 0;
+        }
+    }
+    for (i = 0; i < o->n; i++)
+        if (o->ev[i].vel)
+            o->ev[n++] = o->ev[i];
+    o->n = n;
+}
+
 static gx_comp_t comp_b;   /* Main B with contrast: the composition with its B seeds */
 int gx_render(const gx_comp_t *c, const gx_outmap_t *map, gx_render_t *out)
 {
@@ -341,6 +385,7 @@ int gx_render(const gx_comp_t *c, const gx_outmap_t *map, gx_render_t *out)
 
     /* the dependency chain: drums -> context; chords recipe -> harmony; then chords, sub, upper */
     gx_ctx_build(out, c->bars, &ctx_buf);
+    merge_shared_lanes(map, out);
     if (pr[GX_ROLE_CHORDS])
         gx_harmony_build(&c->r[GX_ROLE_CHORDS], c, pr[GX_ROLE_CHORDS], &harm_buf);
     else if (pr[GX_ROLE_SUB])

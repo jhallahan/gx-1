@@ -98,26 +98,30 @@ Tonverk, and work with any DAW:
 
 | Track | MIDI channel | Notes |
 |---|---|---|
-| **Drums**: kicks | 1 | 60 kick A, 61 kick B |
-| **Drums**: the kit | 2 | 60 snare, 61 ghost, 62 clap, 63 closed hat, 64 open hat, 65 ride, 66–67 percussion |
+| **Drums**: one kit | 1 | 60 kick (kick A and kick B), 61 snare (snare and ghost), 62 clap, 63 closed hat, 64 open hat, 65 ride, 66–67 percussion |
 | **Sub** | 5 | the bass line |
 | **Chords** | 7 | the chords |
 | **Upper** | 8 | the lead, arpeggio or motif (its name changes by style: Mid, Arp or Motif) |
 
+The drums are one **Subtracks** kit on Tonverk track 1: since Tonverk OS 1.5 each subtrack has its own sends, so
+the kick needs no track of its own for the sidechain. Its eight subtracks are notes 60–67 in order. Ten drum sounds
+fit eight: kick B plays the kick and the ghost the snare, and where two of them would land on top of each other,
+only the louder plays.
+
 ### With Ableton Live
 
 1. In **Settings > Link, Tempo & MIDI**, turn on **Track** (and **Remote** if you like) for the input **GX-1 A**.
-2. Make five MIDI tracks. Set each one's **MIDI From** to *GX-1 A*, with channels 1, 2, 5, 7 and 8, and its
+2. Make four MIDI tracks. Set each one's **MIDI From** to *GX-1 A*, with channels 1, 5, 7 and 8, and its
    **Monitor** to *In*.
-3. On the channel 1 and 2 tracks, a Drum Rack with pads on C3 and up (note 60 is C3 in Live).
+3. On the channel 1 track, a Drum Rack with pads on C3 and up (note 60 is C3 in Live).
 4. To pass it on to a Tonverk or other hardware: set each track's **MIDI To** to the hardware's port and
    channel. GX-1 runs on its own clock. Live can follow it, or send clock to the Tonverk itself.
 
 ### Straight into the Tonverk
 
 With **USB host** on (section 14), the FM-1 plays the Tonverk over USB with no computer: FM-1 → a USB-C to USB-A
-adapter → a **powered** USB hub → USB-A to USB-C cable → the Tonverk. GX-1's channels already suit it (kicks 1,
-kit 2, sub 5, chords 7, upper 8). The TRS jack on the FM-1 is MIDI **in** only.
+adapter → a **powered** USB hub → USB-A to USB-C cable → the Tonverk. GX-1's channels already suit it (the drums
+1, sub 5, chords 7, upper 8). The TRS jack on the FM-1 is MIDI **in** only.
 
 ## 4. The GEN page
 

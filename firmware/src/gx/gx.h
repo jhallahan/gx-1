@@ -185,7 +185,7 @@ typedef struct {
     const char *name;
 } gx_outmap_t;
 
-typedef enum { GX_MAP_TONVERK_SPLIT = 0, GX_MAP_GM, GX_NMAP } gx_map_id_t;
+typedef enum { GX_MAP_TONVERK = 0, GX_MAP_GM, GX_NMAP } gx_map_id_t;
 
 /* ---- API ---- */
 
