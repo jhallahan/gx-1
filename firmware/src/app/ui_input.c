@@ -799,6 +799,10 @@ static void key_down(int k)
         gen_key_down(k);
         return;
     }
+    if (ui.view == V_PULSE) {
+        pulse_key_down(k);
+        return;
+    }
     if (ui.view == V_KEYS) {
         keys_down(k);
         return;
@@ -843,6 +847,8 @@ static void key_up(int k)
         gen_key_up(k);
         return;
     }
+    if (ui.view == V_PULSE)
+        return;
     if (ui.view == V_KEYS) {
         keys_up(k);
         return;
@@ -962,6 +968,8 @@ static void btn_down(int b)
     if (b != B_GLO && sh)
         ui.btn_used |= 1u << B_GLO;
     if (ui.view == V_GEN && !ui.menu && gen_btn_down(b))
+        return;
+    if (ui.view == V_PULSE && !ui.menu && pulse_btn_down(b))
         return;
     switch (b) {
     case B_PLAY: play_down(); break;
@@ -1097,6 +1105,11 @@ static void btn_tap(int b)                       /* let go, unused */
 {
     uint32_t now = plat_ms();
     int dtap = now - ui.up_t[b] < DTAP_MS;
+    if (ui.view == V_PULSE && !ui.menu && !ui.help && pulse_btn_tap(b)) {
+        ui.rec_tap = 0;
+        ui.up_t[b] = now;
+        return;
+    }
     if (ui.view == V_GEN && !ui.menu && !ui.help && gen_btn_tap(b)) {
         ui.rec_tap = 0;
         ui.up_t[b] = now;
@@ -1204,7 +1217,9 @@ static void hold_tick(void)
         if (b != 1u << i || (ui.btn_used & b) || (int32_t)(ui.turn_t - ui.down_t[i]) > 0)
             continue;
         if (ui.view == V_GEN && i != B_HOME && i != B_SAVE && i != B_PLAY)
-            continue;                            /* GX-1's GEN page: GLO is the shift layer (parts, mutate),
+            continue;
+        if (ui.view == V_PULSE)
+            continue;                            /* Pulse: no help cards, setup or patterns held */                            /* GX-1's GEN page: GLO is the shift layer (parts, mutate),
                                                     not setup; and SEQ-4's help cards describe the grid */
         if (i == B_GLO && now - ui.down_t[i] >= SETUP_MS) {
             open_menu(MN_SETUP);
@@ -1326,6 +1341,10 @@ static void knob(int k, int32_t e)
         gen_knob(k, e);
         return;
     }
+    if (ui.view == V_PULSE) {
+        pulse_knob(k, e);
+        return;
+    }
     if (shift() && !ui.held) {
         shift_knob(k, e);
         return;
@@ -1401,6 +1420,8 @@ static void input(void)
     if ((e = plat_enc(EN_ALGO)) != 0) {          /* the sequencer (GLO: the track) */
         if (ui.view == V_GEN && !ui.menu) {
             gen_enc(EN_ALGO, e);
+        } else if (ui.view == V_PULSE && !ui.menu) {
+            pulse_enc(EN_ALGO, e);
         } else if (shift()) {
             set_trk(trk() + (e > 0 ? 1 : -1));
             ui.btn_used |= 1u << B_GLO;
@@ -1408,7 +1429,10 @@ static void input(void)
             set_sel(sel() + (e > 0 ? 1 : -1));
         ui.turn_t = ui.act_t = now;
     }
-    if ((e = plat_enc(EN_PRESET)) != 0 && ui.view == V_GEN && !ui.menu) {
+    if ((e = plat_enc(EN_PRESET)) != 0 && ui.view == V_PULSE && !ui.menu) {
+        pulse_enc(EN_PRESET, e);
+        ui.turn_t = ui.act_t = now;
+    } else if (e != 0 && ui.view == V_GEN && !ui.menu) {
         gen_enc(EN_PRESET, e);                   /* GX-1: the seed */
         ui.turn_t = ui.act_t = now;
     } else if (e != 0) {                         /* its pattern: in when the knob rests */
@@ -1429,6 +1453,8 @@ static void input(void)
             ui.page = (uint8_t)((ui.page + n + d) % n);
         } else if (ui.view == V_GEN) {
             gen_enc(EN_SELECT, e);
+        } else if (ui.view == V_PULSE) {
+            pulse_enc(EN_SELECT, e);
         } else if (ui.view == V_SONG) {
             ui.slot = (uint8_t)clampi(ui.slot + d, 0, S4_NSLOT - 1);
         } else if (ui.view == V_MOD) {
@@ -1596,6 +1622,8 @@ static void leds(void)
     }
     if (ui.view == V_GEN && s4g.leds)
         gen_leds(&b, &k);
+    if (ui.view == V_PULSE && s4g.leds)
+        pulse_leds(&b, &k);
     if (s4g.leds == 2)
         b = 0;
     plat_glow(s4g.glow);

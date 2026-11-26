@@ -6,6 +6,9 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Pulse mode** (GLO + SEQ): the phone player's pulse sequencer (TS-1) on the FM-1. Sixteen rings of Euclidean
+  pulses, 1–8 on the Tonverk kit (channel 1, notes 60–67), bass on 5, chords on 7, leads on 8. One plays at a time;
+  GEN's parts run on unheard and come back in place. The song is not saved yet.
 - **Fix: a start or stop that comes over USB is no longer sent back.** Following a Tonverk's clock, GX-1 sent its Start
   (and, if already playing, a Stop and a Start) straight back over USB, restarting the Tonverk a moment in. It still
   sends them for its own PLAY, and passes on a start from the TRS jack.

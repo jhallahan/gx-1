@@ -113,8 +113,11 @@ static uint8_t tok_new(void)
         tokc = 2;
     return tokc;
 }
+static uint8_t seq_quiet;       /* Pulse mode: the four sequencers run on, unheard (their note-offs still go) */
 static void out3(int port, int st, int d1, int d2)
 {
+    if (seq_quiet && (st & 0xF0) != 0x80)
+        return;
     s4p.events++;
     s4_out((uint32_t)port & 3u, (uint32_t)st, (uint32_t)d1 & 0x7Fu, (uint32_t)d2 & 0x7Fu);
 }
@@ -346,6 +349,7 @@ static int32_t ms_units(int ms) { return (int32_t)((int64_t)ms * s4p.tempo * (in
 #include "s4_arp.c"
 #include "s4_rec.c"
 #include "s4_edit.c"
+#include "s4_pulse.c"
 
 /* --------------------------------------------------------------------------------- transport --- */
 static void send_transport(int st)
@@ -436,6 +440,7 @@ static void play_stop(int pause)
     for (s = 0; s < S4_NSEQ; s++)
         q_flush(s);
     send_transport(0xFC);
+    pulse_stop();
     rec_stop();
     if (!pause)
         all_off();
@@ -793,6 +798,7 @@ void s4_tick(uint32_t us)
         }
     metronome(prev, gpos);
     boundaries(prev);
+    seq_quiet = s4_pulse_on;                   /* Pulse mode: GX-1's parts keep their place, unheard */
     for (s = 0; s < S4_NSEQ; s++) {
         rt_t *r = &rt[s];
         int32_t b = s4[s].bend;
@@ -808,7 +814,14 @@ void s4_tick(uint32_t us)
         arp_run(s);
         q_fire(s);
     }
+    seq_quiet = 0;
+    if (s4_pulse_on)                           /* Pulse mode: the pulse song plays instead */
+        pulse_run(prev, gpos);
+    else if (npoff)
+        pulse_stop();
+    seq_quiet = s4_pulse_on;
     lfo_tick(us, 1);
+    seq_quiet = 0;
 }
 
 void s4_init(void)

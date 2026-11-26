@@ -1118,6 +1118,11 @@ static int gen_btn_down(int b)
         }
         return 1;
     }
+    if (b == B_SEQ && shift()) {                 /* GLO + SEQ: Pulse mode (ui_pulse.c) */
+        ui.btn_used |= 1u << b | 1u << B_GLO;
+        pu_enter();
+        return 1;
+    }
     if (b == B_FX && shift()) {                  /* GLO + FX: re-roll the selected track */
         ui.btn_used |= 1u << b | 1u << B_GLO;
         gn_reroll();

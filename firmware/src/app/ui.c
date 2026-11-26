@@ -17,7 +17,7 @@
 #include <stddef.h>
 #include "../seq/fastmath.h"
 
-enum { V_GRID, V_KEYS, V_MOD, V_PATS, V_SONG, V_GEN };
+enum { V_GRID, V_KEYS, V_MOD, V_PATS, V_SONG, V_GEN, V_PULSE };
 enum { MN_NONE, MN_DIV, MN_LOOP, MN_RANDP, MN_RANDG, MN_EUCLID, MN_DRUMS, MN_LFO, MN_ARP, MN_SEQ, MN_TRACK,
        MN_MODSET, MN_MAP, MN_REC, MN_SETUP, MN_NUDGE, MN_LANE, MN_SLOT, MN_MASTER, MN_N };
 
@@ -1680,6 +1680,17 @@ static void gen_init(void);
 static void draw_gen(void);
 static uint8_t ui_boot_view = V_GEN;       /* the view at start (the host simulator's SEQ-4 scenarios: the grid) */
 static int gen_left(void);
+/* GX-1's Pulse mode (ui_pulse.c) */
+static int pulse_left(void);
+static void pulse_key_down(int k);
+static int pulse_btn_down(int b);
+static int pulse_btn_tap(int b);
+static void pulse_enc(int role, int32_t e);
+static void pulse_knob(int k, int32_t e);
+static void pulse_leds(uint32_t *bp, uint32_t *kp);
+static void draw_pulse(void);
+static void pu_enter(void);
 #include "ui_input.c"
 #include "ui_draw.c"
 #include "ui_gen.c"
+#include "ui_pulse.c"

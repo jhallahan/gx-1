@@ -1,0 +1,49 @@
+# Pulse mode (ui_pulse.c, seq/s4_pulse.c): GLO + SEQ switches the box between GEN and Pulse; one plays at a time
+wait 300
+expect view 5
+press GLO
+tap SEQ
+release GLO
+wait 300
+expect view 6
+shot pulse_start.png
+# only the kick: the snare, the closed hat and bass 1 off (GLO + their keys)
+press GLO
+tapkey w1
+tapkey w3
+tapkey w8
+release GLO
+wait 200
+tap PLAY
+wait 1500
+expect playing 1
+expect last_port 0
+expect last_note 60
+shot pulse_kick.png
+# the kick on 1 (0-based 0): the Tonverk kit's first subtrack
+until last_ch 0 200
+# the clap (W3) chosen and on, its pulses turned up
+tapkey w2
+press GLO
+tapkey w2
+release GLO
+turn K2 5
+wait 1200
+until last_note 62 1000
+shot pulse_clap.png
+# the pages: SEL steps Rhythm, Feel, Sound, Melody
+tap SEL
+tap SEL
+wait 200
+shot pulse_sound.png
+tap SEL
+tap SEL
+# back to GEN: the view, and Pulse's notes ended
+press GLO
+tap SEQ
+release GLO
+wait 400
+expect view 5
+tap PLAY
+wait 300
+expect playing 0

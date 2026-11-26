@@ -22,6 +22,7 @@ This manual covers version 0.2.
 12. [Going back, and recovery](#12-going-back-and-recovery)
 13. [Troubleshooting](#13-troubleshooting)
 14. [USB host: a synth or keyboard on the FM-1's USB](#14-usb-host-a-synth-or-keyboard-on-the-fm-1s-usb)
+15. [Pulse mode: rings of pulses](#15-pulse-mode-rings-of-pulses)
 
 ## 1. Getting started in five minutes
 
@@ -256,6 +257,7 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 | SEQ | The grid (SEQ-4), to edit by hand. HOME comes back |
 | HOME · HOME twice | The next page: GEN → TRACK → ARRANGE (the tabs at the top) · the patterns |
 | GLO held | The second layer: parts, mutate, the second four macros |
+| GLO + SEQ | Pulse mode ([section 15](#15-pulse-mode-rings-of-pulses)); GLO + SEQ again comes back |
 | Black keys 1–4 | Select drums, sub, chords, upper |
 | Black keys 5–8 · GLO + 5–8 | Mute / unmute drums, sub, chords, upper · solo that track (again: every track back) |
 | Black keys 9, 10 · 11 | The bar back and on · mute the selected track |
@@ -326,6 +328,46 @@ device (most mice). No SysEx goes either way while hosting.
 
 The USB host is felucca-bsp's, ported there from Melodee. It is tested against a model of the bus, not yet on a
 Tonverk: tell us how it goes.
+
+
+## 15. Pulse mode: rings of pulses
+
+Pulse is the phone player's pulse sequencer on the FM-1: sixteen tracks, each a ring of steps with its pulses
+spread as evenly as they go (Euclidean), turned by a rotation, on its own division. **GLO + SEQ** switches the
+whole box between GEN and Pulse; one plays at a time. GEN's parts carry on unheard while Pulse plays, so they come
+back in place.
+
+![Pulse mode: the rings, the clap chosen](img/gx1-pulse.png)
+
+The tracks start set for the Tonverk kit, as GX-1's drums:
+
+| Tracks | Channel | Notes |
+|---|---|---|
+| 1–8: kick, snare, clap, closed hat, open hat, ride, perc 1, perc 2 | 1 | 60–67, the kit's eight subtracks |
+| 9–10: bass | 5 | walk the scale from C2 |
+| 11–12: chords | 7 | three notes stacked in thirds |
+| 13–16: leads | 8 | walk the scale from C4 |
+
+It starts with a kick, a backbeat, closed hats and a bass line playing. The screen shows a ring for each track
+that's on (and the one chosen), the outermost first: the pulses as dots (accents bigger), the step playing in
+white, the chosen ring in its colour. Below: the chosen track, and the four settings the knobs turn.
+
+| Control | In Pulse mode |
+|---|---|
+| White keys · GLO + white key | Choose a track · that track on / off |
+| K1–K4 | The page's four settings |
+| SEL · GLO + SEL | The next page · the one before: **Rhythm** (steps, pulses, rotate, division), **Feel** (repeats, accent, chance, loose), **Sound** (note, channel, velocity, length), **Melody** (phrase, range, voices, follow the chords; melodic tracks) |
+| ALGORITHM | The track (round the sixteen) |
+| PRESETS | The scale |
+| OCT− · OCT+ | The key down · up |
+| SELECT | The tempo |
+| ENV | The chosen track on / off |
+| FX | New pulses for the chosen track (how many, and where they start) |
+| EDIT | The chosen track cleared (no pulses, off) |
+| PLAY | Play / stop, as everywhere; the clock settings are the same |
+| GLO + SEQ | Back to GEN |
+
+Pulse's song is not saved yet: it starts fresh at every power-on, and keeps what you did while it stays on.
 
 ---
 
