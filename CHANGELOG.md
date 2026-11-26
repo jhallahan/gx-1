@@ -6,6 +6,8 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Fix: a first start played SEQ-4's demo** (drums on channel 10) until a first idea was made. With nothing of
+  GX-1's saved, it now makes one on the GEN page as it starts, so PLAY or a DAW's start plays channels 1, 5, 7 and 8.
 - **Fix: following a DAW, only the first start played.** A DAW's clock stops with its transport; after half a
   second GX-1 went back to its own tempo, and the next Start (armed for its first clock) was timed out again before
   that clock came. The "clock still coming" check now counts the start and stop too.

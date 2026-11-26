@@ -1,0 +1,14 @@
+# nothing saved (a first start, or another firmware's save): GX-1 makes a first idea on the GEN page, so PLAY (or a
+# DAW's start) plays its parts on 1, 5, 7 and 8, not SEQ-4's demo (drums on 10)
+wait 500
+expect view 5
+tap PLAY
+wait 3000
+expect playing 1
+expect chnotes10 0
+expect chnotes1 >3
+expect chnotes5 >0
+expect chnotes7 >0
+tap PLAY
+wait 300
+expect playing 0

@@ -181,11 +181,14 @@ void project_demo(void)
 }
 
 /* --------------------------------------------------------------------------- loading, saving --- */
+int project_was_demo;
 int project_load(void)
 {
     int s, n;
+    project_was_demo = 0;
     if (plat_log_load(KEY_PROJ, &proj, sizeof proj) != (int)sizeof proj || proj.magic != PROJ_MAGIC ||
         proj.format != PROJ_FORMAT) {
+        project_was_demo = 1;
         project_demo();
         for (s = 0; s < S4_NSEQ; s++)          /* the demo in its slots too: pattern 1 of each */
             project_save_pattern(s, 0);

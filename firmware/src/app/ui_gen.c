@@ -42,6 +42,7 @@ static struct {
     uint8_t fam_style[16];             /* the style last used in each family (+1; 0: its first) */
     uint32_t seed;
     uint8_t gpend, spend;              /* ALGORITHM / PRESETS turned: a new idea when it rests */
+    uint8_t first;                     /* nothing of ours was saved: a first idea at the first frame */
     uint32_t gpend_t, spend_t;
     uint8_t mac[GX_NMACRO];            /* the macros as turned (applied when the knob rests) */
     uint8_t mpend;                     /* bit per macro: turned, not applied yet */
@@ -1245,6 +1246,11 @@ static void gen_service(void)
     uint32_t now = plat_ms();
     int m;
     gn_midi_service();                           /* a controller on channel 16 */
+    if (gen.first) {
+        gen.first = 0;
+        if (ui.view == V_GEN && !gxb_ok)
+            gn_ensure();
+    }
     if (gen.perf && !btn_held(B_FX))             /* FX let go: perform ends, whatever is still held */
         gn_perf_off();
     if (gen.gpend && now - gen.gpend_t > 700u) {
@@ -1326,6 +1332,9 @@ static void gen_init(void)
     gen.genre = GX_GENRE_BREAKS;
     s4_gx_ch = 16;                               /* GX-1 listens on channel 16 (docs/GX1_MIDI.md) */
     gen.seed = 1;
+    /* nothing of ours saved (a first start, or another firmware's save): a first idea, so that PLAY (or a DAW's
+       start) plays GX-1 on its channels, not SEQ-4's demo (drums on channel 10). A saved project is kept. */
+    gen.first = (uint8_t)project_was_demo;       /* (made at the first frame, on the GEN page: gen_service) */
 }
 
 static int gen_left(void)                        /* the page was on screen: it is not now */

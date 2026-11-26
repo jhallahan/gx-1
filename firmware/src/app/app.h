@@ -39,6 +39,7 @@ extern proj_t proj;
 
 void project_demo(void);                 /* the factory project: four sequencers with something in them */
 int project_load(void);                  /* 0: loaded; else the demo */
+extern int project_was_demo;             /* the last load found nothing of ours saved: the demo */
 int project_save_all(void);              /* the project, the sequencers as they are (not their patterns) */
 int project_save_pattern(int s, int pat);   /* s4[s] into its slot (and as it is): 0 ok */
 int project_load_pattern(int s, int pat);   /* a slot into the staging buffer, queued: 0 ok, 1 empty */
