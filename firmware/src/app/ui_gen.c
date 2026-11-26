@@ -43,6 +43,8 @@ static struct {
     uint32_t seed;
     uint8_t gpend, spend;              /* ALGORITHM / PRESETS turned: a new idea when it rests */
     uint8_t first;                     /* nothing of ours was saved: a first idea at the first frame */
+    uint8_t hpend, hprog, hbpc;        /* TRACK, Chords: PRESETS turned (the progression, GLO: the chord length) */
+    uint32_t hpend_t;
     uint32_t gpend_t, spend_t;
     uint8_t mac[GX_NMACRO];            /* the macros as turned (applied when the knob rests) */
     uint8_t mpend;                     /* bit per macro: turned, not applied yet */
@@ -135,13 +137,35 @@ static void gn_key_text(char *t, int full)        /* "F#m" / "F# minor" */
     scat(t, full ? F[gn_scale()] : S[gn_scale()], 16);
 }
 static int gn_semi(int d) { return GN_SCALE[gn_scale()][d % 7] + 12 * (d / 7); }
-static void gn_numeral(int bar, char *t)          /* the scale's own triad on the bar's degree: i, VI, ii° */
+static void gn_deg_numeral(int d, char *t)       /* the scale's own triad on a degree: i, VI, ii° */
 {
     static const char *const U[7] = {"I", "II", "III", "IV", "V", "VI", "VII"}, *const L[7] = {"i", "ii", "iii", "iv", "v", "vi", "vii"};
-    int d = gxb_harm.deg[bar & 31] % 7, third = gn_semi(d + 2) - gn_semi(d), fifth = gn_semi(d + 4) - gn_semi(d);
+    int third, fifth;
+    d %= 7;
+    third = gn_semi(d + 2) - gn_semi(d);
+    fifth = gn_semi(d + 4) - gn_semi(d);
     scopy(t, third == 3 ? L[d] : U[d], 8);
     if (third == 3 && fifth == 6)
         scat(t, "o", 8);
+}
+static void gn_numeral(int bar, char *t) { gn_deg_numeral(gxb_harm.deg[bar & 31], t); }
+static int gn_nprog(void) { const gx_genre_prof_t *p = gn_prof(); return p ? p->harm.nprog : 0; }
+static void gn_prog_text(int prog, char *t)       /* "AUTO", or the style's progression: "i VI III VII" */
+{
+    const gx_genre_prof_t *p = gn_prof();
+    char n[8];
+    int k;
+    if (!p || prog < 1 || prog > (int)p->harm.nprog) {
+        scopy(t, "AUTO", 32);
+        return;
+    }
+    t[0] = 0;
+    for (k = 0; k < (int)p->harm.prog_len[prog - 1] && k < (int)GX_PROGLEN; k++) {
+        gn_deg_numeral(p->harm.prog[prog - 1][k], n);
+        if (k)
+            scat(t, " ", 32);
+        scat(t, n, 32);
+    }
 }
 static void gn_chord_text(int bar, char *t)       /* "Dmaj7", "F#m9" */
 {
@@ -665,7 +689,25 @@ static void gn_track_strip(void)                 /* MUTATE: how many used, the k
         else
             frame(x + i * 9, 181, 6, 6, GN_OFF);
     text_r(232, 176, &FONT_XS, s4[s].mute ? "MUTED" : gn_locked(s) ? "LOCKED" : "", GN_ACC);
-    cv_text(7, 196, &FONT_XS, "SEL all  GLO+FX re-roll", GN_MUTED);
+    if (sel() == GX_ROLE_CHORDS && gxb_ok) {      /* the harmony chosen: PRESETS (GLO: the chord length) */
+        char t[48], n[8];
+        scopy(t, "PRESETS ", 48);
+        if (gxb_comp.prog) {
+            char p[32];
+            gn_prog_text(gxb_comp.prog, p);
+            scat(t, p, 48);
+        } else
+            scat(t, "AUTO", 48);
+        scat(t, "  ", 48);
+        if (gxb_comp.bpc) {
+            itoa_u(gxb_comp.bpc, n);
+            scat(t, n, 48);
+            scat(t, gxb_comp.bpc == 1 ? " BAR" : " BARS", 48);
+        } else
+            scat(t, "AUTO", 48);
+        cv_text(7, 196, &FONT_XS, t, GN_MUTED);
+    } else
+        cv_text(7, 196, &FONT_XS, "SEL all  GLO+FX re-roll", GN_MUTED);
     gn_info();
 }
 
@@ -816,6 +858,7 @@ static void draw_gen(void)
     h = hash(hash(h, s4[sel()].ch), (uint32_t)gen.pg << 4 | (uint32_t)s4[sel()].mute << 2 | (uint32_t)gn_locked(sel()));
     h = hash(h, (uint32_t)shift() << 9 | (uint32_t)(gxb_ok ? gxb_comp.part : 7u) << 1 | (uint32_t)(s4p.on && s4p.next[0] != 0xFF));
     h = hash(h, gxb_ok ? gxb_comp.r[sel()].mut_n : 0u);
+    h = hash(h, gxb_ok ? (uint32_t)gxb_comp.prog << 8 | gxb_comp.bpc : 0u);
     if (gen.pg == 2)
         h = hash(h, (uint32_t)(gn_playing_step(0) / 16 + 2));
     if (gxb_ok && gxb_harm_ok) {                  /* the chords shown: the key, the progression, the bar playing */
@@ -1184,6 +1227,37 @@ static void gen_enc(int role, int32_t e)
         break;
     }
     case EN_PRESET:
+        if (gen.pg == 1 && sel() == GX_ROLE_CHORDS) {   /* TRACK, Chords: the progression; GLO: the chord length */
+            static const uint8_t BPC[5] = {0, 1, 2, 4, 8};
+            char p[32];
+            int n = gn_nprog(), i;
+            if (gn_ensure())
+                break;
+            if (!gen.hpend) {
+                gen.hprog = gxb_comp.prog;
+                gen.hbpc = gxb_comp.bpc;
+            }
+            if (shift()) {
+                ui.btn_used |= 1u << B_GLO;
+                for (i = 0; i < 5 && BPC[i] != gen.hbpc; i++)
+                    ;
+                gen.hbpc = BPC[(i % 5 + 5 + d) % 5];
+                if (!gen.hbpc)
+                    scopy(p, "AUTO", 32);
+                else {
+                    itoa_u(gen.hbpc, p);
+                    scat(p, gen.hbpc == 1 ? " BAR" : " BARS", 32);
+                }
+                say("CHORD LENGTH", p);
+            } else {
+                gen.hprog = (uint8_t)((gen.hprog + n + 1 + d) % (n + 1));
+                gn_prog_text(gen.hprog, p);
+                say("PROGRESSION", p);
+            }
+            gen.hpend = 1;
+            gen.hpend_t = now;
+            break;
+        }
         gen.seed = (gen.seed + 10000u + (uint32_t)d) % 10000u;
         gen.spend = 1;
         gen.spend_t = now;
@@ -1259,6 +1333,10 @@ static void gen_service(void)
         gen.seed = gn_fresh_seed();             /* a new genre: a fresh starting point */
         if (gn_result(gxb_new(gen.genre, gen.seed), "NEW IDEA") >= 0)
             say(gn_genre_label(gen.genre), "NEW IDEA");
+    }
+    if (gen.hpend && now - gen.hpend_t > 350u) {  /* the progression / chord length: in when PRESETS rests */
+        gen.hpend = 0;
+        gn_result(gxb_harmony(gen.hprog, gen.hbpc), "PROGRESSION");
     }
     if (gen.spend && now - gen.spend_t > 450u) {
         char t[12];

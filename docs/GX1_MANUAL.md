@@ -240,6 +240,11 @@ and the loop drifting from its original for Evolve.
   style resets it, but new ideas and parts don't.
 - **Progression:** select Chords (black key 3). The bottom line shows the progression in Roman numerals
   (`i VII VI VII`), with the chord playing lit.
+- **Choosing the progression:** on the **TRACK** page with Chords selected, turn **PRESETS**: **AUTO** (each idea
+  picks one of the style's), then each of the style's progressions in turn (`i VI III VII`, `i VII VI VII`...).
+  **GLO + PRESETS** sets the chord length: **AUTO**, 1, 2, 4 or 8 bars a chord. They come in when the knob rests,
+  and the page shows them (`PRESETS i VII VI VII  2 BARS`). Both stay through new ideas (a new style starts at
+  AUTO again), and the sub and the upper part follow the chords chosen. EDIT undoes.
 
 ## 10. Every control on the GEN page
 
@@ -267,7 +272,7 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 | GLO + W9–W14 | The six song parts (at the next bar) |
 | K1–K4 · GLO + K1–K4 | The macros. On TRACK, K1–K4 are the selected track's own (grey until turned: it follows GEN) |
 | ALGORITHM · GLO + ALGORITHM | The family · the style in it |
-| PRESETS | The idea number |
+| PRESETS | The idea number. On TRACK with Chords selected: the progression (GLO: the chord length) |
 | SELECT | The tempo |
 | OCT− · OCT+ | The key down · up |
 | REC, SAVE, ARP, LFO | As in SEQ-4 |

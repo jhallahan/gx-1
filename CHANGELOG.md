@@ -6,6 +6,9 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Choose the progression:** on the TRACK page with Chords selected, PRESETS steps through the style's
+  progressions (AUTO: each idea picks), GLO + PRESETS the chord length (AUTO, 1, 2, 4, 8 bars). They stay through new
+  ideas, and the sub and the upper part follow them.
 - **Fix: a first start played SEQ-4's demo** (drums on channel 10) until a first idea was made. With nothing of
   GX-1's saved, it now makes one on the GEN page as it starts, so PLAY or a DAW's start plays channels 1, 5, 7 and 8.
 - **Fix: following a DAW, only the first start played.** A DAW's clock stops with its transport; after half a

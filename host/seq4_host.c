@@ -646,6 +646,14 @@ static int expect(const char *what, const char *val)
         got = gxb_ok ? (int)gxb_comp.lock : -1;
     else if (IS("gx_part"))
         got = gxb_ok ? gxb_comp.part : -1;
+    else if (IS("gx_prog"))
+        got = gxb_ok ? gxb_comp.prog : -1;
+    else if (IS("gx_bpc"))
+        got = gxb_ok ? gxb_comp.bpc : -1;
+    else if (IS("harm_prog"))
+        got = gxb_harm_ok ? gxb_harm.prog : -1;
+    else if (IS("harm_bpc"))
+        got = gxb_harm_ok ? gxb_harm.bpc : -1;
     else if (IS("gx_pg"))
         got = gen.pg;
     else if (PRE("gx_macro"))

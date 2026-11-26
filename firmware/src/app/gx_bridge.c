@@ -311,6 +311,17 @@ static int gxb_key(int key)
     gxb_push();
     return gxb_apply();
 }
+/* the harmony chosen (ADR-034): prog 0 the idea picks, 1..nprog that one of the chords' style; bpc 0 the idea picks,
+   else 1, 2, 4 or 8 bars a chord. Both stay through new ideas (not a new style) and undo. */
+static int gxb_harmony(int prog, int bpc)
+{
+    if (gxb_ready())
+        return -1;
+    gxb_comp.prog = (uint8_t)(prog < 0 || prog > (int)GX_MAXPROG ? 0 : prog);
+    gxb_comp.bpc = (uint8_t)(bpc == 1 || bpc == 2 || bpc == 4 || bpc == 8 ? bpc : 0);
+    gxb_push();
+    return gxb_apply();
+}
 static int gxb_undo(void) { return gxb_ok && gx_hist_undo(&gxb_hist, &gxb_comp) ? gxb_apply() : -1; }
 static int gxb_redo(void) { return gxb_ok && gx_hist_redo(&gxb_hist, &gxb_comp) ? gxb_apply() : -1; }
 static int gxb_set_map(int id)

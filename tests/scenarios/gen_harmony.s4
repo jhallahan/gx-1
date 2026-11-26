@@ -1,0 +1,42 @@
+# TRACK page, Chords selected: PRESETS chooses the style's progression (AUTO, then each), GLO + PRESETS the chord
+# length (AUTO, 1, 2, 4, 8 bars); in when the knob rests; they stay through a new idea; EDIT undoes
+wait 500
+expect view 5
+tapkey b2
+tap HOME
+wait 300
+expect gx_pg 1
+expect gx_prog 0
+turn PRESET 1
+wait 600
+expect gx_prog 1
+expect harm_prog 0
+shot harm_prog1.png
+turn PRESET 1
+wait 600
+expect gx_prog 2
+expect harm_prog 1
+press GLO
+turn PRESET 3
+release GLO
+wait 600
+expect gx_bpc 4
+expect harm_bpc 4
+shot harm_bpc4.png
+# a new idea keeps them
+tap FX
+wait 600
+expect gx_prog 2
+expect gx_bpc 4
+expect harm_prog 1
+# undo: the new idea, then the chord length
+tap EDIT
+wait 300
+tap EDIT
+wait 300
+expect gx_bpc 0
+expect gx_prog 2
+# back to AUTO (round past the last)
+turn PRESET -2
+wait 600
+expect gx_prog 0
