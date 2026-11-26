@@ -646,6 +646,10 @@ static int expect(const char *what, const char *val)
         got = gxb_ok ? (int)gxb_comp.lock : -1;
     else if (IS("gx_part"))
         got = gxb_ok ? gxb_comp.part : -1;
+    else if (IS("gx_genre"))
+        got = gxb_ok ? gxb_comp.r[0].genre : -1;
+    else if (IS("gx_ok"))
+        got = gxb_ok;
     else if (IS("gx_prog"))
         got = gxb_ok ? gxb_comp.prog : -1;
     else if (IS("gx_bpc"))
@@ -868,6 +872,7 @@ static int script_line(const char *line, const char *dir, int lineno, int *fails
     } else if (!strcmp(cmd, "reboot")) {
         memset(&proj, 0, sizeof proj);
         memset(s4, 0, sizeof s4);
+        gxb_ok = 0;                            /* RAM, as on the device: the idea is gone */
         boot();
     } else if (!strcmp(cmd, "bench")) {          /* bench K: a project to measure (as SysEx 02 on the device) */
         seq4_bench(atoi(a));

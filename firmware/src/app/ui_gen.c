@@ -125,6 +125,7 @@ static void gn_seed_text(char *t);
 static int gn_locked(int r) { return gxb_ok && (gxb_comp.lock >> r & 1u); }
 
 /* ---- the key, the chords, the tempo range (ADR-028) ---- */
+#define GN_GLOB_STYLE 0                          /* s4g.rsv[0]: the style last chosen (+1; 0: none), kept with the settings */
 static const char *const GN_NOTE[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
 static const uint8_t GN_SCALE[4][7] = {{0, 2, 3, 5, 7, 8, 10}, {0, 2, 3, 5, 7, 9, 10}, {0, 1, 3, 5, 7, 8, 10}, {0, 2, 4, 5, 7, 9, 11}};
 static const gx_genre_prof_t *gn_prof(void) { return gx_profile((gx_genre_t)(gxb_ok ? gxb_comp.r[GX_ROLE_CHORDS].genre : gen.genre)); }
@@ -1320,10 +1321,15 @@ static void gen_service(void)
     uint32_t now = plat_ms();
     int m;
     gn_midi_service();                           /* a controller on channel 16 */
-    if (gen.first) {
+    if (gen.first) {                             /* the start: every track on, and a new idea in the last style */
         gen.first = 0;
-        if (ui.view == V_GEN && !gxb_ok)
-            gn_ensure();
+        if (ui.view == V_GEN && !gxb_ok) {
+            for (m = 0; m < S4_NSEQ; m++)
+                if (s4[m].mute)
+                    s4_mute(m, 0);
+            if (!gn_ensure())
+                say(gn_genre_label(gen.genre), "NEW IDEA");
+        }
     }
     if (gen.perf && !btn_held(B_FX))             /* FX let go: perform ends, whatever is still held */
         gn_perf_off();
@@ -1331,8 +1337,13 @@ static void gen_service(void)
         gen.gpend = 0;
         gen.spend = 0;
         gen.seed = gn_fresh_seed();             /* a new genre: a fresh starting point */
-        if (gn_result(gxb_new(gen.genre, gen.seed), "NEW IDEA") >= 0)
+        if (gn_result(gxb_new(gen.genre, gen.seed), "NEW IDEA") >= 0) {
             say(gn_genre_label(gen.genre), "NEW IDEA");
+            if (s4g.rsv[GN_GLOB_STYLE] != (uint8_t)(gen.genre + 1)) {   /* the style, for the next start */
+                s4g.rsv[GN_GLOB_STYLE] = (uint8_t)(gen.genre + 1);
+                dirty_g();
+            }
+        }
     }
     if (gen.hpend && now - gen.hpend_t > 350u) {  /* the progression / chord length: in when PRESETS rests */
         gen.hpend = 0;
@@ -1412,7 +1423,9 @@ static void gen_init(void)
     gen.seed = 1;
     /* nothing of ours saved (a first start, or another firmware's save): a first idea, so that PLAY (or a DAW's
        start) plays GX-1 on its channels, not SEQ-4's demo (drums on channel 10). A saved project is kept. */
-    gen.first = (uint8_t)project_was_demo;       /* (made at the first frame, on the GEN page: gen_service) */
+    if (s4g.rsv[GN_GLOB_STYLE] > 1 && s4g.rsv[GN_GLOB_STYLE] <= GX_NGENRE)
+        gen.genre = (uint8_t)(s4g.rsv[GN_GLOB_STYLE] - 1);   /* the style last chosen */
+    gen.first = 1;                               /* a first idea at the first frame, on the GEN page (gen_service) */
 }
 
 static int gen_left(void)                        /* the page was on screen: it is not now */

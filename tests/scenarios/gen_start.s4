@@ -1,0 +1,30 @@
+# at every start: a new idea in the style last chosen, and every track on (mutes from before let go)
+wait 500
+expect view 5
+expect gx_ok 1
+expect gx_genre 2
+# another family (DNB: Deep DnB), the sub muted
+turn ALGO -1
+wait 1200
+expect gx_genre 1
+tapkey b5
+wait 200
+tapkey b1
+expect mute 1
+tapkey b0
+# saved when stopped and idle; then a restart
+wait 4000
+reboot
+wait 600
+expect view 5
+expect gx_ok 1
+expect gx_genre 1
+tapkey b1
+expect mute 0
+tapkey b0
+expect mute 0
+tap PLAY
+wait 4000
+expect chnotes1 >0
+expect chnotes5 >0
+tap PLAY

@@ -13,8 +13,9 @@ Ideas from playing it live, and from other FM-1 firmwares.
 - **Choose the progression:** on the TRACK page with Chords selected, PRESETS steps through the style's
   progressions (AUTO: each idea picks), GLO + PRESETS the chord length (AUTO, 1, 2, 4, 8 bars). They stay through new
   ideas, and the sub and the upper part follow them.
-- **Fix: a first start played SEQ-4's demo** (drums on channel 10) until a first idea was made. With nothing of
-  GX-1's saved, it now makes one on the GEN page as it starts, so PLAY or a DAW's start plays channels 1, 5, 7 and 8.
+- **Every start: a new idea, every track on.** GX-1 starts with a new idea in the style last chosen, and the four
+  tracks unmuted, so PLAY (or a DAW's or a Tonverk's start) plays channels 1, 5, 7 and 8 at once. (Before, it played
+  what was saved, or SEQ-4's demo with its drums on channel 10, until ALGORITHM or FX made an idea.)
 - **Fix: following a DAW, only the first start played.** A DAW's clock stops with its transport; after half a
   second GX-1 went back to its own tempo, and the next Start (armed for its first clock) was timed out again before
   that clock came. The "clock still coming" check now counts the start and stop too.

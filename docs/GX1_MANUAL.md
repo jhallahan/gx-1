@@ -127,7 +127,7 @@ The TRS jack on the FM-1 is MIDI **in** only.
 
 ## 4. The GEN page
 
-GX-1 starts on the GEN page.
+GX-1 starts on the GEN page, with a new idea in the style you last chose and all four tracks on: press PLAY and it plays.
 
 | Area | What it shows |
 |---|---|
