@@ -20,3 +20,38 @@ expect starts_out 1
 tap PLAY
 wait 300
 expect stops_out 1
+# a DAW (Live) as the clock: its clock stops with its transport, and the next start's first clock comes a moment
+# after the start; every start in turn plays (the clock "still coming" check counts the start, not only the clock)
+midi FC 00 00
+wait 300
+midi FA 00 00
+wait 15
+clockin 120 1500
+expect playing 1
+midi FC 00 00
+wait 2000
+expect playing 0
+midi FA 00 00
+wait 15
+clockin 120 1500
+expect playing 1
+midi FC 00 00
+wait 3000
+expect playing 0
+midi FA 00 00
+wait 20
+clockin 120 1000
+expect playing 1
+expect ext 1
+# Live's Song clock type: a song position, then continue
+midi FC 00 00
+wait 1500
+midi F2 10 00
+midi FB 00 00
+wait 15
+clockin 120 1000
+expect playing 1
+expect starts_out 1
+midi FC 00 00
+wait 200
+expect playing 0

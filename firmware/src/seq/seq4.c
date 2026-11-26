@@ -226,6 +226,7 @@ static uint32_t gacc;          /* the tempo's remainder */
 static uint8_t playing, paused;
 static uint32_t now_us;        /* time, for tap tempo and the external clock */
 static uint32_t ext_last_us, ext_iv;
+static uint32_t ext_seen_us;   /* the last clock, start or stop from the source (the clock "still coming" check) */
 static uint32_t ext_target;    /* how far the pulses received allow */
 static uint8_t ext_armed;      /* a start came: the first pulse starts us */
 static uint8_t ext_src;        /* where the clock comes from: cable */
@@ -500,6 +501,7 @@ void s4_midi_in(uint32_t pkt)
     if (st >= 0xF8) {
         if (!clock_from(cable))
             return;
+        ext_seen_us = now_us;                  /* a start after a long stop: armed, not timed out before its clock */
         if (st == 0xF8) {
             ext_src = (uint8_t)cable;
             s4p.ext = 1;
@@ -745,7 +747,7 @@ void s4_tick(uint32_t us)
     }
     if (!s4p.ext || !s4g.clock)
         s4p.tempo = s4g.tempo;
-    if (s4p.ext && now_us - ext_last_us > 500000u) {   /* the clock stopped coming: our own */
+    if (s4p.ext && now_us - ext_seen_us > 500000u) {   /* the clock stopped coming: our own */
         s4p.ext = 0;
         ext_armed = 0;
     }

@@ -6,6 +6,9 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Fix: following a DAW, only the first start played.** A DAW's clock stops with its transport; after half a
+  second GX-1 went back to its own tempo, and the next Start (armed for its first clock) was timed out again before
+  that clock came. The "clock still coming" check now counts the start and stop too.
 - **Pulse mode** (GLO + SEQ): the phone player's pulse sequencer (TS-1) on the FM-1. Sixteen rings of Euclidean
   pulses, 1–8 on the Tonverk kit (channel 1, notes 60–67), bass on 5, chords on 7, leads on 8. One plays at a time;
   GEN's parts run on unheard and come back in place. The song is not saved yet.
