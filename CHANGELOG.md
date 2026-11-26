@@ -6,6 +6,9 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Fix: a start or stop that comes over USB is no longer sent back.** Following a Tonverk's clock, GX-1 sent its Start
+  (and, if already playing, a Stop and a Start) straight back over USB, restarting the Tonverk a moment in. It still
+  sends them for its own PLAY, and passes on a start from the TRS jack.
 - **The drums are one Tonverk kit** (engine 676ff4d): every drum on channel 1, Subtracks 1–8 on notes 60–67 (kick,
   snare, clap, closed hat, open hat, ride, perc 1, perc 2). Tonverk OS 1.5 gives each subtrack its own sends, so the
   kit no longer needs a second track. Kick B plays the kick and the ghost the snare; where two would overlap, the

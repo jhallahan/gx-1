@@ -1,0 +1,22 @@
+# a start / stop that comes over USB (a Tonverk as the clock) is followed, not sent back to it; the player's own PLAY still sends them
+wait 500
+midi FA 00 00
+clockin 125 2000
+expect playing 1
+expect starts_out 0
+midi FA 00 00
+clockin 125 1000
+expect playing 1
+expect starts_out 0
+expect stops_out 0
+midi FC 00 00
+clockin 125 500
+expect playing 0
+expect stops_out 0
+tap PLAY
+wait 500
+expect playing 1
+expect starts_out 1
+tap PLAY
+wait 300
+expect stops_out 1

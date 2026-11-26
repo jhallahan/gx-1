@@ -226,6 +226,7 @@ static uint32_t ext_last_us, ext_iv;
 static uint32_t ext_target;    /* how far the pulses received allow */
 static uint8_t ext_armed;      /* a start came: the first pulse starts us */
 static uint8_t ext_src;        /* where the clock comes from: cable */
+static uint8_t tp_usb;         /* the transport is following a start / stop that came over USB: not sent back */
 static uint32_t ext_frac;
 static uint32_t clk_next;      /* the next clock pulse out */
 static uint32_t tap_t[8];
@@ -350,6 +351,8 @@ static int32_t ms_units(int ms) { return (int32_t)((int64_t)ms * s4p.tempo * (in
 static void send_transport(int st)
 {
     int p;
+    if (tp_usb)                                /* it came over USB: sending it back there restarts the sender */
+        return;
     for (p = 0; p < S4_NPORT; p++)
         if (s4g.clk_out >> p & 1u)
             s4_out((uint32_t)p, (uint32_t)st, 0, 0);
@@ -497,14 +500,17 @@ void s4_midi_in(uint32_t pkt)
             s4p.ext = 1;
             ext_pulse();
         } else if (st == 0xFA && !s4g.start_ign) {
+            tp_usb = (uint8_t)(cable < 4);
             if (playing)
                 play_stop(0);
             ext_armed = 1;
             s4p.ext = 1;
         } else if (st == 0xFB && !s4g.start_ign) {
+            tp_usb = (uint8_t)(cable < 4);
             ext_target = gpos;
             play_start(0);
         } else if (st == 0xFC && !s4g.start_ign) {
+            tp_usb = (uint8_t)(cable < 4);
             play_stop(1);
             ext_armed = 0;
         }
@@ -549,6 +555,7 @@ static void do_cmd(const cmd_t *c)
     int s = c->a & 3;
     switch (c->c) {
     case C_PLAY:
+        tp_usb = 0;                            /* the player's own PLAY / STOP: sent on as set */
         if (c->a) {
             if (!playing && !counting) {
                 if (s4g.count_in && rec_armed()) {       /* the count-in first */
@@ -565,6 +572,7 @@ static void do_cmd(const cmd_t *c)
         }
         break;
     case C_STOPRESET:
+        tp_usb = 0;
         play_stop(0);
         paused = 0;
         break;
