@@ -6,6 +6,10 @@ Each release's notes come from its section here (`tools/release_notes.py`). The 
 
 Ideas from playing it live, and from other FM-1 firmwares.
 
+- **Seventeen new styles** (66 in nine families): Chicago house, Tech house and Filter house (House); Neurofunk and
+  Jump-up (DNB); 2-step, UK funky, Bassline and Grime (Breaks & bass); Jersey club, Dancehall, Baile funk and Gqom
+  (Trap & club); Motorik and EBM (Leftfield); City pop and Hyperpop (Pop & R&B, now ten). Saved projects keep their
+  styles.
 - **Choose the progression:** on the TRACK page with Chords selected, PRESETS steps through the style's
   progressions (AUTO: each idea picks), GLO + PRESETS the chord length (AUTO, 1, 2, 4, 8 bars). They stay through new
   ideas, and the sub and the upper part follow them.

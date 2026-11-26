@@ -149,7 +149,7 @@ extern const gx_genre_prof_t *const gx_profiles[GX_NGENRE];
 typedef struct {
     const char *name;            /* "DNB", "TECHNO" */
     uint8_t n;                   /* styles in it */
-    uint8_t g[8];                /* their genre ids (gx_genre_t) */
+    uint8_t g[12];               /* their genre ids (gx_genre_t) */
 } gx_family_t;
 extern const gx_family_t gx_families[];
 extern const uint32_t gx_nfamily;
