@@ -34,11 +34,6 @@ Ideas from playing it live, and from other FM-1 firmwares.
   club); Progressive house, Afro house and Amapiano; Melodic techno, Hypnotic and Peak time; Industrial,
   Hardgroove, Trance and Psytrance (a new family, Hard & trance, with Acid and Hard); and Synthwave. Saved
   projects keep their styles.
-- **USB host** (Setup > USB host): the FM-1's USB port becomes the host of a USB-MIDI synth or keyboard, with no
-  computer. GX-1's tracks play the device (every port as one, on their channels: straight into a Tonverk), and the
-  device's MIDI comes in as a computer's would. It needs a powered USB hub (the FM-1 gives the port no power);
-  full-speed devices, directly or behind one hub. Off at every power-on, so a computer and the installer always
-  find the FM-1. The host is felucca-bsp's (MPL-2.0), from Melodee; it replaces the experimental USB host probe.
 - **A new style, Deep space** (Leftfield, ~108): cinematic psybient. A soft four-to-the-floor kick under clockwork
   hats (one every three 16ths, one every five, drifting against the bar), pops, a warm offbeat bass, deep dorian
   pads and a cascading arp.

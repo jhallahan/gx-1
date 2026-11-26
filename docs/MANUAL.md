@@ -377,8 +377,7 @@ says how far the follower may jump (an octave or more) and whether it keeps to i
 ## 20. MIDI, the setup, saving
 
 Hold GLO a moment for the **setup**: its pages are Clock, MIDI in, MIDI, Playing, Arp, Harmony, New steps,
-Panel and USB host ([reference](#22-reference-the-menus)). **USB host** (GX-1) makes the USB port the host of a
-USB-MIDI synth or keyboard; see the [GX-1 manual](GX1_MANUAL.md#14-usb-host-a-synth-or-keyboard-on-the-fm-1s-usb).
+and Panel ([reference](#22-reference-the-menus)).
 
 - **Clock:** its own, USB, TRS, or any (it follows a clock when one comes); clock and start / stop out on the
   ports chosen; whether start and stop coming in are obeyed; when patterns change.

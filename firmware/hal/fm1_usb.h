@@ -55,25 +55,6 @@ FM1_INLINE void fm1_usb_attach(void *ep0)
     FM1_USB_CON0 |= 0x3Cu;
 }
 
-/* the port as a USB host (felucca-bsp's, for usb_host.c): EP DMA as the device attach, 15k pull-downs on D+ and D-,
- * PHY on, NRST, VBUS valid (CID 0: the A side, a host). The port gives the device no 5 V: a powered hub or adapter. */
-FM1_INLINE void fm1_usb_host_attach(void *ep0)
-{
-    uint32_t n;
-    FM1_CLK_CON1 &= ~3u;                                /* USB clock = PLL48M */
-    FM1_USB_EP0_ADR = (uint32_t)(uintptr_t)ep0;
-    for (n = 1; n <= 3u; n++)
-        FM1_USB_EP_RADR(n) = (uint32_t)(uintptr_t)ep0;
-    FM1_USB_EP4_RADR = (uint32_t)(uintptr_t)ep0;
-    FM1_USB_CON0 = 0;
-    FM1_USB_CON1 = 0;
-    FM1_USB_IO_CON0 = 0;
-    FM1_USB_IO_CON0 |= (1u << 10) | (1u << 9) | (1u << 5) | (1u << 4);
-    FM1_USB_IO_CON0 &= ~((1u << 11) | (1u << 8));
-    FM1_USB_CON0 |= 0x25u;                              /* PHY_ON | USB_NRST | VBUS */
-}
-/* D+ / D- single-ended levels (CON0 bit 17 / 16): both 0 = nothing attached, else a device pulls one up */
-FM1_INLINE uint32_t fm1_usb_line(void) { return (FM1_USB_CON0 >> 16) & 3u; }
 
 FM1_INLINE void fm1_usb_off(void)
 {

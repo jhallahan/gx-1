@@ -791,7 +791,7 @@ enum { F_NUM, F_SIGNED, F_PCT, F_ONOFF, F_CH, F_PORT, F_NOTE, F_DIV, F_DIR, F_SC
        F_PARA, F_XTYPE, F_WAVE, F_LRATE, F_ARP, F_MODE, F_COND, F_RTG, F_GATE, F_OFFNUM, F_QUANT, F_MAPTYPE,
        F_MAPCH, F_COLOR, F_CLOCK, F_PORTS, F_THRU, F_UTHRU, F_PLAY, F_MUTEM, F_RECM, F_COUNT, F_MET, F_MS,
        F_SPCT, F_VOI, F_BANK, F_LOOPR, F_LANE, F_SEQ, F_PAT, F_REPS, F_PCSLOT, F_LAUNCH, F_TRKS, F_LFOON,
-       F_DENS, F_TPOSE, F_LEARN, F_HARMJ, F_LEDS, F_ROLL, F_USBH, F_NONE };
+       F_DENS, F_TPOSE, F_LEARN, F_HARMJ, F_LEDS, F_ROLL, F_NONE };
 typedef struct {
     const char *label;
     uint8_t size;                                /* 1 u8, 2 s8 (as int8), 3 u16; 0 none */
@@ -847,7 +847,7 @@ static int menu_pages(int m)
     case MN_MODSET: return 4;
     case MN_MAP: return 6;
     case MN_REC: return 2;
-    case MN_SETUP: return 9;
+    case MN_SETUP: return 8;
     case MN_NUDGE: return 2;
     case MN_LANE: return 3;
     default: return 1;
@@ -857,9 +857,8 @@ static const char *const MENU_NAME[MN_N] = {"", "Division", "Loop", "Random perf
                                             "Euclid", "Drum generator", "LFO", "Arpeggiator", "Sequencer",
                                             "Track", "Mod lane", "MIDI mapping", "Recording", "Setup",
                                             "Nudge", "Lane", "Song slot", "Song"};
-static const char *const SETUP_PAGE[9] = {"Clock", "MIDI in", "MIDI", "Playing", "Arp, loops", "Harmony",
-                                          "New steps", "Panel", "USB host"};
-static uint8_t usbh_on, usbh_st;                 /* Setup > USB host: asked for (never kept), and how it is */
+static const char *const SETUP_PAGE[8] = {"Clock", "MIDI in", "MIDI", "Playing", "Arp, loops", "Harmony",
+                                          "New steps", "Panel"};
 static const char *const SEQ_PAGE[5] = {"MIDI", "Launch", "Sound", "Time", "Chords"};
 
 /* a menu's page: its four values */
@@ -1265,14 +1264,6 @@ static int menu_prm(int m, int pg, int i, prm_t *x)
             default: break;
             }
             break;
-        case 8:                                  /* the USB port as the host of a MIDI keyboard or synth */
-            usbh_st = (uint8_t)plat_usb_host(usbh_on);
-            switch (i) {
-            case 0: PG(x, "USB host", 1, &usbh_on, 0, 1, F_ONOFF); break;
-            case 1: PG(x, "Device", 1, &usbh_st, usbh_st, usbh_st, F_USBH); break;
-            default: break;
-            }
-            break;
         default:
             break;
         }
@@ -1384,12 +1375,6 @@ static void fmt_val(int fmt, int v, char *b)
     case F_SPCT: itoa_s(v, b); scat(b, "%", 12); break;
     case F_MS: itoa_s(v, b); scat(b, " ms", 12); break;
     case F_ONOFF: scopy(b, v ? "On" : "Off", 12); break;
-    case F_USBH: {                               /* (Setup > USB host) the device: its name when it's there */
-        static const char *const H[5] = {"-", "Looking", "Connected", "Not MIDI", "Low speed"};
-        const char *n = plat_usb_host_name();
-        scopy(b, v == 2 && *n ? n : H[clampi(v, 0, 4)], 12);
-        break;
-    }
     case F_CH: itoa_u((uint32_t)v + 1u, b); break;
     case F_PORT: b[0] = (char)('A' + v); b[1] = 0; break;
     case F_NOTE: s4_note_name(v, b); break;

@@ -38,10 +38,6 @@ void plat_play_red(int red);           /* PLAY lights green; red (its other LED)
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the sequencer's interrupt) */
 int plat_midi_out(uint32_t pkt);       /* queue one: 1 queued, 0 not (no host, or full) */
 int plat_usb_up(void);                 /* a host is there */
-/* USB host (GX-1): on 1 / 0 asks for the port as the host of a USB-MIDI device or back as the computer's device
- * (-1: only asks how it is). 0 off, 1 looking, 2 a MIDI device connected, 3 a device but not MIDI, 4 low speed */
-int plat_usb_host(int on);
-const char *plat_usb_host_name(void);  /* the connected device's name ("" none) */
 
 /* persistent storage: Felucca's objects (A/B sectors, CRC, torn-write safe) for the panel's calibration and
  * the global settings, and SEQ-4's log (logstore.c) for the project and its patterns */

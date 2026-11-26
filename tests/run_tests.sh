@@ -24,9 +24,6 @@ run() {
 run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
-run usb-host sh -c "$CC -std=c11 -O1 -Wall -Wextra -Werror -Wno-unused-function -Wno-unused-variable \
-    -Wno-missing-field-initializers -DMQ_OUT=128u -DTEST_CDC=1 -DFELUCCA_USB_HOST_NAME=1 -o $OUT/usb_host_test \
-    tests/host/usb_host_test.c && $OUT/usb_host_test"
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 run logstore sh -c "$CC -O2 -Wall -Wextra -o $OUT/logstore_test tests/logstore_test.c && $OUT/logstore_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)

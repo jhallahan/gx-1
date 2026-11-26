@@ -21,8 +21,7 @@ This manual covers version 0.2.
 11. [The grid underneath (SEQ-4)](#11-the-grid-underneath-seq-4)
 12. [Going back, and recovery](#12-going-back-and-recovery)
 13. [Troubleshooting](#13-troubleshooting)
-14. [USB host: a synth or keyboard on the FM-1's USB](#14-usb-host-a-synth-or-keyboard-on-the-fm-1s-usb)
-15. [Pulse mode: rings of pulses](#15-pulse-mode-rings-of-pulses)
+14. [Pulse mode: rings of pulses](#14-pulse-mode-rings-of-pulses)
 
 ## 1. Getting started in five minutes
 
@@ -120,9 +119,11 @@ only the louder plays.
 
 ### Straight into the Tonverk
 
-With **USB host** on (section 14), the FM-1 plays the Tonverk over USB with no computer: FM-1 → a USB-C to USB-A
-adapter → a **powered** USB hub → USB-A to USB-C cable → the Tonverk. GX-1's channels already suit it (the drums
-1, sub 5, chords 7, upper 8). The TRS jack on the FM-1 is MIDI **in** only.
+Since Tonverk OS 1.5 the Tonverk is a USB host: plug the FM-1's USB straight into it, and the Tonverk powers it and
+takes its MIDI with no computer. GX-1's channels already suit it (the drums 1, sub 5, chords 7, upper 8). On the
+Tonverk, take notes in from USB, and set its Auto Channel to one GX-1 doesn't use. To follow the Tonverk's tempo,
+let it send clock and transport over USB, and set GX-1's setup **Clock** to **USB** and **Clock out** to **None**.
+The TRS jack on the FM-1 is MIDI **in** only.
 
 ## 4. The GEN page
 
@@ -257,7 +258,7 @@ The GEN screen has three pages, as the phone player: **GEN** (the four tracks, t
 | SEQ | The grid (SEQ-4), to edit by hand. HOME comes back |
 | HOME · HOME twice | The next page: GEN → TRACK → ARRANGE (the tabs at the top) · the patterns |
 | GLO held | The second layer: parts, mutate, the second four macros |
-| GLO + SEQ | Pulse mode ([section 15](#15-pulse-mode-rings-of-pulses)); GLO + SEQ again comes back |
+| GLO + SEQ | Pulse mode ([section 14](#14-pulse-mode-rings-of-pulses)); GLO + SEQ again comes back |
 | Black keys 1–4 | Select drums, sub, chords, upper |
 | Black keys 5–8 · GLO + 5–8 | Mute / unmute drums, sub, chords, upper · solo that track (again: every track back) |
 | Black keys 9, 10 · 11 | The bar back and on · mute the selected track |
@@ -308,29 +309,7 @@ them.
 - **Stuck notes:** stop. All notes are released.
 - **The tempo is underlined:** it's outside the style's usual range. That's fine; it's only a hint.
 
-## 14. USB host: a synth or keyboard on the FM-1's USB
-
-The FM-1's USB port can be the host of a USB-MIDI synth or keyboard, so it works without a computer.
-
-1. **Power:** the FM-1 gives the port no power. Connect FM-1 → USB-C to USB-A adapter (a plain one) → a **powered**
-   USB hub (with its own power supply) → the device. Phone-style "OTG + charging" splitters usually don't power the
-   device.
-2. On the grid (SEQ), hold **GLO** a moment for the setup, turn **SELECT** to its last page, **USB host**, and set
-   **USB host** to **On** with knob 1. The screen says USB HOST ON; **Device** reads *Looking*, then the device's name.
-3. **Out:** every track goes to the device on its channel (GX-1's four ports become one). **In:** the device's
-   notes, controllers and clock come in as a computer's would (Setup > MIDI in: USB in).
-4. Set it **Off**, or switch the FM-1 off and on, to give the port back to the computer. It is never kept: every
-   start is the computer's device, so the installer always finds the FM-1.
-
-What works: full-speed USB-MIDI devices, directly or behind one hub (high-speed ones such as Elektron's usually
-drop to full speed). *Not MIDI* means the device has no USB-MIDI interface; *Low speed* means it is too slow a
-device (most mice). No SysEx goes either way while hosting.
-
-The USB host is felucca-bsp's, ported there from Melodee. It is tested against a model of the bus, not yet on a
-Tonverk: tell us how it goes.
-
-
-## 15. Pulse mode: rings of pulses
+## 14. Pulse mode: rings of pulses
 
 Pulse is the phone player's pulse sequencer on the FM-1: sixteen tracks, each a ring of steps with its pulses
 spread as evenly as they go (Euclidean), turned by a rotation, on its own division. **GLO + SEQ** switches the
