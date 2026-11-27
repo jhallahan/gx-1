@@ -323,6 +323,13 @@ static void dev_sysex(void)
 }
 
 #ifdef SEQ4_BENCH
+/* the name on the FM-1's own screens (the splash, starting, safe mode, a crash). The USB ports keep "GX-1 A" to "D":
+   Live, the Tonverk and saved MIDI setups know the device by them. */
+#define APP_NAME "TESSELLATE"
+static const felucca_font_t *fit_font(const felucca_font_t *big, const felucca_font_t *small, const char *s, int32_t w)
+{
+    return text_w(big, s) <= w ? big : small;
+}
 #include "bench.c"
 #endif
 
@@ -389,7 +396,7 @@ static void fm1_fault(const fm1_crash_t *c)
     uint32_t t0;
     fm1_audio_stop();
     lcd_fill(0, 0, 240, 240, RGB(160, 0, 0));
-    draw_text_box(0, 8, 240, &FONT_S, "GX-1 CRASH", C_WHITE, 1);
+    draw_text_box(0, 8, 240, &FONT_S, APP_NAME " CRASH", C_WHITE, 1);
     hexs(b, c->vec);
     draw_text_box(10, 40, 220, &FONT_S, b, C_WHITE, 0);
     hexs(b, c->pc);
@@ -426,7 +433,7 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
-    draw_text_box(0, 18, 240, &FONT_B, "GX-1 SAFE MODE", C_HI, 1);
+    draw_text_box(0, 18, 240, fit_font(&FONT_B, &FONT_S, APP_NAME " SAFE MODE", 236), APP_NAME " SAFE MODE", C_HI, 1);
     draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
@@ -456,7 +463,7 @@ static void safe_main(void)
         if ((fm1_in.buttons & play) && fm1_ms - t0 > 500u) {
             bootguard.failed = 0;                   /* try SEQ-4 again, from scratch */
             bootguard.pending = 0;
-            draw_text_box(0, 172, 240, &FONT_S, "STARTING GX-1...", C_HI, 1);
+            draw_text_box(0, 172, 240, &FONT_S, "STARTING " APP_NAME "...", C_HI, 1);
             usb_detach();
             fm1_delay_ms(30);
             fm1_reboot();
@@ -485,8 +492,9 @@ static void splash(void)                            /* the name, and the four se
             cv_rect(16 + i * 13 + (i >> 2) * 2, 8 + j * 16, 11, 12, c);
         }
     {
-        int32_t w = text_w(&FONT_L, "GX-1");
-        cv_text((240 - w) / 2, 80, &FONT_L, "GX-1", RGB(236, 238, 246));
+        const felucca_font_t *nf = fit_font(&FONT_L, &FONT_B, APP_NAME, 228);   /* (the name in the large type, if it fits) */
+        int32_t w = text_w(nf, APP_NAME);
+        cv_text((240 - w) / 2, 80, nf, APP_NAME, RGB(236, 238, 246));
         w = text_w(&FONT_S, "Genre-aware MIDI composer");
         cv_text((240 - w) / 2, 116, &FONT_S, "Genre-aware MIDI composer", RGB(146, 148, 160));
         w = text_w(&FONT_XS, "v" EN_VERSION);
