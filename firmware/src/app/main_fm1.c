@@ -323,6 +323,9 @@ static void dev_sysex(void)
 }
 
 #ifdef SEQ4_BENCH
+#include "bench.c"
+#endif
+
 /* the name on the FM-1's own screens (the splash, starting, safe mode, a crash). The USB ports keep "GX-1 A" to "D":
    Live, the Tonverk and saved MIDI setups know the device by them. */
 #define APP_NAME "TESSELLATE"
@@ -330,8 +333,6 @@ static const felucca_font_t *fit_font(const felucca_font_t *big, const felucca_f
 {
     return text_w(big, s) <= w ? big : small;
 }
-#include "bench.c"
-#endif
 
 /* ------------------------------------------------------------ timer --- */
 static uint8_t usb_due;
